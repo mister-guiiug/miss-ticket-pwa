@@ -1,0 +1,25 @@
+{
+  "name": "miss-ticket-pwa",
+  "version": "1.0.0",
+  "description": "Interface PWA pour Miss Ticket - Contrôle à distance de l'application desktop",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "solid-js": "^1.8.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-plugin-pwa": "^0.17.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mister-guiiug/miss-ticket-pwa.git"
+  }
+}
