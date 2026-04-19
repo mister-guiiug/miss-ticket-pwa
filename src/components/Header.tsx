@@ -1,10 +1,25 @@
 import { useState } from 'react';
-import { useWindowSize } from '../hooks/useWindowSize';
+import {
+  Monitor,
+  ChevronRight,
+  User,
+  Bell,
+  RefreshCw,
+  Plus,
+  LogOut,
+  Settings,
+  Edit3,
+  Menu,
+  Moon,
+  Sun,
+  Zap
+} from 'lucide-react';
 import { UserMenu } from './UserMenu';
 import { NotificationBadge } from './NotificationBadge';
 import { ConnectionStatusIndicator } from './ConnectionStatusIndicator';
 import { ThemeToggle } from './ThemeToggle';
 import { MobileMenu } from './MobileMenu';
+import { useWindowSize } from '../hooks/useWindowSize';
 
 interface HeaderProps {
   user: { displayName: string | null; uid: string };
@@ -34,75 +49,110 @@ export function Header({
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   return (
-    <header style={{
+    <header className="glass" style={{
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      backgroundColor: 'var(--header-bg, #1a1a2e)',
-      borderBottom: '1px solid var(--border-color, #2d2d44)',
-      padding: '12px 16px',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)'
+      borderBottom: '1px solid var(--header-border)',
+      padding: isMobile ? '12px 16px' : '16px 20px',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
         {/* Logo et breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-          <h1 style={{
-            color: 'var(--primary-color, #ff6b6b)',
-            margin: 0,
-            fontSize: '20px',
-            whiteSpace: 'nowrap',
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+          {/* Logo */}
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '10px',
           }}>
-            🎫 <span style={{ display: isMobile ? 'none' : 'inline' }}>Miss Ticket</span>
-          </h1>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.3)',
+            }}>
+              <Zap size={20} color="#ffffff" strokeWidth={2.5} />
+            </div>
+            {!isMobile && (
+              <span style={{
+                fontSize: '18px',
+                fontWeight: '700',
+                letterSpacing: '-0.5px',
+                background: 'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                Miss Ticket
+              </span>
+            )}
+          </div>
 
           {/* Breadcrumb de navigation */}
           {view !== 'login' && (
-            <div style={{
+            <nav style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               fontSize: '14px',
-              color: 'var(--text-secondary, #9ca3af)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
             }}>
               <button
                 onClick={() => onNavigate('desktops')}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: view === 'desktops' ? 'var(--text-primary, #e0e0e0)' : 'var(--text-secondary, #9ca3af)',
+                  color: view === 'desktops' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   cursor: 'pointer',
-                  padding: '4px 8px',
+                  padding: '6px 12px',
                   fontSize: '14px',
-                  fontWeight: view === 'desktops' ? 'bold' : 'normal'
+                  fontWeight: view === 'desktops' ? '600' : '500',
+                  borderRadius: '6px',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+                onMouseEnter={(e) => {
+                  if (view !== 'desktops') {
+                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (view !== 'desktops') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }
                 }}
               >
-                Desktops
+                <Monitor size={16} />
+                <span>Desktops</span>
               </button>
 
               {view === 'sessions' && selectedDesktopName && (
                 <>
-                  <span style={{ color: 'var(--text-secondary, #9ca3af)' }}>››</span>
+                  <ChevronRight size={14} style={{ color: 'var(--text-tertiary)' }} />
                   <button
                     onClick={() => onNavigate('sessions')}
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: 'var(--text-primary, #e0e0e0)',
+                      color: 'var(--text-primary)',
                       cursor: 'pointer',
-                      padding: '4px 8px',
+                      padding: '6px 12px',
                       fontSize: '14px',
-                      fontWeight: 'bold',
+                      fontWeight: '600',
+                      borderRadius: '6px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                      maxWidth: '150px'
+                      maxWidth: isMobile ? '80px' : '150px',
                     }}
                     title={selectedDesktopName}
                   >
@@ -110,7 +160,7 @@ export function Header({
                   </button>
                 </>
               )}
-            </div>
+            </nav>
           )}
         </div>
 
@@ -129,48 +179,26 @@ export function Header({
           <button
             onClick={onRefresh}
             style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary, #9ca3af)',
-              cursor: 'pointer',
-              padding: '8px',
-              fontSize: '18px',
-              borderRadius: '8px',
-              transition: 'background-color 0.2s',
+              ...baseButtonStyle,
               display: isMobile ? 'none' : 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--hover-bg, #2d2d44)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
             }}
             title="Rafraîchir"
           >
-            🔄
+            <RefreshCw size={18} />
           </button>
 
           {/* Bouton appariement rapide */}
-          {view === 'desktops' && (
+          {view === 'desktops' && !isMobile && (
             <button
               onClick={onShowPairing}
               style={{
-                background: 'var(--primary-color, #ff6b6b)',
-                border: 'none',
-                color: '#fff',
-                cursor: 'pointer',
+                ...primaryButtonStyle,
                 padding: '8px 16px',
-                fontSize: '14px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                display: isMobile ? 'none' : 'flex',
-                alignItems: 'center',
-                gap: '4px'
+                gap: '6px',
               }}
             >
-              + Apparier
+              <Plus size={16} />
+              <span>Apparier</span>
             </button>
           )}
 
@@ -179,35 +207,56 @@ export function Header({
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               style={{
-                background: 'var(--secondary-bg, #2d2d44)',
-                border: '1px solid var(--border-color, #3d3d5c)',
-                color: 'var(--text-primary, #e0e0e0)',
-                cursor: 'pointer',
-                padding: '8px 12px',
-                fontSize: '14px',
-                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                transition: 'border-color 0.2s'
+                padding: '6px 12px',
+                backgroundColor: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-color, #ff6b6b)';
+                e.currentTarget.style.borderColor = 'var(--primary-500)';
+                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-color, #3d3d5c)';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
               }}
             >
-              <span>👤</span>
-              <span style={{
-                maxWidth: '100px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
-                {user.displayName || 'Anonyme'}
-              </span>
-              <span>{showUserMenu ? '▲' : '▼'}</span>
+                <User size={14} color="#ffffff" />
+              </div>
+              {!isMobile && (
+                <>
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--text-primary)',
+                    maxWidth: '100px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {user.displayName || 'Invité'}
+                  </span>
+                  <ChevronRight size={14} style={{
+                    color: 'var(--text-tertiary)',
+                    transform: showUserMenu ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s',
+                  }} />
+                </>
+              )}
             </button>
 
             {showUserMenu && (
@@ -223,18 +272,11 @@ export function Header({
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-primary, #e0e0e0)',
-              cursor: 'pointer',
-              padding: '8px',
-              fontSize: '20px',
+              ...baseButtonStyle,
               display: isMobile ? 'flex' : 'none',
-              alignItems: 'center',
-              justifyContent: 'center'
             }}
           >
-            ☰
+            <Menu size={22} />
           </button>
         </div>
       </div>
@@ -253,3 +295,34 @@ export function Header({
     </header>
   );
 }
+
+// Styles réutilisables
+const baseButtonStyle = {
+  background: 'transparent',
+  border: 'none',
+  color: 'var(--text-secondary)',
+  cursor: 'pointer',
+  padding: '8px',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all 0.2s',
+};
+
+const primaryButtonStyle = {
+  background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+  border: 'none',
+  color: '#ffffff',
+  cursor: 'pointer',
+  borderRadius: '10px',
+  fontSize: '14px',
+  fontWeight: '600',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxShadow: '0 4px 12px rgba(244, 63, 94, 0.25)',
+  transition: 'all 0.2s',
+};
+
+primaryButtonStyle as any;

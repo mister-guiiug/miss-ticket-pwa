@@ -3,6 +3,7 @@ import { SessionState } from '../hooks/useDesktops';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
 import { SessionFilter } from './FilterBar';
+import { HardDrive, Activity, Clock, AlertCircle, CheckCircle, Pause, Ban, XCircle } from 'lucide-react';
 
 interface SessionPanelProps {
   desktopId: string;
@@ -37,11 +38,9 @@ export function SessionPanel({
     }
   };
 
-  // Filtrer les sessions
   const filteredSessions = useMemo(() => {
     let result = [...sessions];
 
-    // Filtrage par recherche
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(s =>
@@ -52,7 +51,6 @@ export function SessionPanel({
       );
     }
 
-    // Filtrage par statut
     if (filter === 'connected') {
       result = result.filter(s => s.status.toLowerCase().includes('connecté'));
     } else if (filter === 'waiting') {
@@ -66,28 +64,35 @@ export function SessionPanel({
       );
     }
 
-    // Trier par timestamp (plus récent en premier)
     result.sort((a, b) => b.timestamp - a.timestamp);
 
     return result;
   }, [sessions, searchQuery, filter]);
 
-  // Calculer les stats sur toutes les sessions (pas seulement filtrées)
   const stats = useMemo(() => ({
     total: sessions.length,
+    connected: sessions.filter(s => s.status.toLowerCase().includes('connecté')).length,
     waiting: sessions.filter(s => s.status.toLowerCase().includes('attente')).length,
     purchase: sessions.filter(s => s.status.toLowerCase().includes('achat')).length,
-    connected: sessions.filter(s => s.status.toLowerCase().includes('connecté')).length
   }), [sessions]);
 
   return (
     <div>
-      {/* Titre avec nom du desktop */}
+      {/* Title section */}
       <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ margin: 0, fontSize: '20px', marginBottom: '8px' }}>
+        <h2 style={{
+          margin: '0 0 4px 0',
+          fontSize: '22px',
+          fontWeight: '700',
+          color: 'var(--text-primary)',
+        }}>
           Sessions de {desktopName}
         </h2>
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary, #9ca3af)' }}>
+        <p style={{
+          margin: 0,
+          fontSize: '14px',
+          color: 'var(--text-secondary)',
+        }}>
           Gérez les sessions actives sur ce desktop
         </p>
       </div>
@@ -97,92 +102,60 @@ export function SessionPanel({
         display: 'grid',
         gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
         gap: '12px',
-        marginBottom: '24px'
+        marginBottom: '24px',
       }}>
-        <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #2d2d44)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{stats.total}</div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary, #9ca3af)' }}>Total</div>
-        </div>
-        <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #2d2d44)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--success-color, #4ade80)' }}>
-            {stats.connected}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary, #9ca3af)' }}>Connectées</div>
-        </div>
-        <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #2d2d44)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--warning-color, #fbbf24)' }}>
-            {stats.waiting}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary, #9ca3af)' }}>En attente</div>
-        </div>
-        <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #2d2d44)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--info-color, #60a5fa)' }}>
-            {stats.purchase}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary, #9ca3af)' }}>Page achat</div>
-        </div>
+        <StatCard label="Total" value={stats.total} icon={<HardDrive size={18} />} color="var(--text-primary)" />
+        <StatCard label="Connectées" value={stats.connected} icon={<CheckCircle size={18} />} color="var(--success)" />
+        <StatCard label="En attente" value={stats.waiting} icon={<Pause size={18} />} color="var(--warning)" />
+        <StatCard label="Page achat" value={stats.purchase} icon={<Activity size={18} />} color="var(--info)" />
       </div>
 
-      {/* Actions globales */}
+      {/* Actions */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {sessions.length > 0 && (
           <button
             onClick={handleStopAll}
             style={{
-              padding: '10px 20px',
-              backgroundColor: 'var(--error-color, #ef4444)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              padding: '10px 18px',
+              backgroundColor: 'var(--error)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.25)';
             }}
           >
-            🛑 Arrêter tout
+            <Ban size={16} />
+            <span>Arrêter tout</span>
           </button>
         )}
 
-        {/* Info de filtrage */}
         {filteredSessions.length !== sessions.length && (
           <div style={{
             padding: '10px 16px',
-            backgroundColor: 'var(--secondary-bg, #2d2d44)',
+            backgroundColor: 'var(--bg-tertiary)',
             borderRadius: '8px',
             fontSize: '14px',
-            color: 'var(--text-secondary, #9ca3af)',
+            color: 'var(--text-secondary)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
           }}>
-            <span>📊</span>
+            <Activity size={16} />
             <span>
               Affichage de {filteredSessions.length} sur {sessions.length} session{sessions.length > 1 ? 's' : ''}
             </span>
@@ -190,156 +163,318 @@ export function SessionPanel({
         )}
       </div>
 
-      {/* Liste des sessions */}
+      {/* Sessions list */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-secondary, #9ca3af)' }}>
-          Chargement des sessions...
+        <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-secondary)' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            margin: '0 auto 16px',
+            borderRadius: '50%',
+            border: '3px solid var(--border-default)',
+            borderTopColor: 'var(--primary-500)',
+            animation: 'spin 1s linear infinite',
+          }} />
+          <p>Chargement des sessions...</p>
         </div>
       ) : sessions.length === 0 ? (
         <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
           padding: '48px',
-          borderRadius: '8px',
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '16px',
           textAlign: 'center',
-          border: '1px solid var(--border-color, #2d2d44)'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>💤</div>
-          <p style={{ color: 'var(--text-secondary, #9ca3af)' }}>
-            Aucune session active sur ce desktop
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 20px',
+            borderRadius: '20px',
+            backgroundColor: 'var(--bg-tertiary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <HardDrive size={36} style={{ color: 'var(--text-tertiary)' }} />
+          </div>
+          <h3 style={{
+            margin: '0 0 8px 0',
+            fontSize: '18px',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+          }}>
+            Aucune session active
+          </h3>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>
+            Ce desktop n'a pas de session en cours
           </p>
         </div>
       ) : filteredSessions.length === 0 ? (
         <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
           padding: '48px',
-          borderRadius: '8px',
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '16px',
           textAlign: 'center',
-          border: '1px solid var(--border-color, #2d2d44)'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-          <p style={{ color: 'var(--text-secondary, #9ca3af)' }}>
+          <AlertCircle size={48} style={{ color: 'var(--text-tertiary)', margin: '0 auto 16px' }} />
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)' }}>
             Aucune session ne correspond à votre recherche
           </p>
         </div>
       ) : (
         <div style={{
-          backgroundColor: 'var(--card-bg, #1e1e2e)',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color, #2d2d44)',
-          overflow: 'hidden'
+          backgroundColor: 'var(--bg-card)',
+          borderRadius: '16px',
+          border: '1px solid var(--border-subtle)',
+          overflow: 'hidden',
         }}>
           {filteredSessions.map((session, index) => (
-            <div
+            <SessionItem
               key={session.instance_id}
-              style={{
-                padding: '16px',
-                borderBottom: index < filteredSessions.length - 1 ? '1px solid var(--border-color, #2d2d44)' : 'none',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--hover-bg, #2d2d44)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                <span style={{
-                  fontFamily: 'monospace',
-                  fontSize: '11px',
-                  color: 'var(--text-secondary, #9ca3af)'
-                }}>
-                  {session.instance_id.slice(-8)}
-                </span>
-                <span style={{
-                  fontSize: '12px',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  backgroundColor:
-                    session.status.toLowerCase().includes('connecté') ? 'rgba(74, 222, 128, 0.1)' :
-                    session.status.toLowerCase().includes('attente') ? 'rgba(251, 191, 36, 0.1)' :
-                    session.status.toLowerCase().includes('achat') ? 'rgba(96, 165, 250, 0.1)' :
-                    'rgba(239, 68, 68, 0.1)',
-                  color:
-                    session.status.toLowerCase().includes('connecté') ? 'var(--success-color, #4ade80)' :
-                    session.status.toLowerCase().includes('attente') ? 'var(--warning-color, #fbbf24)' :
-                    session.status.toLowerCase().includes('achat') ? 'var(--info-color, #60a5fa)' :
-                    'var(--error-color, #ef4444)'
-                }}>
-                  {session.status}
-                </span>
-              </div>
-
-              <div style={{ fontSize: '14px', marginBottom: '4px', fontWeight: 'bold' }}>
-                {session.email}
-              </div>
-
-              <div style={{
-                fontSize: '11px',
-                color: 'var(--text-secondary, #9ca3af)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                marginBottom: '8px'
-              }}>
-                {session.concert_url}
-              </div>
-
-              {session.queue_position && (
-                <div style={{
-                  display: 'inline-block',
-                  fontSize: '12px',
-                  color: 'var(--warning-color, #fbbf24)',
-                  marginBottom: '8px',
-                  padding: '4px 8px',
-                  backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                  borderRadius: '4px'
-                }}>
-                  Position file: {session.queue_position}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary, #9ca3af)' }}>
-                  {new Date(session.timestamp).toLocaleString('fr-FR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </div>
-                <button
-                  onClick={() => handleStopSession(session.instance_id)}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: 'var(--error-color, #ef4444)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#dc3545';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--error-color, #ef4444)';
-                  }}
-                >
-                  Arrêter
-                </button>
-              </div>
-
-              {session.proxy && (
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary, #9ca3af)', marginTop: '8px' }}>
-                  Proxy: {session.proxy}
-                </div>
-              )}
-            </div>
+              session={session}
+              onStop={() => handleStopSession(session.instance_id)}
+              isLast={index === filteredSessions.length - 1}
+            />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  color: string;
+}
+
+function StatCard({ label, value, icon, color }: StatCardProps) {
+  return (
+    <div style={{
+      padding: '16px',
+      backgroundColor: 'var(--bg-card)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: '12px',
+      textAlign: 'center',
+    }}>
+      <div style={{
+        width: '36px',
+        height: '36px',
+        margin: '0 auto 12px',
+        borderRadius: '10px',
+        backgroundColor: color === 'var(--text-primary)'
+          ? 'var(--bg-tertiary)'
+          : color.replace(')', ', 0.1)').replace('rgb', 'rgba').replace('var(', 'var('),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <span style={{ color }}>{icon}</span>
+      </div>
+      <div style={{
+        fontSize: '24px',
+        fontWeight: '700',
+        color,
+        marginBottom: '4px',
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        fontWeight: '500',
+      }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+interface SessionItemProps {
+  session: SessionState;
+  onStop: () => void;
+  isLast: boolean;
+}
+
+function SessionItem({ session, onStop, isLast }: SessionItemProps) {
+  const getStatusColor = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes('connecté')) return { bg: 'var(--success-bg)', text: 'var(--success)', icon: CheckCircle };
+    if (s.includes('attente')) return { bg: 'var(--warning-bg)', text: 'var(--warning)', icon: Pause };
+    if (s.includes('achat')) return { bg: 'var(--info-bg)', text: 'var(--info)', icon: Activity };
+    return { bg: 'var(--error-bg)', text: 'var(--error)', icon: XCircle };
+  };
+
+  const statusStyle = getStatusColor(session.status);
+  const StatusIcon = statusStyle.icon;
+
+  return (
+    <div style={{
+      padding: '16px',
+      borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)',
+      transition: 'background-color 0.15s',
+    }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'transparent';
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: '16px',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Header: ID and Status */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '12px',
+            flexWrap: 'wrap',
+          }}>
+            <span style={{
+              fontFamily: 'monospace',
+              fontSize: '11px',
+              color: 'var(--text-tertiary)',
+              padding: '2px 8px',
+              backgroundColor: 'var(--bg-tertiary)',
+              borderRadius: '4px',
+            }}>
+              {session.instance_id.slice(-8)}
+            </span>
+
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              backgroundColor: statusStyle.bg,
+              color: statusStyle.text,
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: '600',
+            }}>
+              <StatusIcon size={12} />
+              <span>{session.status}</span>
+            </span>
+          </div>
+
+          {/* Email */}
+          <div style={{
+            fontSize: '15px',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+            marginBottom: '4px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {session.email}
+          </div>
+
+          {/* URL */}
+          <div style={{
+            fontSize: '12px',
+            color: 'var(--text-secondary)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            marginBottom: '8px',
+          }}>
+            {session.concert_url}
+          </div>
+
+          {/* Queue position */}
+          {session.queue_position && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              color: 'var(--warning)',
+              padding: '4px 10px',
+              backgroundColor: 'var(--warning-bg)',
+              borderRadius: '6px',
+              fontWeight: '500',
+              marginBottom: '8px',
+            }}>
+              <Pause size={12} />
+              <span>Position {session.queue_position}</span>
+            </div>
+          )}
+
+          {/* Timestamp and Proxy */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            fontSize: '11px',
+            color: 'var(--text-tertiary)',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={12} />
+              <span>
+                {new Date(session.timestamp).toLocaleString('fr-FR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </span>
+            </div>
+
+            {session.proxy && (
+              <div style={{
+                padding: '2px 6px',
+                backgroundColor: 'var(--bg-tertiary)',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+              }}>
+                {session.proxy}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stop button */}
+        <button
+          onClick={onStop}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            backgroundColor: 'var(--error)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#dc2626';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--error)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <Ban size={14} />
+          <span>Arrêter</span>
+        </button>
+      </div>
     </div>
   );
 }

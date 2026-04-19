@@ -1,3 +1,5 @@
+import { Monitor, HardDrive, RefreshCw, Plus } from 'lucide-react';
+
 interface MobileMenuProps {
   view: 'desktops' | 'sessions';
   sessionsCount: number;
@@ -12,117 +14,114 @@ export function MobileMenu({ view, sessionsCount, onNavigate, onShowPairing, onR
     <div style={{
       marginTop: '16px',
       paddingTop: '16px',
-      borderTop: '1px solid var(--border-color, #2d2d44)',
+      borderTop: '1px solid var(--border-subtle)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px'
+      gap: '4px',
+      animation: 'slideDown 0.2s ease-out',
     }}>
-      <button
+      <MobileMenuItem
+        icon={<Monitor size={18} />}
+        label="Desktops"
+        active={view === 'desktops'}
         onClick={() => {
           onNavigate('desktops');
           onClose();
         }}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          background: view === 'desktops' ? 'var(--primary-color, #ff6b6b)' : 'var(--secondary-bg, #2d2d44)',
-          border: 'none',
-          color: '#fff',
-          cursor: 'pointer',
-          textAlign: 'left',
-          fontSize: '14px',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}
-      >
-        🖥️ Desktops
-      </button>
+      />
 
-      <button
+      <MobileMenuItem
+        icon={<HardDrive size={18} />}
+        label="Sessions"
+        active={view === 'sessions'}
+        badge={sessionsCount > 0 ? sessionsCount : undefined}
         onClick={() => {
           onNavigate('sessions');
           onClose();
         }}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          background: view === 'sessions' ? 'var(--primary-color, #ff6b6b)' : 'var(--secondary-bg, #2d2d44)',
-          border: 'none',
-          color: '#fff',
-          cursor: 'pointer',
-          textAlign: 'left',
-          fontSize: '14px',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          💻 Sessions
-        </span>
-        {sessionsCount > 0 && (
-          <span style={{
-            backgroundColor: 'var(--primary-color, #ff6b6b)',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            padding: '2px 8px',
-            borderRadius: '10px'
-          }}>
-            {sessionsCount}
-          </span>
-        )}
-      </button>
+      />
 
       {view === 'desktops' && (
-        <button
+        <MobileMenuItem
+          icon={<Plus size={18} />}
+          label="Apparier un desktop"
           onClick={() => {
             onShowPairing();
             onClose();
           }}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            background: 'var(--secondary-bg, #2d2d44)',
-            border: 'none',
-            color: 'var(--text-primary, #e0e0e0)',
-            cursor: 'pointer',
-            textAlign: 'left',
-            fontSize: '14px',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          + Apparier un desktop
-        </button>
+        />
       )}
 
-      <button
+      <MobileMenuItem
+        icon={<RefreshCw size={18} />}
+        label="Rafraîchir"
         onClick={() => {
           onRefresh();
           onClose();
         }}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          background: 'var(--secondary-bg, #2d2d44)',
-          border: 'none',
-          color: 'var(--text-primary, #e0e0e0)',
-          cursor: 'pointer',
-          textAlign: 'left',
-          fontSize: '14px',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}
-      >
-        🔄 Rafraîchir
-      </button>
+      />
     </div>
+  );
+}
+
+interface MobileMenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  badge?: number;
+  onClick: () => void;
+}
+
+function MobileMenuItem({ icon, label, active = false, badge, onClick }: MobileMenuItemProps) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        padding: '12px 16px',
+        backgroundColor: active ? 'var(--bg-hover)' : 'transparent',
+        border: 'none',
+        color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+        cursor: 'pointer',
+        fontSize: '15px',
+        fontWeight: active ? '600' : '500',
+        borderRadius: '8px',
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+          e.currentTarget.style.color = 'var(--text-primary)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = 'var(--text-secondary)';
+        }
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {icon}
+        <span>{label}</span>
+      </div>
+
+      {badge !== undefined && (
+        <span style={{
+          backgroundColor: 'var(--primary-500)',
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: '700',
+          padding: '2px 8px',
+          borderRadius: '10px',
+        }}>
+          {badge}
+        </span>
+      )}
+    </button>
   );
 }
