@@ -25,7 +25,7 @@ applyTheme('dark');
 type View = 'login' | 'desktops' | 'sessions';
 
 function App() {
-  const { user, loading: authLoading, signInWithPseudo, signOut } = useAuth();
+  const { user, loading: authLoading, signInWithPseudo, signOut, refreshUser } = useAuth();
   const [view, setView] = useState<View>('desktops');
   const [selectedDesktopId, setSelectedDesktopId] = useState<string | undefined>();
   const [selectedDesktopName, setSelectedDesktopName] = useState<string>('');
@@ -143,7 +143,7 @@ function App() {
     }
   }, [desktops]);
 
-  const handleProfileSaved = useCallback((newPseudo: string) => {
+  const handleProfileSaved = useCallback(async (newPseudo: string) => {
     setShowEditProfile(false);
     addNotification({
       type: 'success',
@@ -151,8 +151,8 @@ function App() {
       message: `Votre pseudo est maintenant ${newPseudo}`
     });
     // Force refresh to update the user display name
-    window.location.reload();
-  }, [addNotification]);
+    await refreshUser();
+  }, [addNotification, refreshUser]);
 
   // État d'authentification
   if (authLoading) {
