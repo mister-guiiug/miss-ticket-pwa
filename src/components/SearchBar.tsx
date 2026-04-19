@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
   value: string;
@@ -13,8 +14,19 @@ export function SearchBar({ value, onChange, placeholder = 'Rechercher...' }: Se
     <div style={{
       position: 'relative',
       width: '100%',
-      maxWidth: '400px'
+      maxWidth: '400px',
     }}>
+      <div style={{
+        position: 'absolute',
+        left: '12px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }}>
+        <Search size={16} style={{ color: 'var(--text-tertiary)' }} />
+      </div>
+
       <input
         type="text"
         value={value}
@@ -24,44 +36,47 @@ export function SearchBar({ value, onChange, placeholder = 'Rechercher...' }: Se
         onBlur={() => setFocused(false)}
         style={{
           width: '100%',
-          padding: '10px 16px 10px 40px',
-          backgroundColor: 'var(--input-bg, #0f0f1a)',
-          border: `1px solid ${focused ? 'var(--primary-color, #ff6b6b)' : 'var(--border-color, #2d2d44)'}`,
-          borderRadius: '8px',
-          color: 'var(--text-primary, #e0e0e0)',
+          padding: '10px 36px 10px 36px',
+          backgroundColor: 'var(--bg-tertiary)',
+          border: `1.5px solid ${focused ? 'var(--primary-500)' : 'var(--border-subtle)'}`,
+          borderRadius: '10px',
+          color: 'var(--text-primary)',
           fontSize: '14px',
           outline: 'none',
-          transition: 'border-color 0.2s',
-          boxSizing: 'border-box'
+          transition: 'all 0.2s',
+          fontFamily: 'inherit',
         }}
       />
-      <span style={{
-        position: 'absolute',
-        left: '12px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        fontSize: '16px',
-        pointerEvents: 'none'
-      }}>
-        🔍
-      </span>
+
       {value && (
         <button
           onClick={() => onChange('')}
           style={{
             position: 'absolute',
-            right: '12px',
+            right: '10px',
             top: '50%',
             transform: 'translateY(-50%)',
-            background: 'none',
+            background: 'transparent',
             border: 'none',
-            color: 'var(--text-secondary, #9ca3af)',
+            color: 'var(--text-tertiary)',
             cursor: 'pointer',
-            fontSize: '16px',
-            padding: '4px'
+            padding: '4px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--text-secondary)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.backgroundColor = 'transparent';
           }}
         >
-          ✕
+          <X size={14} />
         </button>
       )}
     </div>

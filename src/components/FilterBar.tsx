@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useWindowSize } from '../hooks/useWindowSize';
+import { Filter as FilterIcon, ArrowUpDown, ChevronDown, Monitor, HardDrive } from 'lucide-react';
 
 export type DesktopFilter = 'all' | 'online' | 'offline';
 export type DesktopSort = 'name' | 'lastSeen' | 'sessions';
@@ -15,56 +16,71 @@ interface FilterBarProps {
 
 export function FilterBar({ type, filter, sort, onFilterChange, onSortChange }: FilterBarProps) {
   const { isMobile } = useWindowSize();
-  const [showMenu, setShowMenu] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const desktopFilters: { value: DesktopFilter; label: string; icon: string }[] = [
-    { value: 'all', label: 'Tous', icon: '🖥️' },
-    { value: 'online', label: 'En ligne', icon: '🟢' },
-    { value: 'offline', label: 'Hors ligne', icon: '🔴' }
+  const desktopFilters: { value: DesktopFilter; label: string }[] = [
+    { value: 'all', label: 'Tous les desktops' },
+    { value: 'online', label: 'En ligne' },
+    { value: 'offline', label: 'Hors ligne' }
   ];
 
-  const sessionFilters: { value: SessionFilter; label: string; icon: string }[] = [
-    { value: 'all', label: 'Toutes', icon: '💻' },
-    { value: 'connected', label: 'Connectées', icon: '🟢' },
-    { value: 'waiting', label: 'En attente', icon: '⏳' },
-    { value: 'purchase', label: 'Page achat', icon: '🛒' },
-    { value: 'error', label: 'Erreurs', icon: '❌' }
+  const sessionFilters: { value: SessionFilter; label: string }[] = [
+    { value: 'all', label: 'Toutes les sessions' },
+    { value: 'connected', label: 'Connectées' },
+    { value: 'waiting', label: 'En attente' },
+    { value: 'purchase', label: 'Page d\'achat' },
+    { value: 'error', label: 'Erreurs' }
   ];
 
-  const sortOptions: { value: DesktopSort; label: string; icon: string }[] = [
-    { value: 'name', label: 'Nom', icon: '🔤' },
-    { value: 'lastSeen', label: 'Dernier vu', icon: '🕐' },
-    { value: 'sessions', label: 'Sessions', icon: '📊' }
+  const sortOptions: { value: DesktopSort; label: string }[] = [
+    { value: 'name', label: 'Nom' },
+    { value: 'lastSeen', label: 'Dernier vu' },
+    { value: 'sessions', label: 'Sessions' }
   ];
 
   const filters = type === 'desktop' ? desktopFilters : sessionFilters;
   const currentFilter = filters.find(f => f.value === filter);
+  const currentSort = sortOptions.find(s => s.value === sort);
 
   return (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-      {/* Filtre */}
+      {/* Filter Button */}
       <div style={{ position: 'relative' }}>
         <button
-          onClick={() => setShowMenu(!showMenu)}
+          onClick={() => setShowFilterMenu(!showFilterMenu)}
           style={{
-            padding: '8px 16px',
-            backgroundColor: 'var(--secondary-bg, #2d2d44)',
-            color: 'var(--text-primary, #e0e0e0)',
-            border: '1px solid var(--border-color, #2d2d44)',
-            borderRadius: '8px',
-            fontSize: '14px',
-            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            padding: '8px 14px',
+            backgroundColor: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--text-primary)',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-default)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-subtle)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
           }}
         >
-          <span>{currentFilter?.icon}</span>
+          <FilterIcon size={16} style={{ color: 'var(--text-secondary)' }} />
           <span>{currentFilter?.label}</span>
-          <span>{showMenu ? '▲' : '▼'}</span>
+          <ChevronDown size={14} style={{
+            color: 'var(--text-tertiary)',
+            transition: 'transform 0.2s',
+            transform: showFilterMenu ? 'rotate(180deg)' : 'rotate(0deg)',
+          }} />
         </button>
 
-        {showMenu && (
+        {showFilterMenu && (
           <>
             <div
               style={{
@@ -73,46 +89,67 @@ export function FilterBar({ type, filter, sort, onFilterChange, onSortChange }: 
                 left: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 99
+                zIndex: 99,
               }}
-              onClick={() => setShowMenu(false)}
+              onClick={() => setShowFilterMenu(false)}
             />
             <div style={{
               position: 'absolute',
-              top: '100%',
+              top: 'calc(100% + 8px)',
               left: 0,
-              marginTop: '8px',
-              backgroundColor: 'var(--card-bg, #1e1e2e)',
-              border: '1px solid var(--border-color, #2d2d44)',
-              borderRadius: '8px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
-              minWidth: '180px',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '12px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+              minWidth: '200px',
               overflow: 'hidden',
-              zIndex: 100
+              zIndex: 100,
+              animation: 'slideDown 0.2s ease-out',
             }}>
               {filters.map((f) => (
                 <button
                   key={f.value}
                   onClick={() => {
                     onFilterChange(f.value);
-                    setShowMenu(false);
+                    setShowFilterMenu(false);
                   }}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
-                    background: filter === f.value ? 'var(--primary-color, #ff6b6b)' : 'transparent',
-                    border: 'none',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontSize: '14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '10px',
+                    padding: '12px 16px',
+                    backgroundColor: filter === f.value ? 'var(--bg-hover)' : 'transparent',
+                    border: 'none',
+                    color: filter === f.value ? 'var(--primary-500)' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: filter === f.value ? '600' : '500',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (filter !== f.value) {
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (filter !== f.value) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
                   }}
                 >
-                  <span>{f.icon}</span>
+                  {type === 'desktop' && f.value === 'all' && <Monitor size={16} />}
+                  {type === 'session' && f.value === 'all' && <HardDrive size={16} />}
                   <span>{f.label}</span>
+                  {filter === f.value && (
+                    <div style={{
+                      marginLeft: 'auto',
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--primary-500)',
+                    }} />
+                  )}
                 </button>
               ))}
             </div>
@@ -120,35 +157,41 @@ export function FilterBar({ type, filter, sort, onFilterChange, onSortChange }: 
         )}
       </div>
 
-      {/* Tri - seulement pour desktops */}
+      {/* Sort Button - Desktops only */}
       {type === 'desktop' && (
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => {
-              const currentIndex = sortOptions.findIndex(s => s.value === sort);
-              const nextIndex = (currentIndex + 1) % sortOptions.length;
-              onSortChange(sortOptions[nextIndex].value);
-            }}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: 'var(--secondary-bg, #2d2d44)',
-              color: 'var(--text-primary, #e0e0e0)',
-              border: '1px solid var(--border-color, #2d2d44)',
-              borderRadius: '8px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-            title={`Trier par: ${sortOptions.find(s => s.value === sort)?.label}`}
-          >
-            <span>📶</span>
-            <span style={{ display: isMobile ? 'none' : 'inline' }}>
-              {sortOptions.find(s => s.value === sort)?.label}
-            </span>
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            const currentIndex = sortOptions.findIndex(s => s.value === sort);
+            const nextIndex = (currentIndex + 1) % sortOptions.length;
+            onSortChange(sortOptions[nextIndex].value);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 14px',
+            backgroundColor: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--text-primary)',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-default)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-subtle)';
+            e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+          }}
+          title={`Trier par: ${currentSort?.label}`}
+        >
+          <ArrowUpDown size={16} style={{ color: 'var(--text-secondary)' }} />
+          {!isMobile && <span>{currentSort?.label}</span>}
+        </button>
       )}
     </div>
   );

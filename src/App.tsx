@@ -14,6 +14,11 @@ import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { NotificationContainer, Notification } from './components/NotificationToast';
 import { FilterBar, DesktopFilter, SessionFilter, DesktopSort } from './components/FilterBar';
+import { applyTheme } from './styles/theme';
+import './styles/globals.css';
+
+// Appliquer le thème par défaut au démarrage
+applyTheme('dark');
 
 type View = 'login' | 'desktops' | 'sessions';
 
@@ -61,13 +66,13 @@ function App() {
           if (session.status.toLowerCase().includes('achat')) {
             addNotification({
               type: 'success',
-              title: '🎉 Page d\'achat atteinte !',
+              title: 'Page d\'achat atteinte !',
               message: `${session.email} a atteint la page d'achat pour ${session.concert_url.slice(0, 30)}...`
             });
           } else if (session.status.toLowerCase().includes('attente')) {
             addNotification({
               type: 'info',
-              title: '⏳ Nouvelle session en attente',
+              title: 'Nouvelle session en attente',
               message: `${session.email} est dans la file d'attente${session.queue_position ? ` (position: ${session.queue_position})` : ''}`
             });
           }
@@ -81,13 +86,13 @@ function App() {
             if (session.status.toLowerCase().includes('achat') && !previousSession.status.toLowerCase().includes('achat')) {
               addNotification({
                 type: 'success',
-                title: '🎉 Page d\'achat atteinte !',
+                title: 'Page d\'achat atteinte !',
                 message: `${session.email} a atteint la page d'achat !`
               });
             } else if (session.status.toLowerCase().includes('erreur')) {
               addNotification({
                 type: 'error',
-                title: '❌ Erreur de session',
+                title: 'Erreur de session',
                 message: `${session.email} a rencontré une erreur`
               });
             }
@@ -112,7 +117,7 @@ function App() {
     setRefreshKey(prev => prev + 1);
     addNotification({
       type: 'info',
-      title: '🔄 Rafraîchissement',
+      title: 'Rafraîchissement',
       message: 'Données mises à jour'
     });
   }, [addNotification]);
@@ -190,7 +195,7 @@ function App() {
             setShowPairing(false);
             addNotification({
               type: 'success',
-              title: '✅ Appariement réussi',
+              title: 'Appariement réussi',
               message: 'Le desktop a été appairé avec succès'
             });
           }}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CheckCircle, AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
 
 export interface Notification {
   id: string;
@@ -25,66 +26,133 @@ export function NotificationToast({ notification, onClose }: NotificationToastPr
     return () => clearTimeout(timer);
   }, [notification.id, onClose]);
 
-  const colors = {
-    success: { bg: 'rgba(40, 167, 69, 0.1)', border: '#28a745', icon: '✅' },
-    warning: { bg: 'rgba(255, 193, 7, 0.1)', border: '#ffc107', icon: '⚠️' },
-    error: { bg: 'rgba(220, 53, 69, 0.1)', border: '#dc3545', icon: '❌' },
-    info: { bg: 'rgba(23, 162, 184, 0.1)', border: '#17a2b8', icon: 'ℹ️' }
+  const getConfig = () => {
+    switch (notification.type) {
+      case 'success':
+        return {
+          icon: <CheckCircle size={20} />,
+          bgColor: 'var(--success-bg)',
+          borderColor: 'var(--success)',
+          iconColor: 'var(--success)',
+        };
+      case 'warning':
+        return {
+          icon: <AlertTriangle size={20} />,
+          bgColor: 'var(--warning-bg)',
+          borderColor: 'var(--warning)',
+          iconColor: 'var(--warning)',
+        };
+      case 'error':
+        return {
+          icon: <AlertCircle size={20} />,
+          bgColor: 'var(--error-bg)',
+          borderColor: 'var(--error)',
+          iconColor: 'var(--error)',
+        };
+      default:
+        return {
+          icon: <Info size={20} />,
+          bgColor: 'var(--info-bg)',
+          borderColor: 'var(--info)',
+          iconColor: 'var(--info)',
+        };
+    }
   };
 
-  const color = colors[notification.type];
+  const config = getConfig();
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '16px',
-      right: '16px',
-      backgroundColor: 'var(--card-bg, #1e1e2e)',
-      border: `1px solid ${color.border}`,
-      borderRadius: '8px',
-      padding: '16px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
-      minWidth: '300px',
+      bottom: '20px',
+      right: '20px',
+      backgroundColor: 'var(--bg-card)',
+      border: `1px solid ${config.borderColor}`,
+      borderRadius: '12px',
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
+      minWidth: '320px',
       maxWidth: '400px',
       zIndex: 1000,
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'opacity 0.3s, transform 0.3s'
+      transition: 'opacity 0.3s, transform 0.3s',
+      overflow: 'hidden',
     }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-        <span style={{ fontSize: '20px' }}>{color.icon}</span>
-        <div style={{ flex: 1 }}>
+      {/* Colored accent bar */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: '4px',
+        backgroundColor: config.borderColor,
+      }} />
+
+      <div style={{ padding: '16px 16px 16px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          {/* Icon */}
           <div style={{
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: `var(--text-primary, #e0e0e0)`,
-            marginBottom: '4px'
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            backgroundColor: config.bgColor,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
           }}>
-            {notification.title}
+            <span style={{ color: config.iconColor }}>{config.icon}</span>
           </div>
-          <div style={{
-            fontSize: '14px',
-            color: 'var(--text-secondary, #9ca3af)'
-          }}>
-            {notification.message}
+
+          {/* Content */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontSize: '15px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              marginBottom: '4px',
+            }}>
+              {notification.title}
+            </div>
+            <div style={{
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+              lineHeight: '1.4',
+            }}>
+              {notification.message}
+            </div>
           </div>
+
+          {/* Close button */}
+          <button
+            onClick={() => {
+              setVisible(false);
+              setTimeout(() => onClose(notification.id), 300);
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-tertiary)',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--text-tertiary)';
+            }}
+          >
+            <X size={16} />
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setVisible(false);
-            setTimeout(() => onClose(notification.id), 300);
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-secondary, #9ca3af)',
-            cursor: 'pointer',
-            fontSize: '16px',
-            padding: '4px'
-          }}
-        >
-          ✕
-        </button>
       </div>
     </div>
   );
@@ -97,11 +165,21 @@ interface NotificationContainerProps {
 
 export function NotificationContainer({ notifications, onClose }: NotificationContainerProps) {
   return (
-    <div style={{ position: 'fixed', bottom: '16px', right: '16px', zIndex: 1000 }}>
+    <div style={{
+      position: 'fixed',
+      bottom: '20px',
+      right: '20px',
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+    }}>
       {notifications.map((notification) => (
-        <div key={notification.id} style={{ marginBottom: '8px' }}>
-          <NotificationToast notification={notification} onClose={onClose} />
-        </div>
+        <NotificationToast
+          key={notification.id}
+          notification={notification}
+          onClose={onClose}
+        />
       ))}
     </div>
   );
