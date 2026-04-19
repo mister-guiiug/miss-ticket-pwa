@@ -29,16 +29,6 @@
       ]
     },
     {
-      "collectionGroup": "sessions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "desktopId",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "desktops",
       "queryScope": "COLLECTION",
       "fields": [
