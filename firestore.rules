@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // COLLECTION: users
+    // ============================================
+    match /users/{userId} {
+      // Lecture/écriture uniquement pour l'utilisateur lui-même
+      allow read, write: if request.auth != null
+                          && request.auth.uid == userId;
+    }
+
+    // ============================================
+    // COLLECTION: desktops
+    // ============================================
+    match /desktops/{desktopId} {
+      // Lecture: uniquement si c'est mon desktop
+      allow read: if request.auth != null
+                   && resource.data.userId == request.auth.uid;
+
+      // Création: n'importe quel utilisateur authentifié peut créer un desktop
+      allow create: if request.auth != null;
+
+      // Mise à jour: uniquement par son propriétaire
+      allow update: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+
+      // Suppression: uniquement par son propriétaire
+      allow delete: if request.auth != null
+                    && resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================
+    // COLLECTION: commands
+    // ============================================
+    match /commands/{commandId} {
+      // Création: uniquement par le propriétaire du desktop
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+
+      // Lecture/édition/suppression: pour le Desktop (Admin SDK)
+      // Note: Le Desktop utilise le Admin SDK qui contourne les rules
+      allow read, update, delete: if true;
+    }
+
+    // ============================================
+    // COLLECTION: sessions
+    // ============================================
+    match /sessions/{sessionId} {
+      // Lecture: uniquement par le propriétaire du desktop associé
+      allow read: if request.auth != null
+                  && get(/databases/$(database)/documents/desktops/$(resource.data.desktopId)).data.userId == request.auth.uid;
+
+      // Écriture: pour le Desktop (Admin SDK)
+      allow write: if true;
+    }
+
+    // ============================================
+    // COLLECTION: pairing_tokens
+    // ============================================
+    match /pairing_tokens/{tokenId} {
+      // Lecture: publique (pour vérifier le token)
+      allow read: if true;
+
+      // Création: publique (généré par le Desktop)
+      allow create: if true;
+
+      // Mise à jour: par n'importe qui (Desktop et PWA peuvent modifier)
+      allow update: if true;
+
+      // Suppression: par n'importe qui (cleanup)
+      allow delete: if true;
+    }
+
+  }
+}
