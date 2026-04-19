@@ -14,6 +14,8 @@ import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { NotificationContainer, Notification } from './components/NotificationToast';
 import { FilterBar, DesktopFilter, SessionFilter, DesktopSort } from './components/FilterBar';
+import { EditProfile } from './components/EditProfile';
+import { Settings } from './components/Settings';
 import { applyTheme } from './styles/theme';
 import './styles/globals.css';
 
@@ -34,6 +36,8 @@ function App() {
   const [sessionFilter, setSessionFilter] = useState<SessionFilter>('all');
   const [desktopSort, setDesktopSort] = useState<DesktopSort>('name');
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const isOnline = useOnline();
 
@@ -139,6 +143,17 @@ function App() {
     }
   }, [desktops]);
 
+  const handleProfileSaved = useCallback((newPseudo: string) => {
+    setShowEditProfile(false);
+    addNotification({
+      type: 'success',
+      title: 'Profil mis à jour',
+      message: `Votre pseudo est maintenant ${newPseudo}`
+    });
+    // Force refresh to update the user display name
+    window.location.reload();
+  }, [addNotification]);
+
   // État d'authentification
   if (authLoading) {
     return (
@@ -188,6 +203,8 @@ function App() {
           onSessionFilterChange={setSessionFilter}
           onDesktopSortChange={setDesktopSort}
           onSignOut={signOut}
+          onEditProfile={() => setShowEditProfile(true)}
+          onOpenSettings={() => setShowSettings(true)}
         />
         <PairingDialog
           userId={user.uid}
@@ -231,8 +248,27 @@ function App() {
         onSessionFilterChange={setSessionFilter}
         onDesktopSortChange={setDesktopSort}
         onSignOut={signOut}
+        onEditProfile={() => setShowEditProfile(true)}
+        onOpenSettings={() => setShowSettings(true)}
       />
       <NotificationContainer notifications={notifications} onClose={removeNotification} />
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <EditProfile
+          currentPseudo={user.displayName || ''}
+          onSave={handleProfileSaved}
+          onCancel={() => setShowEditProfile(false)}
+        />
+      )}
+
+      {/* Settings Screen */}
+      {showSettings && (
+        <Settings
+          user={user}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </>
   );
 }
@@ -261,6 +297,8 @@ interface MainAppProps {
   onSessionFilterChange: (filter: SessionFilter) => void;
   onDesktopSortChange: (sort: DesktopSort) => void;
   onSignOut: () => void;
+  onEditProfile: () => void;
+  onOpenSettings: () => void;
 }
 
 function MainApp({
@@ -286,7 +324,9 @@ function MainApp({
   onDesktopFilterChange,
   onSessionFilterChange,
   onDesktopSortChange,
-  onSignOut
+  onSignOut,
+  onEditProfile,
+  onOpenSettings
 }: MainAppProps) {
   return (
     <div style={{
@@ -304,6 +344,8 @@ function MainApp({
         onShowPairing={onShowPairing}
         onRefresh={onRefresh}
         isOnline={isOnline}
+        onEditProfile={onEditProfile}
+        onOpenSettings={onOpenSettings}
       />
 
       <div style={{ padding: '16px' }}>

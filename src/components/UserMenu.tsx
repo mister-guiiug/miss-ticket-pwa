@@ -5,9 +5,11 @@ interface UserMenuProps {
   user: { displayName: string | null; uid: string };
   onSignOut: () => void;
   onClose: () => void;
+  onEditProfile?: () => void;
+  onOpenSettings?: () => void;
 }
 
-export function UserMenu({ user, onSignOut, onClose }: UserMenuProps) {
+export function UserMenu({ user, onSignOut, onClose, onEditProfile, onOpenSettings }: UserMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,8 +98,8 @@ export function UserMenu({ user, onSignOut, onClose }: UserMenuProps) {
           icon={<Edit3 size={16} />}
           label="Modifier le profil"
           onClick={() => {
-            // TODO: Implement profile edit
-            console.log('Edit profile');
+            onClose();
+            onEditProfile?.();
           }}
         />
 
@@ -105,8 +107,8 @@ export function UserMenu({ user, onSignOut, onClose }: UserMenuProps) {
           icon={<Settings size={16} />}
           label="Paramètres"
           onClick={() => {
-            // TODO: Implement settings
-            console.log('Settings');
+            onClose();
+            onOpenSettings?.();
           }}
         />
 

@@ -31,6 +31,8 @@ interface HeaderProps {
   onShowPairing: () => void;
   onRefresh: () => void;
   isOnline: boolean;
+  onEditProfile: () => void;
+  onOpenSettings: () => void;
 }
 
 export function Header({
@@ -42,7 +44,9 @@ export function Header({
   onSignOut,
   onShowPairing,
   onRefresh,
-  isOnline
+  isOnline,
+  onEditProfile,
+  onOpenSettings
 }: HeaderProps) {
   const { isMobile, isTablet } = useWindowSize();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -198,7 +202,7 @@ export function Header({
               }}
             >
               <Plus size={16} />
-              <span>Apparier</span>
+              <span>Appairer</span>
             </button>
           )}
 
@@ -264,6 +268,8 @@ export function Header({
                 user={user}
                 onSignOut={onSignOut}
                 onClose={() => setShowUserMenu(false)}
+                onEditProfile={onEditProfile}
+                onOpenSettings={onOpenSettings}
               />
             )}
           </div>
