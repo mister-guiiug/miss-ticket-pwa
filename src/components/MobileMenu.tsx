@@ -44,7 +44,7 @@ export function MobileMenu({ view, sessionsCount, onNavigate, onShowPairing, onR
       {view === 'desktops' && (
         <MobileMenuItem
           icon={<Plus size={18} />}
-          label="Apparier un desktop"
+          label="Appairer un desktop"
           onClick={() => {
             onShowPairing();
             onClose();

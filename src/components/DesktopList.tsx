@@ -116,7 +116,7 @@ export function DesktopList({
           icon={<Monitor size={48} />}
           title="Aucun desktop apparié"
           message="Commencez par apparier un desktop pour utiliser l'application"
-          actionLabel="Apparier un desktop"
+          actionLabel="Appairer un desktop"
           onAction={onPairNew}
         />
       ) : (

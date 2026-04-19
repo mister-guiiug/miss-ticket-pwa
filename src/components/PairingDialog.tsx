@@ -131,7 +131,7 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
               fontWeight: '700',
               color: 'var(--text-primary)',
             }}>
-              Apparier un Desktop
+              Appairer un Desktop
             </h2>
             <p style={{
               margin: 0,
@@ -288,7 +288,7 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
                 transition: 'all 0.2s',
               }}
             >
-              {loading ? 'Vérification...' : 'Apparier'}
+              {loading ? 'Vérification...' : 'Appairer'}
             </button>
           </form>
         )}
