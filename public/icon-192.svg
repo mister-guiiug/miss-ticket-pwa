@@ -1,0 +1,37 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect width="192" height="192" rx="48" fill="#1e1e2e"/>
+
+  <!-- Ticket stylisé -->
+  <g transform="translate(48, 48)">
+    <!-- Corps du ticket -->
+    <rect x="16" y="24" width="80" height="72" rx="8" fill="#ff6b6b"/>
+
+    <!-- Encoches du ticket -->
+    <circle cx="16" cy="60" r="8" fill="#1e1e2e"/>
+    <circle cx="96" cy="60" r="8" fill="#1e1e2e"/>
+
+    <!-- Ligne pointillée centrale -->
+    <line x1="24" y1="60" x2="88" y2="60" stroke="#1e1e2e" stroke-width="3" stroke-dasharray="6 4" opacity="0.3"/>
+
+    <!-- Symbole "M" stylisé -->
+    <path d="M36 42 L40 42 L48 54 L56 42 L60 42 L60 66 L56 66 L56 48 L48 58 L40 48 L40 66 L36 66 Z" fill="white"/>
+
+    <!-- Petit point "i" -->
+    <circle cx="70" cy="46" r="3" fill="white"/>
+    <rect x="68" y="52" width="4" height="14" rx="1" fill="white"/>
+
+    <!-- Symbole "ss" -->
+    <path d="M76 58 L74 56 Q72 54 76 54 L80 54 Q84 54 82 56 L80 58 Q78 60 82 60 L86 60 Q90 60 88 62 L86 64 Q84 66 88 66 L82 66 Q78 66 80 64 L76 58" fill="white"/>
+  </g>
+
+  <!-- Effet de brillance -->
+  <circle cx="64" cy="64" r="80" fill="url(#gradient)" opacity="0.1"/>
+
+  <defs>
+    <radialGradient id="gradient" cx="0" cy="0" r="1">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+</svg>
