@@ -1,7 +1,7 @@
 {
   "name": "Miss Ticket",
   "short_name": "Miss Ticket",
-  "description": "Contrôle à distance de vos sessions Ticketmaster",
+  "description": "Contrôle à distance de vos sessions Ticketm****R",
   "start_url": "/miss-ticket-pwa/",
   "display": "standalone",
   "background_color": "#0f0f1a",
