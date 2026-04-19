@@ -2,8 +2,8 @@
 
 > Interface web progressive pour contrôler à distance votre application Miss Ticket
 
-![SolidJS](https://img.shields.io/badge/SolidJS-1.8-blue.svg)
-![Vite](https://img.shields.io/badge/Vite-5.0-purple.svg)
+![React](https://img.shields.io/badge/React-19-blue.svg)
+![Vite](https://img.shields.io/badge/Vite-6.0-purple.svg)
 ![PWA](https://img.shields.io/badge/PWA-Enabled-green.svg)
 
 ## 📱 À Propos
