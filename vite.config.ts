@@ -16,9 +16,11 @@ export default defineConfig({
       }
     }
   ],
-  base: '/miss-ticket-pwa/',
+  base: '/',
   server: {
-    port: 3000,
+    port: 1420,
+    strictPort: true,
+    host: true,
     proxy: {
       '/ws': {
         target: 'ws://127.0.0.1:8765',
