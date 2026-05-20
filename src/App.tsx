@@ -16,6 +16,7 @@ import { NotificationContainer, Notification } from './components/NotificationTo
 import { FilterBar, DesktopFilter, SessionFilter, DesktopSort } from './components/FilterBar';
 import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';
+import { QRCodeDisplay } from './components/QRCodeDisplay';
 import { applyTheme } from './styles/theme';
 import './styles/globals.css';
 
@@ -38,6 +39,9 @@ function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  // Détecter si on est dans Tauri (desktop)
+  const isTauri = !!(window as any).__TAURI__;
 
   const isOnline = useOnline();
 
@@ -170,56 +174,21 @@ function App() {
     );
   }
 
-  // Pas connecté -> Login
+  // Pas connecté -> Login (web) ou QR Code (desktop Tauri)
   if (!user) {
+    if (isTauri) {
+      // Desktop : afficher le QR code pour l'appariement
+      return <QRCodeDisplay onPaired={() => {
+        addNotification({
+          type: 'success',
+          title: 'Appariement réussi',
+          message: 'Votre desktop est connecté'
+        });
+        // Recharger l'utilisateur après appariement
+        refreshUser();
+      }} />;
+    }
     return <LoginForm onLogin={signInWithPseudo} />;
-  }
-
-  // Dialog d'appariement
-  if (showPairing) {
-    return (
-      <>
-        <MainApp
-          view={view}
-          desktops={desktops}
-          desktopsLoading={desktopsLoading}
-          sessions={sessions}
-          sessionsLoading={sessionsLoading}
-          selectedDesktopId={selectedDesktopId}
-          selectedDesktopName={selectedDesktopName}
-          user={user}
-          searchQuery={searchQuery}
-          desktopFilter={desktopFilter}
-          sessionFilter={sessionFilter}
-          desktopSort={desktopSort}
-          totalSessionsCount={totalSessionsCount}
-          isOnline={isOnline}
-          onNavigate={handleNavigate}
-          onSelectDesktop={handleSelectDesktop}
-          onShowPairing={() => setShowPairing(true)}
-          onRefresh={handleRefresh}
-          onSearchChange={setSearchQuery}
-          onDesktopFilterChange={setDesktopFilter}
-          onSessionFilterChange={setSessionFilter}
-          onDesktopSortChange={setDesktopSort}
-          onSignOut={signOut}
-          onEditProfile={() => setShowEditProfile(true)}
-          onOpenSettings={() => setShowSettings(true)}
-        />
-        <PairingDialog
-          userId={user.uid}
-          onPaired={() => {
-            setShowPairing(false);
-            addNotification({
-              type: 'success',
-              title: 'Appariement réussi',
-              message: 'Le desktop a été appairé avec succès'
-            });
-          }}
-          onCancel={() => setShowPairing(false)}
-        />
-      </>
-    );
   }
 
   return (
@@ -251,6 +220,38 @@ function App() {
         onEditProfile={() => setShowEditProfile(true)}
         onOpenSettings={() => setShowSettings(true)}
       />
+
+      {/* Dialog d'appariement - Tauri : afficher QR, Web : scanner QR */}
+      {showPairing && isTauri && (
+        <QRCodeDisplay
+          onPaired={async (userId) => {
+            setShowPairing(false);
+            addNotification({
+              type: 'success',
+              title: 'Appariement réussi',
+              message: 'Le desktop a été appairé avec succès'
+            });
+            await refreshUser();
+          }}
+          onClose={() => setShowPairing(false)}
+        />
+      )}
+
+      {showPairing && !isTauri && (
+        <PairingDialog
+          userId={user.uid}
+          onPaired={() => {
+            setShowPairing(false);
+            addNotification({
+              type: 'success',
+              title: 'Appariement réussi',
+              message: 'Le desktop a été appairé avec succès'
+            });
+          }}
+          onCancel={() => setShowPairing(false)}
+        />
+      )}
+
       <NotificationContainer notifications={notifications} onClose={removeNotification} />
 
       {/* Edit Profile Modal */}
