@@ -49,7 +49,7 @@ export class DesktopBridge {
           this.reconnectAttempts = 0;
           resolve();
         };
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = event => {
           try {
             const message: WebSocketMessage = JSON.parse(event.data);
             this._handleMessage(message);
@@ -58,12 +58,15 @@ export class DesktopBridge {
           }
         };
         this.ws.onclose = () => {
-          if (!this.isManualClose && this.reconnectAttempts < this.maxReconnectAttempts) {
+          if (
+            !this.isManualClose &&
+            this.reconnectAttempts < this.maxReconnectAttempts
+          ) {
             this.reconnectAttempts++;
             setTimeout(() => this.connect(), this.reconnectDelay);
           }
         };
-        this.ws.onerror = (error) => {
+        this.ws.onerror = error => {
           console.error('[PWA] Erreur WebSocket:', error);
           reject(error);
         };
@@ -120,8 +123,19 @@ export class DesktopBridge {
     this.send({ action: 'get_state' });
   }
 
-  launchSession(email: string, password: string, concertUrl: string, proxy?: unknown): void {
-    this.send({ action: 'launch_session', email, password, concert_url: concertUrl, proxy });
+  launchSession(
+    email: string,
+    password: string,
+    concertUrl: string,
+    proxy?: unknown
+  ): void {
+    this.send({
+      action: 'launch_session',
+      email,
+      password,
+      concert_url: concertUrl,
+      proxy,
+    });
   }
 
   stopSession(instanceId: string): void {

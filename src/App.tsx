@@ -12,8 +12,16 @@ import { DesktopList } from './components/DesktopList';
 import { SessionPanel } from './components/SessionPanel';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
-import { NotificationContainer, Notification } from './components/NotificationToast';
-import { FilterBar, DesktopFilter, SessionFilter, DesktopSort } from './components/FilterBar';
+import {
+  NotificationContainer,
+  Notification,
+} from './components/NotificationToast';
+import {
+  FilterBar,
+  DesktopFilter,
+  SessionFilter,
+  DesktopSort,
+} from './components/FilterBar';
 import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';
 import { QRCodeDisplay } from './components/QRCodeDisplay';
@@ -26,12 +34,20 @@ applyTheme('dark');
 type View = 'login' | 'desktops' | 'sessions';
 
 function App() {
-  const { user, loading: authLoading, signInWithPseudo, signOut, refreshUser } = useAuth();
+  const {
+    user,
+    loading: authLoading,
+    signInWithPseudo,
+    signOut,
+    refreshUser,
+  } = useAuth();
   const [view, setView] = useState<View>('desktops');
-  const [selectedDesktopId, setSelectedDesktopId] = useState<string | undefined>();
+  const [selectedDesktopId, setSelectedDesktopId] = useState<
+    string | undefined
+  >();
   const [selectedDesktopName, setSelectedDesktopName] = useState<string>('');
   const [showPairing, setShowPairing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [desktopFilter, setDesktopFilter] = useState<DesktopFilter>('all');
   const [sessionFilter, setSessionFilter] = useState<SessionFilter>('all');
@@ -41,6 +57,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
 
   // Détecter si on est dans Tauri (desktop)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- global Tauri injecté à l'exécution (non typé)
   const isTauri = !!(window as any).__TAURI__;
 
   const isOnline = useOnline();
@@ -74,34 +91,39 @@ function App() {
           if (session.status.toLowerCase().includes('achat')) {
             addNotification({
               type: 'success',
-              title: 'Page d\'achat atteinte !',
-              message: `${session.email} a atteint la page d'achat pour ${session.concert_url.slice(0, 30)}...`
+              title: "Page d'achat atteinte !",
+              message: `${session.email} a atteint la page d'achat pour ${session.concert_url.slice(0, 30)}...`,
             });
           } else if (session.status.toLowerCase().includes('attente')) {
             addNotification({
               type: 'info',
               title: 'Nouvelle session en attente',
-              message: `${session.email} est dans la file d'attente${session.queue_position ? ` (position: ${session.queue_position})` : ''}`
+              message: `${session.email} est dans la file d'attente${session.queue_position ? ` (position: ${session.queue_position})` : ''}`,
             });
           }
         } else {
           // Session existante - vérifier les changements de statut
-          const previousSession = previousSessionsRef.current.includes(session.instance_id)
+          const previousSession = previousSessionsRef.current.includes(
+            session.instance_id
+          )
             ? sessions.find(s => s.instance_id === session.instance_id)
             : null;
 
           if (previousSession && previousSession.status !== session.status) {
-            if (session.status.toLowerCase().includes('achat') && !previousSession.status.toLowerCase().includes('achat')) {
+            if (
+              session.status.toLowerCase().includes('achat') &&
+              !previousSession.status.toLowerCase().includes('achat')
+            ) {
               addNotification({
                 type: 'success',
-                title: 'Page d\'achat atteinte !',
-                message: `${session.email} a atteint la page d'achat !`
+                title: "Page d'achat atteinte !",
+                message: `${session.email} a atteint la page d'achat !`,
               });
             } else if (session.status.toLowerCase().includes('erreur')) {
               addNotification({
                 type: 'error',
                 title: 'Erreur de session',
-                message: `${session.email} a rencontré une erreur`
+                message: `${session.email} a rencontré une erreur`,
               });
             }
           }
@@ -112,10 +134,16 @@ function App() {
     }
   }, [sessions, selectedDesktopId]);
 
-  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp'>) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setNotifications(prev => [...prev, { ...notification, id, timestamp: Date.now() }]);
-  }, []);
+  const addNotification = useCallback(
+    (notification: Omit<Notification, 'id' | 'timestamp'>) => {
+      const id = `${Date.now()}-${Math.random()}`;
+      setNotifications(prev => [
+        ...prev,
+        { ...notification, id, timestamp: Date.now() },
+      ]);
+    },
+    []
+  );
 
   const removeNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
@@ -126,7 +154,7 @@ function App() {
     addNotification({
       type: 'info',
       title: 'Rafraîchissement',
-      message: 'Données mises à jour'
+      message: 'Données mises à jour',
     });
   }, [addNotification]);
 
@@ -138,37 +166,45 @@ function App() {
     setView(newView);
   }, []);
 
-  const handleSelectDesktop = useCallback((desktopId: string) => {
-    const desktop = desktops.find(d => d.id === desktopId);
-    if (desktop) {
-      setSelectedDesktopId(desktopId);
-      setSelectedDesktopName(desktop.name);
-      setView('sessions');
-    }
-  }, [desktops]);
+  const handleSelectDesktop = useCallback(
+    (desktopId: string) => {
+      const desktop = desktops.find(d => d.id === desktopId);
+      if (desktop) {
+        setSelectedDesktopId(desktopId);
+        setSelectedDesktopName(desktop.name);
+        setView('sessions');
+      }
+    },
+    [desktops]
+  );
 
-  const handleProfileSaved = useCallback(async (newPseudo: string) => {
-    setShowEditProfile(false);
-    addNotification({
-      type: 'success',
-      title: 'Profil mis à jour',
-      message: `Votre pseudo est maintenant ${newPseudo}`
-    });
-    // Force refresh to update the user display name
-    await refreshUser();
-  }, [addNotification, refreshUser]);
+  const handleProfileSaved = useCallback(
+    async (newPseudo: string) => {
+      setShowEditProfile(false);
+      addNotification({
+        type: 'success',
+        title: 'Profil mis à jour',
+        message: `Votre pseudo est maintenant ${newPseudo}`,
+      });
+      // Force refresh to update the user display name
+      await refreshUser();
+    },
+    [addNotification, refreshUser]
+  );
 
   // État d'authentification
   if (authLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--main-bg, #0f0f1a)',
-        color: 'var(--text-primary, #e0e0e0)'
-      }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'var(--main-bg, #0f0f1a)',
+          color: 'var(--text-primary, #e0e0e0)',
+        }}
+      >
         Chargement...
       </div>
     );
@@ -178,15 +214,19 @@ function App() {
   if (!user) {
     if (isTauri) {
       // Desktop : afficher le QR code pour l'appariement
-      return <QRCodeDisplay onPaired={() => {
-        addNotification({
-          type: 'success',
-          title: 'Appariement réussi',
-          message: 'Votre desktop est connecté'
-        });
-        // Recharger l'utilisateur après appariement
-        refreshUser();
-      }} />;
+      return (
+        <QRCodeDisplay
+          onPaired={() => {
+            addNotification({
+              type: 'success',
+              title: 'Appariement réussi',
+              message: 'Votre desktop est connecté',
+            });
+            // Recharger l'utilisateur après appariement
+            refreshUser();
+          }}
+        />
+      );
     }
     return <LoginForm onLogin={signInWithPseudo} />;
   }
@@ -224,12 +264,12 @@ function App() {
       {/* Dialog d'appariement - Tauri : afficher QR, Web : scanner QR */}
       {showPairing && isTauri && (
         <QRCodeDisplay
-          onPaired={async (userId) => {
+          onPaired={async () => {
             setShowPairing(false);
             addNotification({
               type: 'success',
               title: 'Appariement réussi',
-              message: 'Le desktop a été appairé avec succès'
+              message: 'Le desktop a été appairé avec succès',
             });
             await refreshUser();
           }}
@@ -245,14 +285,17 @@ function App() {
             addNotification({
               type: 'success',
               title: 'Appariement réussi',
-              message: 'Le desktop a été appairé avec succès'
+              message: 'Le desktop a été appairé avec succès',
             });
           }}
           onCancel={() => setShowPairing(false)}
         />
       )}
 
-      <NotificationContainer notifications={notifications} onClose={removeNotification} />
+      <NotificationContainer
+        notifications={notifications}
+        onClose={removeNotification}
+      />
 
       {/* Edit Profile Modal */}
       {showEditProfile && (
@@ -265,10 +308,7 @@ function App() {
 
       {/* Settings Screen */}
       {showSettings && (
-        <Settings
-          user={user}
-          onClose={() => setShowSettings(false)}
-        />
+        <Settings user={user} onClose={() => setShowSettings(false)} />
       )}
     </>
   );
@@ -276,8 +316,16 @@ function App() {
 
 interface MainAppProps {
   view: View;
-  desktops: Array<{ id: string; name: string; online: boolean; lastSeen: Date; sessions: any[] }>;
+  desktops: Array<{
+    id: string;
+    name: string;
+    online: boolean;
+    lastSeen: Date;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- forme de session dynamique (Firestore)
+    sessions: any[];
+  }>;
   desktopsLoading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- forme de session dynamique (Firestore)
   sessions: any[];
   sessionsLoading: boolean;
   selectedDesktopId: string | undefined;
@@ -327,14 +375,16 @@ function MainApp({
   onDesktopSortChange,
   onSignOut,
   onEditProfile,
-  onOpenSettings
+  onOpenSettings,
 }: MainAppProps) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: 'var(--main-bg, #0f0f1a)',
-      color: 'var(--text-primary, #e0e0e0)'
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--main-bg, #0f0f1a)',
+        color: 'var(--text-primary, #e0e0e0)',
+      }}
+    >
       <Header
         user={user}
         view={view}
@@ -351,18 +401,24 @@ function MainApp({
 
       <div style={{ padding: '16px' }}>
         {/* Barre de recherche et filtres */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-          gap: '16px',
-          flexWrap: 'wrap'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
           <SearchBar
             value={searchQuery}
             onChange={onSearchChange}
-            placeholder={view === 'desktops' ? 'Rechercher un desktop...' : 'Rechercher une session...'}
+            placeholder={
+              view === 'desktops'
+                ? 'Rechercher un desktop...'
+                : 'Rechercher une session...'
+            }
           />
 
           {view === 'desktops' && (
@@ -370,7 +426,11 @@ function MainApp({
               type="desktop"
               filter={desktopFilter}
               sort={desktopSort}
-              onFilterChange={onDesktopFilterChange}
+              onFilterChange={
+                onDesktopFilterChange as (
+                  filter: DesktopFilter | SessionFilter
+                ) => void
+              }
               onSortChange={onDesktopSortChange}
             />
           )}
@@ -380,7 +440,11 @@ function MainApp({
               type="session"
               filter={sessionFilter}
               sort={desktopSort}
-              onFilterChange={onSessionFilterChange}
+              onFilterChange={
+                onSessionFilterChange as (
+                  filter: DesktopFilter | SessionFilter
+                ) => void
+              }
               onSortChange={onDesktopSortChange}
             />
           )}

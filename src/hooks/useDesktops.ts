@@ -1,5 +1,12 @@
-import { useState, useEffect, DocumentData } from 'react';
-import { collection, query, where, onSnapshot, DocumentSnapshot } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  DocumentSnapshot,
+  DocumentData,
+} from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export interface Desktop {
@@ -32,31 +39,32 @@ export function useDesktops(userId: string | undefined) {
       return;
     }
 
-    const q = query(
-      collection(db, 'desktops'),
-      where('userId', '==', userId)
-    );
+    const q = query(collection(db, 'desktops'), where('userId', '==', userId));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const desktopsData: Desktop[] = [];
-      snapshot.forEach((doc: DocumentSnapshot<DocumentData>) => {
-        const data = doc.data();
-        if (data) {
-          desktopsData.push({
-            id: doc.id,
-            name: data.name || 'Desktop',
-            online: data.online || false,
-            lastSeen: data.lastSeen?.toDate() || new Date(),
-            sessions: data.sessions || []
-          });
-        }
-      });
-      setDesktops(desktopsData);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error listening to desktops:', error);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      snapshot => {
+        const desktopsData: Desktop[] = [];
+        snapshot.forEach((doc: DocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          if (data) {
+            desktopsData.push({
+              id: doc.id,
+              name: data.name || 'Desktop',
+              online: data.online || false,
+              lastSeen: data.lastSeen?.toDate() || new Date(),
+              sessions: data.sessions || [],
+            });
+          }
+        });
+        setDesktops(desktopsData);
+        setLoading(false);
+      },
+      error => {
+        console.error('Error listening to desktops:', error);
+        setLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, [userId]);

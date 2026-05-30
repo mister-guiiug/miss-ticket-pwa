@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { User, Edit3, Settings, LogOut, Copy } from 'lucide-react';
+import { Edit3, Settings, LogOut, Copy } from 'lucide-react';
 
 interface UserMenuProps {
   user: { displayName: string | null; uid: string };
@@ -9,7 +9,13 @@ interface UserMenuProps {
   onOpenSettings?: () => void;
 }
 
-export function UserMenu({ user, onSignOut, onClose, onEditProfile, onOpenSettings }: UserMenuProps) {
+export function UserMenu({
+  user,
+  onSignOut,
+  onClose,
+  onEditProfile,
+  onOpenSettings,
+}: UserMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,20 +52,31 @@ export function UserMenu({ user, onSignOut, onClose, onEditProfile, onOpenSettin
       }}
     >
       {/* Profile Header */}
-      <div style={{
-        padding: '16px',
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'linear-gradient(180deg, var(--bg-elevated), var(--bg-card))',
-      }}>
-        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>
+      <div
+        style={{
+          padding: '16px',
+          borderBottom: '1px solid var(--border-subtle)',
+          background:
+            'linear-gradient(180deg, var(--bg-elevated), var(--bg-card))',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '12px',
+            color: 'var(--text-tertiary)',
+            marginBottom: '4px',
+          }}
+        >
           Connecté en tant que
         </div>
-        <div style={{
-          fontSize: '15px',
-          fontWeight: '600',
-          color: 'var(--text-primary)',
-          marginBottom: '6px',
-        }}>
+        <div
+          style={{
+            fontSize: '15px',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+            marginBottom: '6px',
+          }}
+        >
           {user.displayName || 'Invité'}
         </div>
         <button
@@ -78,11 +95,11 @@ export function UserMenu({ user, onSignOut, onClose, onEditProfile, onOpenSettin
             fontFamily: 'monospace',
             transition: 'all 0.2s',
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
             e.currentTarget.style.color = 'var(--text-secondary)';
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={e => {
             e.currentTarget.style.backgroundColor = 'transparent';
             e.currentTarget.style.color = 'var(--text-tertiary)';
           }}
@@ -112,11 +129,13 @@ export function UserMenu({ user, onSignOut, onClose, onEditProfile, onOpenSettin
           }}
         />
 
-        <div style={{
-          height: '1px',
-          backgroundColor: 'var(--border-subtle)',
-          margin: '4px 0',
-        }} />
+        <div
+          style={{
+            height: '1px',
+            backgroundColor: 'var(--border-subtle)',
+            margin: '4px 0',
+          }}
+        />
 
         <MenuButton
           icon={<LogOut size={16} />}
@@ -136,7 +155,12 @@ interface MenuButtonProps {
   destructive?: boolean;
 }
 
-function MenuButton({ icon, label, onClick, destructive = false }: MenuButtonProps) {
+function MenuButton({
+  icon,
+  label,
+  onClick,
+  destructive = false,
+}: MenuButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -155,12 +179,12 @@ function MenuButton({ icon, label, onClick, destructive = false }: MenuButtonPro
         color: destructive ? 'var(--error)' : 'var(--text-primary)',
         transition: 'all 0.15s',
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         e.currentTarget.style.backgroundColor = destructive
           ? 'var(--error-bg)'
           : 'var(--bg-hover)';
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         e.currentTarget.style.backgroundColor = 'transparent';
       }}
     >

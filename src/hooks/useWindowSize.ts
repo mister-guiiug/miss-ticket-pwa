@@ -16,7 +16,7 @@ export function useWindowSize(): WindowSize {
         height: window.innerHeight,
         isMobile: window.innerWidth < 768,
         isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
-        isDesktop: window.innerWidth >= 1024
+        isDesktop: window.innerWidth >= 1024,
       };
     }
     return {
@@ -24,7 +24,7 @@ export function useWindowSize(): WindowSize {
       height: 768,
       isMobile: false,
       isTablet: false,
-      isDesktop: true
+      isDesktop: true,
     };
   });
 
@@ -39,7 +39,7 @@ export function useWindowSize(): WindowSize {
         height,
         isMobile: width < 768,
         isTablet: width >= 768 && width < 1024,
-        isDesktop: width >= 1024
+        isDesktop: width >= 1024,
       });
     };
 
