@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { User, signInAnonymously, updateProfile, onAuthStateChanged } from 'firebase/auth';
+import {
+  User,
+  signInAnonymously,
+  updateProfile,
+  onAuthStateChanged,
+} from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
@@ -30,7 +35,7 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async authUser => {
       if (authUser) {
         // Créer un nouvel objet pour forcer React à détecter le changement
         const userObj = {
@@ -59,11 +64,15 @@ export function useAuth() {
     await updateProfile(result.user, { displayName: pseudo });
 
     // Créer le document user
-    await setDoc(doc(db, 'users', result.user.uid), {
-      pseudo,
-      createdAt: serverTimestamp(),
-      lastSeen: serverTimestamp()
-    }, { merge: true });
+    await setDoc(
+      doc(db, 'users', result.user.uid),
+      {
+        pseudo,
+        createdAt: serverTimestamp(),
+        lastSeen: serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     // Forcer le rechargement pour avoir le displayName à jour
     await result.user.reload();

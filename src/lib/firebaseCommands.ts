@@ -1,7 +1,11 @@
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
-export type CommandAction = 'launch_session' | 'stop_session' | 'stop_all' | 'get_state';
+export type CommandAction =
+  | 'launch_session'
+  | 'stop_session'
+  | 'stop_all'
+  | 'get_state';
 
 interface CommandPayload {
   email?: string;
@@ -23,7 +27,7 @@ export async function sendCommand(
     action,
     payload: payload || {},
     status: 'pending',
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
   };
 
   const docRef = await addDoc(collection(db, 'commands'), commandData);
@@ -42,7 +46,7 @@ export async function launchSession(
     email,
     password,
     concert_url: concertUrl,
-    proxy
+    proxy,
   });
 }
 
@@ -52,7 +56,7 @@ export async function stopSession(
   instanceId: string
 ): Promise<string> {
   return sendCommand(desktopId, userId, 'stop_session', {
-    instance_id: instanceId
+    instance_id: instanceId,
   });
 }
 

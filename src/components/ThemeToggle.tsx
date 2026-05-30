@@ -30,11 +30,11 @@ export function ThemeToggle() {
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
         e.currentTarget.style.borderColor = 'var(--border-default)';
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         e.currentTarget.style.backgroundColor = 'transparent';
         e.currentTarget.style.borderColor = 'var(--border-subtle)';
       }}

@@ -1,7 +1,7 @@
 import { Monitor, HardDrive, RefreshCw, Plus } from 'lucide-react';
 
 interface MobileMenuProps {
-  view: 'desktops' | 'sessions';
+  view: 'login' | 'desktops' | 'sessions';
   sessionsCount: number;
   onNavigate: (view: 'desktops' | 'sessions') => void;
   onShowPairing: () => void;
@@ -9,17 +9,26 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-export function MobileMenu({ view, sessionsCount, onNavigate, onShowPairing, onRefresh, onClose }: MobileMenuProps) {
+export function MobileMenu({
+  view,
+  sessionsCount,
+  onNavigate,
+  onShowPairing,
+  onRefresh,
+  onClose,
+}: MobileMenuProps) {
   return (
-    <div style={{
-      marginTop: '16px',
-      paddingTop: '16px',
-      borderTop: '1px solid var(--border-subtle)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px',
-      animation: 'slideDown 0.2s ease-out',
-    }}>
+    <div
+      style={{
+        marginTop: '16px',
+        paddingTop: '16px',
+        borderTop: '1px solid var(--border-subtle)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        animation: 'slideDown 0.2s ease-out',
+      }}
+    >
       <MobileMenuItem
         icon={<Monitor size={18} />}
         label="Desktops"
@@ -72,7 +81,13 @@ interface MobileMenuItemProps {
   onClick: () => void;
 }
 
-function MobileMenuItem({ icon, label, active = false, badge, onClick }: MobileMenuItemProps) {
+function MobileMenuItem({
+  icon,
+  label,
+  active = false,
+  badge,
+  onClick,
+}: MobileMenuItemProps) {
   return (
     <button
       onClick={onClick}
@@ -92,13 +107,13 @@ function MobileMenuItem({ icon, label, active = false, badge, onClick }: MobileM
         borderRadius: '8px',
         transition: 'all 0.15s',
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         if (!active) {
           e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
           e.currentTarget.style.color = 'var(--text-primary)';
         }
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         if (!active) {
           e.currentTarget.style.backgroundColor = 'transparent';
           e.currentTarget.style.color = 'var(--text-secondary)';
@@ -111,14 +126,16 @@ function MobileMenuItem({ icon, label, active = false, badge, onClick }: MobileM
       </div>
 
       {badge !== undefined && (
-        <span style={{
-          backgroundColor: 'var(--primary-500)',
-          color: '#ffffff',
-          fontSize: '12px',
-          fontWeight: '700',
-          padding: '2px 8px',
-          borderRadius: '10px',
-        }}>
+        <span
+          style={{
+            backgroundColor: 'var(--primary-500)',
+            color: '#ffffff',
+            fontSize: '12px',
+            fontWeight: '700',
+            padding: '2px 8px',
+            borderRadius: '10px',
+          }}
+        >
           {badge}
         </span>
       )}

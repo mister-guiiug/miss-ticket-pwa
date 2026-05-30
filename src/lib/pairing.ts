@@ -1,12 +1,5 @@
-import { doc, setDoc, getDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
-
-interface PairingToken {
-  desktopId: string;
-  token: string;
-  status: 'pending' | 'paired' | 'expired';
-  expiresAt: Date;
-}
 
 /**
  * Génère un code de 6 caractères
@@ -23,7 +16,11 @@ export function generatePairingCode(): string {
 /**
  * Initie l'appariement avec un desktop
  */
-export async function initiatePairing(token: string, desktopId: string, userId: string): Promise<boolean> {
+export async function initiatePairing(
+  token: string,
+  desktopId: string,
+  userId: string
+): Promise<boolean> {
   try {
     // Vérifier que le token existe et est valide
     const tokenRef = doc(db, 'pairing_tokens', token);
@@ -53,20 +50,28 @@ export async function initiatePairing(token: string, desktopId: string, userId: 
     }
 
     // Marquer le token comme apparié
-    await setDoc(tokenRef, {
-      status: 'paired',
-      pairedAt: serverTimestamp(),
-      pairedBy: userId
-    }, { merge: true });
+    await setDoc(
+      tokenRef,
+      {
+        status: 'paired',
+        pairedAt: serverTimestamp(),
+        pairedBy: userId,
+      },
+      { merge: true }
+    );
 
     // Créer/Mettre à jour le document desktop
-    await setDoc(doc(db, 'desktops', desktopId), {
-      userId,
-      name: `Desktop ${desktopId.slice(-6)}`,
-      online: true,
-      lastSeen: serverTimestamp(),
-      sessions: []
-    }, { merge: true });
+    await setDoc(
+      doc(db, 'desktops', desktopId),
+      {
+        userId,
+        name: `Desktop ${desktopId.slice(-6)}`,
+        online: true,
+        lastSeen: serverTimestamp(),
+        sessions: [],
+      },
+      { merge: true }
+    );
 
     return true;
   } catch (error) {
@@ -78,7 +83,9 @@ export async function initiatePairing(token: string, desktopId: string, userId: 
 /**
  * Parse un QR code au format missticket:pair?token=XXX&id=YYY
  */
-export function parseQRCode(qrData: string): { token: string; desktopId: string } | null {
+export function parseQRCode(
+  qrData: string
+): { token: string; desktopId: string } | null {
   try {
     if (!qrData.startsWith('missticket:pair?')) {
       return null;

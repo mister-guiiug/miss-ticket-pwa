@@ -28,7 +28,10 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
   const startPairing = async () => {
     try {
       // Appeler la commande Tauri pour démarrer l'appariement
-      const response = await (window as any).__TAURI__.invoke('pairing_start') as PairingResponse;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- global Tauri (non typé)
+      const response = (await (window as any).__TAURI__.invoke(
+        'pairing_start'
+      )) as PairingResponse;
 
       setQrData(response.qr_data);
       setPairingCode(response.pairing_code);
@@ -37,20 +40,31 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
       // Poll pour vérifier si l'appariement est terminé
       checkPairingStatus(response.token_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la génération du QR code');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de la génération du QR code'
+      );
       setLoading(false);
     }
   };
 
-  const checkPairingStatus = async (tokenId: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- token géré côté Tauri, param conservé pour l'API
+  const checkPairingStatus = async (_tokenId: string) => {
     const interval = setInterval(async () => {
       try {
-        const isPaired = await (window as any).__TAURI__.invoke('pairing_is_paired') as boolean;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- global Tauri (non typé)
+        const isPaired = (await (window as any).__TAURI__.invoke(
+          'pairing_is_paired'
+        )) as boolean;
 
         if (isPaired) {
           clearInterval(interval);
           setPaired(true);
-          const userId = await (window as any).__TAURI__.invoke('pairing_get_user_id') as string;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- global Tauri (non typé)
+          const userId = (await (window as any).__TAURI__.invoke(
+            'pairing_get_user_id'
+          )) as string;
           onPaired?.(userId);
         }
       } catch (err) {
@@ -71,37 +85,45 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
   if (paired) {
     return (
       <div style={overlayStyle}>
-        <div style={{
-          ...dialogStyle,
-          padding: '48px',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            margin: '0 auto 20px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(34, 197, 94, 0.3)',
-          }}>
+        <div
+          style={{
+            ...dialogStyle,
+            padding: '48px',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              margin: '0 auto 20px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(34, 197, 94, 0.3)',
+            }}
+          >
             <Check size={32} color="#ffffff" strokeWidth={3} />
           </div>
-          <h2 style={{
-            margin: '0 0 8px 0',
-            fontSize: '22px',
-            fontWeight: '700',
-            color: '#22c55e',
-          }}>
+          <h2
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: '22px',
+              fontWeight: '700',
+              color: '#22c55e',
+            }}
+          >
             Appariement réussi !
           </h2>
-          <p style={{
-            margin: 0,
-            fontSize: '14px',
-            color: 'var(--text-secondary, #9ca3af)',
-          }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: '14px',
+              color: 'var(--text-secondary, #9ca3af)',
+            }}
+          >
             Votre desktop est maintenant connecté
           </p>
         </div>
@@ -113,18 +135,22 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
     <div style={overlayStyle}>
       <div style={dialogStyle}>
         {/* Header */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}>
-          <h2 style={{
-            margin: 0,
-            fontSize: '20px',
-            fontWeight: '700',
-            color: 'var(--text-primary, #e5e7eb)',
-          }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px',
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: '700',
+              color: 'var(--text-primary, #e5e7eb)',
+            }}
+          >
             Appairer ce Desktop
           </h2>
           {onClose && (
@@ -150,28 +176,34 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
 
         {/* Content */}
         {loading ? (
-          <div style={{
-            padding: '60px 0',
-            textAlign: 'center',
-            color: 'var(--text-secondary, #9ca3af)',
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              margin: '0 auto 16px',
-              borderRadius: '50%',
-              border: '3px solid var(--border-default, #374151)',
-              borderTopColor: '#f43f5e',
-              animation: 'spin 1s linear infinite',
-            }} />
+          <div
+            style={{
+              padding: '60px 0',
+              textAlign: 'center',
+              color: 'var(--text-secondary, #9ca3af)',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                margin: '0 auto 16px',
+                borderRadius: '50%',
+                border: '3px solid var(--border-default, #374151)',
+                borderTopColor: '#f43f5e',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
             <p>Génération du QR code...</p>
           </div>
         ) : error ? (
-          <div style={{
-            padding: '40px',
-            textAlign: 'center',
-            color: '#ef4444',
-          }}>
+          <div
+            style={{
+              padding: '40px',
+              textAlign: 'center',
+              color: '#ef4444',
+            }}
+          >
             <p>{error}</p>
             <button
               onClick={startPairing}
@@ -190,27 +222,33 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
           </div>
         ) : (
           <>
-            <p style={{
-              fontSize: '14px',
-              color: 'var(--text-secondary, #9ca3af)',
-              marginBottom: '24px',
-              textAlign: 'center',
-            }}>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text-secondary, #9ca3af)',
+                marginBottom: '24px',
+                textAlign: 'center',
+              }}
+            >
               Scannez ce QR code avec votre mobile ou entrez le code ci-dessous
             </p>
 
             {/* QR Code */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '24px',
-            }}>
-              <div style={{
-                padding: '16px',
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-              }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: '24px',
+              }}
+            >
+              <div
+                style={{
+                  padding: '16px',
+                  backgroundColor: 'white',
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                }}
+              >
                 <QRCodeSVG
                   value={qrData}
                   size={200}
@@ -221,33 +259,41 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
             </div>
 
             {/* Code à 6 chiffres */}
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '16px',
-            }}>
-              <p style={{
-                fontSize: '13px',
-                color: 'var(--text-secondary, #9ca3af)',
-                marginBottom: '8px',
-              }}>
+            <div
+              style={{
+                textAlign: 'center',
+                marginBottom: '16px',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--text-secondary, #9ca3af)',
+                  marginBottom: '8px',
+                }}
+              >
                 Ou entrez ce code sur votre mobile :
               </p>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 20px',
-                backgroundColor: 'var(--bg-tertiary, #1f2937)',
-                border: '1px solid var(--border-subtle, #374151)',
-                borderRadius: '12px',
-              }}>
-                <span style={{
-                  fontSize: '28px',
-                  fontWeight: '700',
-                  letterSpacing: '6px',
-                  color: 'var(--text-primary, #e5e7eb)',
-                  fontFamily: 'monospace',
-                }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 20px',
+                  backgroundColor: 'var(--bg-tertiary, #1f2937)',
+                  border: '1px solid var(--border-subtle, #374151)',
+                  borderRadius: '12px',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    letterSpacing: '6px',
+                    color: 'var(--text-primary, #e5e7eb)',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   {pairingCode}
                 </span>
                 <button
@@ -256,7 +302,9 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                     width: '36px',
                     height: '36px',
                     borderRadius: '8px',
-                    backgroundColor: copied ? '#22c55e' : 'var(--bg-hover, #374151)',
+                    backgroundColor: copied
+                      ? '#22c55e'
+                      : 'var(--bg-hover, #374151)',
                     border: 'none',
                     color: 'white',
                     cursor: 'pointer',
@@ -271,29 +319,35 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                 </button>
               </div>
               {copied && (
-                <p style={{
-                  fontSize: '12px',
-                  color: '#22c55e',
-                  marginTop: '8px',
-                }}>
+                <p
+                  style={{
+                    fontSize: '12px',
+                    color: '#22c55e',
+                    marginTop: '8px',
+                  }}
+                >
                   Code copié !
                 </p>
               )}
             </div>
 
             {/* Info */}
-            <div style={{
-              padding: '12px',
-              backgroundColor: 'rgba(34, 197, 94, 0.1)',
-              border: '1px solid rgba(34, 197, 94, 0.2)',
-              borderRadius: '8px',
-              textAlign: 'center',
-            }}>
-              <p style={{
-                fontSize: '13px',
-                color: '#22c55e',
-                margin: 0,
-              }}>
+            <div
+              style={{
+                padding: '12px',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                border: '1px solid rgba(34, 197, 94, 0.2)',
+                borderRadius: '8px',
+                textAlign: 'center',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: '#22c55e',
+                  margin: 0,
+                }}
+              >
                 En attente de扫描 du QR code...
               </p>
             </div>

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { QrReader } from 'react-qr-reader';
-import { initiatePairing, generatePairingCode, parseQRCode } from '../lib/pairing';
+import { initiatePairing, parseQRCode } from '../lib/pairing';
 import { X, QrCode, Keyboard, Check } from 'lucide-react';
 
 interface PairingDialogProps {
@@ -11,7 +11,11 @@ interface PairingDialogProps {
 
 type Method = 'qr' | 'code';
 
-export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps) {
+export function PairingDialog({
+  userId,
+  onPaired,
+  onCancel,
+}: PairingDialogProps) {
   const [method, setMethod] = useState<Method>('qr');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -47,7 +51,9 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
       setSuccess(true);
       setTimeout(() => onPaired(), 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'appariement');
+      setError(
+        err instanceof Error ? err.message : "Erreur lors de l'appariement"
+      );
     } finally {
       setLoading(false);
     }
@@ -67,7 +73,9 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
       // Pour le code manuel, utiliser le QR code pour le moment
       throw new Error('Utilisez le QR code pour un appariement plus simple');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'appariement');
+      setError(
+        err instanceof Error ? err.message : "Erreur lors de l'appariement"
+      );
     } finally {
       setLoading(false);
     }
@@ -76,37 +84,45 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
   if (success) {
     return (
       <div style={overlayStyle}>
-        <div style={{
-          ...dialogStyle,
-          padding: '48px',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            margin: '0 auto 20px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--success), #16a34a)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(34, 197, 94, 0.3)',
-          }}>
+        <div
+          style={{
+            ...dialogStyle,
+            padding: '48px',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              margin: '0 auto 20px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--success), #16a34a)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(34, 197, 94, 0.3)',
+            }}
+          >
             <Check size={32} color="#ffffff" strokeWidth={3} />
           </div>
-          <h2 style={{
-            margin: '0 0 8px 0',
-            fontSize: '22px',
-            fontWeight: '700',
-            color: 'var(--success)',
-          }}>
+          <h2
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: '22px',
+              fontWeight: '700',
+              color: 'var(--success)',
+            }}
+          >
             Appariement réussi !
           </h2>
-          <p style={{
-            margin: 0,
-            fontSize: '14px',
-            color: 'var(--text-secondary)',
-          }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: '14px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Le desktop a été appairé avec succès
           </p>
         </div>
@@ -118,26 +134,32 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
     <div style={overlayStyle}>
       <div style={dialogStyle}>
         {/* Header */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px',
+          }}
+        >
           <div>
-            <h2 style={{
-              margin: '0 0 4px 0',
-              fontSize: '20px',
-              fontWeight: '700',
-              color: 'var(--text-primary)',
-            }}>
+            <h2
+              style={{
+                margin: '0 0 4px 0',
+                fontSize: '20px',
+                fontWeight: '700',
+                color: 'var(--text-primary)',
+              }}
+            >
               Appairer un Desktop
             </h2>
-            <p style={{
-              margin: 0,
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-            }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+              }}
+            >
               Scannez le QR code ou entrez le code affiché sur votre desktop
             </p>
           </div>
@@ -157,11 +179,11 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
               justifyContent: 'center',
               transition: 'all 0.2s',
             }}
-            onMouseEnter={(e) => {
+            onMouseEnter={e => {
               e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
               e.currentTarget.style.color = 'var(--text-primary)';
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={e => {
               e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
               e.currentTarget.style.color = 'var(--text-secondary)';
             }}
@@ -171,14 +193,16 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
         </div>
 
         {/* Method toggle */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '24px',
-          padding: '4px',
-          backgroundColor: 'var(--bg-tertiary)',
-          borderRadius: '12px',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '24px',
+            padding: '4px',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderRadius: '12px',
+          }}
+        >
           <MethodButton
             active={method === 'qr'}
             icon={<QrCode size={18} />}
@@ -196,47 +220,61 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
         {/* Content */}
         {method === 'qr' ? (
           <div>
-            <p style={{
-              fontSize: '14px',
-              color: 'var(--text-secondary)',
-              marginBottom: '16px',
-              textAlign: 'center',
-            }}>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text-secondary)',
+                marginBottom: '16px',
+                textAlign: 'center',
+              }}
+            >
               Scannez le QR code affiché sur votre desktop
             </p>
-            <div style={{
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid var(--border-subtle)',
-              backgroundColor: '#000000',
-              aspectRatio: '1',
-            }}>
+            <div
+              style={{
+                borderRadius: '16px',
+                overflow: 'hidden',
+                border: '1px solid var(--border-subtle)',
+                backgroundColor: '#000000',
+                aspectRatio: '1',
+              }}
+            >
               <QrReader
-                onResult={(result, error) => {
+                onResult={result => {
                   if (result) {
                     handleQRScan(result?.getText());
                   }
                 }}
                 constraints={{ facingMode: 'environment' }}
-                videoStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                videoContainerStyle={{ width: '100%', height: '100%', padding: 0 }}
+                videoStyle={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                videoContainerStyle={{
+                  width: '100%',
+                  height: '100%',
+                  padding: 0,
+                }}
               />
             </div>
           </div>
         ) : (
           <form onSubmit={handleCodeSubmit}>
-            <p style={{
-              fontSize: '14px',
-              color: 'var(--text-secondary)',
-              marginBottom: '16px',
-              textAlign: 'center',
-            }}>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text-secondary)',
+                marginBottom: '16px',
+                textAlign: 'center',
+              }}
+            >
               Entrez le code à 6 chiffres affiché sur votre desktop
             </p>
             <input
               type="text"
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onChange={e => setCode(e.target.value.toUpperCase())}
               placeholder="ABC123"
               maxLength={6}
               autoFocus
@@ -256,10 +294,10 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
                 outline: 'none',
                 transition: 'all 0.2s',
               }}
-              onFocus={(e) => {
+              onFocus={e => {
                 e.currentTarget.style.borderColor = 'var(--primary-500)';
               }}
-              onBlur={(e) => {
+              onBlur={e => {
                 e.currentTarget.style.borderColor = 'var(--border-subtle)';
               }}
             />
@@ -273,18 +311,24 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
                 justifyContent: 'center',
                 gap: '8px',
                 padding: '14px',
-                background: loading || code.length !== 6
-                  ? 'var(--bg-tertiary)'
-                  : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+                background:
+                  loading || code.length !== 6
+                    ? 'var(--bg-tertiary)'
+                    : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
                 border: 'none',
                 borderRadius: '12px',
-                color: loading || code.length !== 6 ? 'var(--text-tertiary)' : '#ffffff',
+                color:
+                  loading || code.length !== 6
+                    ? 'var(--text-tertiary)'
+                    : '#ffffff',
                 fontSize: '15px',
                 fontWeight: '600',
-                cursor: loading || code.length !== 6 ? 'not-allowed' : 'pointer',
-                boxShadow: loading || code.length !== 6
-                  ? 'none'
-                  : '0 4px 12px rgba(244, 63, 94, 0.3)',
+                cursor:
+                  loading || code.length !== 6 ? 'not-allowed' : 'pointer',
+                boxShadow:
+                  loading || code.length !== 6
+                    ? 'none'
+                    : '0 4px 12px rgba(244, 63, 94, 0.3)',
                 transition: 'all 0.2s',
               }}
             >
@@ -295,18 +339,20 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
 
         {/* Error message */}
         {error && (
-          <div style={{
-            marginTop: '20px',
-            padding: '12px 16px',
-            backgroundColor: 'var(--error-bg)',
-            border: '1px solid var(--error)',
-            borderRadius: '10px',
-            color: 'var(--error)',
-            fontSize: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}>
+          <div
+            style={{
+              marginTop: '20px',
+              padding: '12px 16px',
+              backgroundColor: 'var(--error-bg)',
+              border: '1px solid var(--error)',
+              borderRadius: '10px',
+              color: 'var(--error)',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
             <AlertTriangle size={18} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
@@ -314,24 +360,28 @@ export function PairingDialog({ userId, onPaired, onCancel }: PairingDialogProps
 
         {/* Loading indicator */}
         {loading && (
-          <div style={{
-            marginTop: '20px',
-            textAlign: 'center',
-            color: 'var(--text-secondary)',
-            fontSize: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-          }}>
-            <div style={{
-              width: '18px',
-              height: '18px',
-              borderRadius: '50%',
-              border: '2px solid var(--border-default)',
-              borderTopColor: 'var(--primary-500)',
-              animation: 'spin 1s linear infinite',
-            }} />
+          <div
+            style={{
+              marginTop: '20px',
+              textAlign: 'center',
+              color: 'var(--text-secondary)',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+            }}
+          >
+            <div
+              style={{
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                border: '2px solid var(--border-default)',
+                borderTopColor: 'var(--primary-500)',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
             <span>Tentative d'appariement...</span>
           </div>
         )}
@@ -369,12 +419,12 @@ function MethodButton({ active, icon, label, onClick }: MethodButtonProps) {
         transition: 'all 0.2s',
         boxShadow: active ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none',
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         if (!active) {
           e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
         }
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         if (!active) {
           e.currentTarget.style.backgroundColor = 'transparent';
         }

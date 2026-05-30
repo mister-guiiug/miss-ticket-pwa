@@ -7,30 +7,38 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChange, placeholder = 'Rechercher...' }: SearchBarProps) {
+export function SearchBar({
+  value,
+  onChange,
+  placeholder = 'Rechercher...',
+}: SearchBarProps) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      maxWidth: '400px',
-    }}>
-      <div style={{
-        position: 'absolute',
-        left: '12px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        pointerEvents: 'none',
-        zIndex: 1,
-      }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '400px',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      >
         <Search size={16} style={{ color: 'var(--text-tertiary)' }} />
       </div>
 
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -67,11 +75,11 @@ export function SearchBar({ value, onChange, placeholder = 'Rechercher...' }: Se
             justifyContent: 'center',
             transition: 'all 0.15s',
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={e => {
             e.currentTarget.style.color = 'var(--text-secondary)';
             e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={e => {
             e.currentTarget.style.color = 'var(--text-tertiary)';
             e.currentTarget.style.backgroundColor = 'transparent';
           }}

@@ -14,7 +14,10 @@ interface NotificationToastProps {
   onClose: (id: string) => void;
 }
 
-export function NotificationToast({ notification, onClose }: NotificationToastProps) {
+export function NotificationToast({
+  notification,
+  onClose,
+}: NotificationToastProps) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -62,63 +65,73 @@ export function NotificationToast({ notification, onClose }: NotificationToastPr
   const config = getConfig();
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      backgroundColor: 'var(--bg-card)',
-      border: `1px solid ${config.borderColor}`,
-      borderRadius: '12px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
-      minWidth: '320px',
-      maxWidth: '400px',
-      zIndex: 1000,
-      opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'opacity 0.3s, transform 0.3s',
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        backgroundColor: 'var(--bg-card)',
+        border: `1px solid ${config.borderColor}`,
+        borderRadius: '12px',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
+        minWidth: '320px',
+        maxWidth: '400px',
+        zIndex: 1000,
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 0.3s, transform 0.3s',
+        overflow: 'hidden',
+      }}
+    >
       {/* Colored accent bar */}
-      <div style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '4px',
-        backgroundColor: config.borderColor,
-      }} />
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: '4px',
+          backgroundColor: config.borderColor,
+        }}
+      />
 
       <div style={{ padding: '16px 16px 16px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
           {/* Icon */}
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            backgroundColor: config.bgColor,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}>
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              backgroundColor: config.bgColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
             <span style={{ color: config.iconColor }}>{config.icon}</span>
           </div>
 
           {/* Content */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{
-              fontSize: '15px',
-              fontWeight: '600',
-              color: 'var(--text-primary)',
-              marginBottom: '4px',
-            }}>
+            <div
+              style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                marginBottom: '4px',
+              }}
+            >
               {notification.title}
             </div>
-            <div style={{
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-              lineHeight: '1.4',
-            }}>
+            <div
+              style={{
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+                lineHeight: '1.4',
+              }}
+            >
               {notification.message}
             </div>
           </div>
@@ -141,11 +154,11 @@ export function NotificationToast({ notification, onClose }: NotificationToastPr
               justifyContent: 'center',
               transition: 'all 0.15s',
             }}
-            onMouseEnter={(e) => {
+            onMouseEnter={e => {
               e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
               e.currentTarget.style.color = 'var(--text-secondary)';
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={e => {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = 'var(--text-tertiary)';
             }}
@@ -163,18 +176,23 @@ interface NotificationContainerProps {
   onClose: (id: string) => void;
 }
 
-export function NotificationContainer({ notifications, onClose }: NotificationContainerProps) {
+export function NotificationContainer({
+  notifications,
+  onClose,
+}: NotificationContainerProps) {
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      zIndex: 1000,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-    }}>
-      {notifications.map((notification) => (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}
+    >
+      {notifications.map(notification => (
         <NotificationToast
           key={notification.id}
           notification={notification}
