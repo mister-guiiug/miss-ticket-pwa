@@ -12,7 +12,9 @@ import {
   Sun,
   Zap,
   Coffee,
+  LayoutGrid,
 } from 'lucide-react';
+import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
 import { applyTheme } from '../styles/theme';
 import { REPO_URL, SPONSOR_URL } from '../links';
 
@@ -431,6 +433,32 @@ export function Settings({ user, onClose }: SettingsProps) {
               </button>
             }
           />
+        </Section>
+
+        {/* Nos autres applications — cross-promotion famille (composant partagé
+            dev-wpa-config, catalogue). Styles [data-dwc] dans index.css. */}
+        <Section
+          title="Nos autres applications"
+          icon={<LayoutGrid size={18} />}
+        >
+          <div className="family-apps">
+            <p className="family-apps__lead">
+              Découvrez les autres applications gratuites de la même famille.
+            </p>
+            <FamilyApps
+              currentAppId="miss-ticket-pwa"
+              showSource={false}
+              showSponsor={false}
+              labels={{
+                otherApps: 'Nos autres applications',
+                maturity: {
+                  alpha: 'Alpha',
+                  beta: 'Bêta',
+                  stable: 'Stable',
+                },
+              }}
+            />
+          </div>
         </Section>
 
         {/* App Info */}
