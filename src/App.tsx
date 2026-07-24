@@ -14,13 +14,13 @@ import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import {
   NotificationContainer,
-  Notification,
+  type Notification,
 } from './components/NotificationToast';
 import {
   FilterBar,
-  DesktopFilter,
-  SessionFilter,
-  DesktopSort,
+  type DesktopFilter,
+  type SessionFilter,
+  type DesktopSort,
 } from './components/FilterBar';
 import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';

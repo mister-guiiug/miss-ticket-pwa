@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Monitor, Clock, Activity, Zap } from 'lucide-react';
-import { Desktop } from '../hooks/useDesktops';
-import { DesktopFilter, DesktopSort } from './FilterBar';
+import type { Desktop } from '../hooks/useDesktops';
+import type { DesktopFilter, DesktopSort } from './FilterBar';
 
 interface DesktopListProps {
   desktops: Desktop[];

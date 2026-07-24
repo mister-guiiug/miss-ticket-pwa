@@ -202,7 +202,8 @@ export function FilterBar({
           onClick={() => {
             const currentIndex = sortOptions.findIndex(s => s.value === sort);
             const nextIndex = (currentIndex + 1) % sortOptions.length;
-            onSortChange(sortOptions[nextIndex].value);
+            const next = sortOptions[nextIndex];
+            if (next) onSortChange(next.value);
           }}
           style={{
             display: 'flex',

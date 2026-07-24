@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { SessionState } from '../hooks/useDesktops';
+import type { SessionState } from '../hooks/useDesktops';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
-import { SessionFilter } from './FilterBar';
+import type { SessionFilter } from './FilterBar';
 import {
   HardDrive,
   Activity,

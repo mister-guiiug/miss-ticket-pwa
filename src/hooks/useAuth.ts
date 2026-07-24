@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  User,
+  type User,
   signInAnonymously,
   updateProfile,
   onAuthStateChanged,

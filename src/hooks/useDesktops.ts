@@ -4,8 +4,8 @@ import {
   query,
   where,
   onSnapshot,
-  DocumentSnapshot,
-  DocumentData,
+  type DocumentSnapshot,
+  type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 

@@ -4,11 +4,11 @@ import {
   query,
   where,
   onSnapshot,
-  DocumentSnapshot,
-  DocumentData,
+  type DocumentSnapshot,
+  type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { SessionState } from './useDesktops';
+import type { SessionState } from './useDesktops';
 
 export function useSessions(desktopId: string | undefined) {
   const [sessions, setSessions] = useState<SessionState[]>([]);
