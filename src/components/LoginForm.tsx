@@ -171,12 +171,13 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           </button>
         </form>
 
-        {/* Footer */}
+        {/* Footer — text-secondary (pas tertiary) : contraste ≥ 4.5:1
+            requis par axe color-contrast sur ce fond. */}
         <p
           style={{
             margin: '24px 0 0 0',
             fontSize: '13px',
-            color: 'var(--text-tertiary)',
+            color: 'var(--text-secondary)',
             textAlign: 'center',
           }}
         >
