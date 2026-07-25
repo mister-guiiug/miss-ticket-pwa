@@ -21,6 +21,22 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/miss-ticket-pwa/screenshots/mobile.png",
+      "sizes": "824x1830",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ecran d'accueil sur mobile"
+    },
+    {
+      "src": "/miss-ticket-pwa/screenshots/wide.png",
+      "sizes": "2560x1600",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ecran d'accueil sur ordinateur"
+    }
+  ],
   "categories": ["productivity", "utilities"],
   "shortcuts": [
     {
