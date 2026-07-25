@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Edit3, Settings, LogOut, Copy } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface UserMenuProps {
   user: { displayName: string | null; uid: string };
@@ -16,6 +17,7 @@ export function UserMenu({
   onEditProfile,
   onOpenSettings,
 }: UserMenuProps) {
+  const { t } = useI18n();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function UserMenu({
             marginBottom: '4px',
           }}
         >
-          Connecté en tant que
+          {t('userMenu.connectedAs')}
         </div>
         <div
           style={{
@@ -77,7 +79,7 @@ export function UserMenu({
             marginBottom: '6px',
           }}
         >
-          {user.displayName || 'Invité'}
+          {user.displayName || t('common.guest')}
         </div>
         <button
           onClick={copyUserId}
@@ -113,7 +115,7 @@ export function UserMenu({
       <div style={{ padding: '4px' }}>
         <MenuButton
           icon={<Edit3 size={16} />}
-          label="Modifier le profil"
+          label={t('userMenu.editProfile')}
           onClick={() => {
             onClose();
             onEditProfile?.();
@@ -122,7 +124,7 @@ export function UserMenu({
 
         <MenuButton
           icon={<Settings size={16} />}
-          label="Paramètres"
+          label={t('common.settings')}
           onClick={() => {
             onClose();
             onOpenSettings?.();
@@ -139,7 +141,7 @@ export function UserMenu({
 
         <MenuButton
           icon={<LogOut size={16} />}
-          label="Déconnexion"
+          label={t('userMenu.signOut')}
           onClick={onSignOut}
           destructive
         />

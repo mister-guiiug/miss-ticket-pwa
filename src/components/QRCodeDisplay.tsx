@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Check, X, Copy } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface QRCodeDisplayProps {
   onPaired?: (userId: string) => void;
@@ -14,6 +15,7 @@ interface PairingResponse {
 }
 
 export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
+  const { t } = useI18n();
   const [qrData, setQrData] = useState<string>('');
   const [pairingCode, setPairingCode] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -40,16 +42,11 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
       // Poll pour vérifier si l'appariement est terminé
       checkPairingStatus(response.token_id);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Erreur lors de la génération du QR code'
-      );
+      setError(err instanceof Error ? err.message : t('qr.errorGenerate'));
       setLoading(false);
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- token géré côté Tauri, param conservé pour l'API
   const checkPairingStatus = async (_tokenId: string) => {
     const interval = setInterval(async () => {
       try {
@@ -115,7 +112,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
               color: '#22c55e',
             }}
           >
-            Appariement réussi !
+            {t('pairing.successTitle')}
           </h2>
           <p
             style={{
@@ -124,7 +121,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
               color: 'var(--text-secondary, #9ca3af)',
             }}
           >
-            Votre desktop est maintenant connecté
+            {t('qr.successMessage')}
           </p>
         </div>
       </div>
@@ -151,7 +148,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
               color: 'var(--text-primary, #e5e7eb)',
             }}
           >
-            Appairer ce Desktop
+            {t('qr.title')}
           </h2>
           {onClose && (
             <button
@@ -194,7 +191,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                 animation: 'spin 1s linear infinite',
               }}
             />
-            <p>Génération du QR code...</p>
+            <p>{t('qr.generating')}</p>
           </div>
         ) : error ? (
           <div
@@ -217,7 +214,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                 cursor: 'pointer',
               }}
             >
-              Réessayer
+              {t('common.retry')}
             </button>
           </div>
         ) : (
@@ -230,7 +227,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                 textAlign: 'center',
               }}
             >
-              Scannez ce QR code avec votre mobile ou entrez le code ci-dessous
+              {t('qr.instruction')}
             </p>
 
             {/* QR Code */}
@@ -272,7 +269,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                   marginBottom: '8px',
                 }}
               >
-                Ou entrez ce code sur votre mobile :
+                {t('qr.orEnterCode')}
               </p>
               <div
                 style={{
@@ -313,7 +310,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                     justifyContent: 'center',
                     transition: 'all 0.2s',
                   }}
-                  title="Copier le code"
+                  title={t('qr.copyTitle')}
                 >
                   <Copy size={18} />
                 </button>
@@ -326,7 +323,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                     marginTop: '8px',
                   }}
                 >
-                  Code copié !
+                  {t('qr.copied')}
                 </p>
               )}
             </div>
@@ -348,7 +345,7 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                   margin: 0,
                 }}
               >
-                En attente de扫描 du QR code...
+                {t('qr.waitingScan')}
               </p>
             </div>
           </>

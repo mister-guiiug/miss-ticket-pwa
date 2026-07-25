@@ -13,10 +13,21 @@ import {
   Zap,
   Coffee,
   LayoutGrid,
+  Languages,
 } from 'lucide-react';
 import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
 import { applyTheme } from '../styles/theme';
 import { REPO_URL, SPONSOR_URL } from '../links';
+import { useI18n, type Locale } from '../i18n';
+
+/**
+ * Endonymes des langues : le nom d'une langue s'affiche dans sa propre langue,
+ * donc identique quelle que soit la locale courante (noms propres).
+ */
+const LANGUAGE_LABELS: Record<Locale, string> = {
+  fr: 'Français',
+  en: 'English',
+};
 
 interface SettingsProps {
   user: { displayName: string | null; uid: string };
@@ -34,6 +45,7 @@ interface SettingsState {
 }
 
 export function Settings({ user, onClose }: SettingsProps) {
+  const { t, locale, setLocale, locales } = useI18n();
   const [settings, setSettings] = useState<SettingsState>(() => {
     const saved = localStorage.getItem('settings');
     if (saved) {
@@ -173,7 +185,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                   color: 'var(--text-primary)',
                 }}
               >
-                Paramètres
+                {t('settings.title')}
               </h1>
               <p
                 style={{
@@ -182,7 +194,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                   color: 'var(--text-secondary)',
                 }}
               >
-                Personnalisez votre expérience
+                {t('settings.subtitle')}
               </p>
             </div>
           </div>
@@ -192,7 +204,10 @@ export function Settings({ user, onClose }: SettingsProps) {
       {/* Content */}
       <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
         {/* Account Section */}
-        <Section title="Compte" icon={<Shield size={18} />}>
+        <Section
+          title={t('settings.sectionAccount')}
+          icon={<Shield size={18} />}
+        >
           <SettingItem
             icon={
               <div
@@ -210,9 +225,9 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Zap size={20} color="#ffffff" />
               </div>
             }
-            label="Pseudo"
-            value={user.displayName || 'Invité'}
-            description="Votre pseudo d'affichage"
+            label={t('settings.pseudoLabel')}
+            value={user.displayName || t('common.guest')}
+            description={t('settings.pseudoDescription')}
           />
           <SettingItem
             icon={
@@ -230,14 +245,17 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Shield size={20} style={{ color: 'var(--text-tertiary)' }} />
               </div>
             }
-            label="ID Utilisateur"
+            label={t('settings.userIdLabel')}
             value={user.uid.slice(-8)}
-            description="Identifiant unique de votre compte"
+            description={t('settings.userIdDescription')}
           />
         </Section>
 
         {/* Appearance Section */}
-        <Section title="Apparence" icon={<Palette size={18} />}>
+        <Section
+          title={t('settings.sectionAppearance')}
+          icon={<Palette size={18} />}
+        >
           <SettingItem
             icon={
               <div
@@ -261,12 +279,14 @@ export function Settings({ user, onClose }: SettingsProps) {
                 )}
               </div>
             }
-            label="Thème"
-            value={settings.theme === 'dark' ? 'Sombre' : 'Clair'}
+            label={t('settings.themeLabel')}
+            value={
+              settings.theme === 'dark' ? t('common.dark') : t('common.light')
+            }
             description={
               settings.theme === 'dark'
-                ? 'Mode sombre activé'
-                : 'Mode clair activé'
+                ? t('settings.themeDarkEnabled')
+                : t('settings.themeLightEnabled')
             }
             action={
               <button
@@ -302,14 +322,100 @@ export function Settings({ user, onClose }: SettingsProps) {
                 ) : (
                   <Moon size={16} />
                 )}
-                <span>{settings.theme === 'dark' ? 'Clair' : 'Sombre'}</span>
+                <span>
+                  {settings.theme === 'dark'
+                    ? t('common.light')
+                    : t('common.dark')}
+                </span>
               </button>
             }
           />
         </Section>
 
+        {/* Language Section */}
+        <Section
+          title={t('settings.sectionLanguage')}
+          icon={<Languages size={18} />}
+        >
+          <SettingItem
+            icon={
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--info-bg)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Languages size={20} style={{ color: 'var(--info)' }} />
+              </div>
+            }
+            label={t('settings.languageLabel')}
+            description={t('settings.languageDescription')}
+            action={
+              <div
+                role="group"
+                aria-label={t('settings.languageLabel')}
+                style={{
+                  display: 'flex',
+                  gap: '4px',
+                  padding: '4px',
+                  backgroundColor: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '10px',
+                }}
+              >
+                {locales.map(loc => {
+                  const active = loc === locale;
+                  return (
+                    <button
+                      key={loc}
+                      type="button"
+                      lang={loc}
+                      aria-pressed={active}
+                      onClick={() => setLocale(loc)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: active ? '600' : '500',
+                        backgroundColor: active
+                          ? 'var(--primary-500)'
+                          : 'transparent',
+                        color: active ? '#ffffff' : 'var(--text-secondary)',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => {
+                        if (!active) {
+                          e.currentTarget.style.backgroundColor =
+                            'var(--bg-hover)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!active) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
+                    >
+                      {LANGUAGE_LABELS[loc]}
+                    </button>
+                  );
+                })}
+              </div>
+            }
+          />
+        </Section>
+
         {/* Notifications Section */}
-        <Section title="Notifications" icon={<Bell size={18} />}>
+        <Section
+          title={t('settings.sectionNotifications')}
+          icon={<Bell size={18} />}
+        >
           <SelectSetting
             icon={
               <div
@@ -326,17 +432,20 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Bell size={20} style={{ color: 'var(--success)' }} />
               </div>
             }
-            label="Niveau de notifications"
+            label={t('settings.notificationsLevelLabel')}
             value={settings.notifications}
             options={[
-              { value: 'all', label: 'Toutes' },
-              { value: 'important', label: 'Important seulement' },
-              { value: 'none', label: 'Aucune' },
+              { value: 'all', label: t('settings.notificationsAll') },
+              {
+                value: 'important',
+                label: t('settings.notificationsImportant'),
+              },
+              { value: 'none', label: t('settings.notificationsNone') },
             ]}
             onChange={value =>
               updateSetting('notifications', value as NotificationPreference)
             }
-            description="Choisissez les notifications à recevoir"
+            description={t('settings.notificationsLevelDescription')}
           />
 
           <ToggleSetting
@@ -355,10 +464,10 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Zap size={20} style={{ color: 'var(--info)' }} />
               </div>
             }
-            label="Sons"
+            label={t('settings.soundLabel')}
             checked={settings.soundEnabled}
             onChange={checked => updateSetting('soundEnabled', checked)}
-            description="Jouer des sons pour les notifications"
+            description={t('settings.soundDescription')}
           />
 
           <ToggleSetting
@@ -377,15 +486,15 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Zap size={20} style={{ color: 'var(--warning)' }} />
               </div>
             }
-            label="Vibrations"
+            label={t('settings.vibrationLabel')}
             checked={settings.vibrationEnabled}
             onChange={checked => updateSetting('vibrationEnabled', checked)}
-            description="Vibrer sur notifications (mobile)"
+            description={t('settings.vibrationDescription')}
           />
         </Section>
 
         {/* Data Section */}
-        <Section title="Données" icon={<Info size={18} />}>
+        <Section title={t('settings.sectionData')} icon={<Info size={18} />}>
           <SettingItem
             icon={
               <div
@@ -402,8 +511,8 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <Trash2 size={20} style={{ color: 'var(--error)' }} />
               </div>
             }
-            label="Effacer les données locales"
-            description="Supprime le cache et les données locales"
+            label={t('settings.clearLabel')}
+            description={t('settings.clearDescription')}
             action={
               <button
                 onClick={() => setShowClearDialog(true)}
@@ -429,7 +538,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                 }}
               >
                 <Trash2 size={16} />
-                <span>Effacer</span>
+                <span>{t('common.clear')}</span>
               </button>
             }
           />
@@ -438,23 +547,21 @@ export function Settings({ user, onClose }: SettingsProps) {
         {/* Nos autres applications — cross-promotion famille (composant partagé
             dev-wpa-config, catalogue). Styles [data-dwc] dans index.css. */}
         <Section
-          title="Nos autres applications"
+          title={t('settings.sectionOtherApps')}
           icon={<LayoutGrid size={18} />}
         >
           <div className="family-apps">
-            <p className="family-apps__lead">
-              Découvrez les autres applications gratuites de la même famille.
-            </p>
+            <p className="family-apps__lead">{t('settings.otherAppsLead')}</p>
             <FamilyApps
               currentAppId="miss-ticket-pwa"
               showSource={false}
               showSponsor={false}
               labels={{
-                otherApps: 'Nos autres applications',
+                otherApps: t('settings.sectionOtherApps'),
                 maturity: {
-                  alpha: 'Alpha',
-                  beta: 'Bêta',
-                  stable: 'Stable',
+                  alpha: t('settings.maturityAlpha'),
+                  beta: t('settings.maturityBeta'),
+                  stable: t('settings.maturityStable'),
                 },
               }}
             />
@@ -495,7 +602,7 @@ export function Settings({ user, onClose }: SettingsProps) {
               color: 'var(--text-primary)',
             }}
           >
-            Miss Ticket
+            {t('common.appName')}
           </h3>
           <p
             style={{
@@ -504,7 +611,7 @@ export function Settings({ user, onClose }: SettingsProps) {
               color: 'var(--text-tertiary)',
             }}
           >
-            Version 1.0.0
+            {t('settings.version', { version: '1.0.0' })}
           </p>
         </div>
       </div>
@@ -547,7 +654,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                 color: 'var(--text-primary)',
               }}
             >
-              Effacer les données locales ?
+              {t('settings.clearDialogTitle')}
             </h3>
             <p
               style={{
@@ -556,8 +663,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                 color: 'var(--text-secondary)',
               }}
             >
-              Cette action supprimera le cache et les données stockées
-              localement. Vos données sur le cloud seront conservées.
+              {t('settings.clearDialogMessage')}
             </p>
 
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -576,7 +682,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                   cursor: clearingData ? 'not-allowed' : 'pointer',
                 }}
               >
-                Annuler
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleClearData}
@@ -594,7 +700,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                   opacity: clearingData ? 0.7 : 1,
                 }}
               >
-                {clearingData ? 'Suppression...' : 'Effacer'}
+                {clearingData ? t('settings.clearing') : t('common.clear')}
               </button>
             </div>
           </div>
@@ -635,7 +741,7 @@ export function Settings({ user, onClose }: SettingsProps) {
           >
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
           </svg>
-          Code source
+          {t('settings.linkSource')}
         </a>
         <a
           href={SPONSOR_URL}
@@ -651,7 +757,7 @@ export function Settings({ user, onClose }: SettingsProps) {
           }}
         >
           <Coffee size={15} aria-hidden="true" />
-          M'offrir un café
+          {t('settings.linkSponsor')}
         </a>
       </div>
     </div>

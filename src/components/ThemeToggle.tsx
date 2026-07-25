@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { applyTheme } from '../styles/theme';
+import { useI18n } from '../i18n';
 
 type Theme = 'dark' | 'light';
 
 export function ThemeToggle() {
+  const { t } = useI18n();
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem('theme') as Theme | null;
     return saved || 'dark';
@@ -38,7 +40,9 @@ export function ThemeToggle() {
         e.currentTarget.style.backgroundColor = 'transparent';
         e.currentTarget.style.borderColor = 'var(--border-subtle)';
       }}
-      title={`Passer en mode ${theme === 'dark' ? 'clair' : 'sombre'}`}
+      title={
+        theme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')
+      }
     >
       {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
     </button>

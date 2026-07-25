@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Monitor, Clock, Activity, Zap } from 'lucide-react';
 import type { Desktop } from '../hooks/useDesktops';
 import type { DesktopFilter, DesktopSort } from './FilterBar';
+import { useI18n } from '../i18n';
 
 interface DesktopListProps {
   desktops: Desktop[];
@@ -22,6 +23,7 @@ export function DesktopList({
   filter,
   sortBy,
 }: DesktopListProps) {
+  const { t } = useI18n();
   const filteredAndSortedDesktops = useMemo(() => {
     let result = [...desktops];
 
@@ -82,7 +84,7 @@ export function DesktopList({
             animation: 'spin 1s linear infinite',
           }}
         />
-        <p>Chargement de vos desktops...</p>
+        <p>{t('desktops.loading')}</p>
       </div>
     );
   }
@@ -91,8 +93,8 @@ export function DesktopList({
     return (
       <EmptyState
         icon={<Monitor size={48} />}
-        title="Aucun desktop trouvé"
-        message="Aucun desktop ne correspond à votre recherche"
+        title={t('desktops.noneFoundTitle')}
+        message={t('desktops.noneFoundMessage')}
       />
     );
   }
@@ -115,8 +117,15 @@ export function DesktopList({
         >
           <Activity size={16} />
           <span>
-            Affichage de {filteredAndSortedDesktops.length} sur{' '}
-            {desktops.length} desktop{desktops.length > 1 ? 's' : ''}
+            {desktops.length > 1
+              ? t('desktops.filteredCountMany', {
+                  shown: filteredAndSortedDesktops.length,
+                  total: desktops.length,
+                })
+              : t('desktops.filteredCountOne', {
+                  shown: filteredAndSortedDesktops.length,
+                  total: desktops.length,
+                })}
           </span>
         </div>
       )}
@@ -124,9 +133,9 @@ export function DesktopList({
       {desktops.length === 0 ? (
         <EmptyState
           icon={<Monitor size={48} />}
-          title="Aucun desktop apparié"
-          message="Commencez par apparier un desktop pour utiliser l'application"
-          actionLabel="Appairer un desktop"
+          title={t('desktops.emptyTitle')}
+          message={t('desktops.emptyMessage')}
+          actionLabel={t('nav.pairDesktop')}
           onAction={onPairNew}
         />
       ) : (
@@ -156,6 +165,7 @@ interface DesktopCardProps {
 }
 
 function DesktopCard({ desktop, onClick }: DesktopCardProps) {
+  const { t } = useI18n();
   const sessionsCount = desktop.sessions?.length || 0;
 
   return (
@@ -236,7 +246,9 @@ function DesktopCard({ desktop, onClick }: DesktopCardProps) {
               fontWeight: '600',
             }}
           >
-            {sessionsCount} session{sessionsCount > 1 ? 's' : ''}
+            {sessionsCount > 1
+              ? t('desktops.sessionCountMany', { count: sessionsCount })
+              : t('desktops.sessionCountOne', { count: sessionsCount })}
           </div>
         )}
       </div>
@@ -317,7 +329,7 @@ function DesktopCard({ desktop, onClick }: DesktopCardProps) {
               : 'var(--text-tertiary)',
           }}
         />
-        <span>{desktop.online ? 'En ligne' : 'Hors ligne'}</span>
+        <span>{desktop.online ? t('common.online') : t('common.offline')}</span>
       </div>
     </div>
   );

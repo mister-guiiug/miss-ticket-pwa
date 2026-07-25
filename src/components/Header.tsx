@@ -14,6 +14,7 @@ import { ConnectionStatusIndicator } from './ConnectionStatusIndicator';
 import { ThemeToggle } from './ThemeToggle';
 import { MobileMenu } from './MobileMenu';
 import { useWindowSize } from '../hooks/useWindowSize';
+import { useI18n } from '../i18n';
 
 interface HeaderProps {
   user: { displayName: string | null; uid: string };
@@ -43,6 +44,7 @@ export function Header({
   onOpenSettings,
 }: HeaderProps) {
   const { isMobile } = useWindowSize();
+  const { t } = useI18n();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -113,7 +115,7 @@ export function Header({
                   backgroundClip: 'text',
                 }}
               >
-                Miss Ticket
+                {t('common.appName')}
               </span>
             )}
           </div>
@@ -161,7 +163,7 @@ export function Header({
                 }}
               >
                 <Monitor size={16} />
-                <span>Desktops</span>
+                <span>{t('nav.desktops')}</span>
               </button>
 
               {view === 'sessions' && selectedDesktopName && (
@@ -219,7 +221,7 @@ export function Header({
               ...baseButtonStyle,
               display: isMobile ? 'none' : 'flex',
             }}
-            title="Rafraîchir"
+            title={t('common.refresh')}
           >
             <RefreshCw size={18} />
           </button>
@@ -235,7 +237,7 @@ export function Header({
               }}
             >
               <Plus size={16} />
-              <span>Appairer</span>
+              <span>{t('common.pair')}</span>
             </button>
           )}
 
@@ -290,7 +292,7 @@ export function Header({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {user.displayName || 'Invité'}
+                    {user.displayName || t('common.guest')}
                   </span>
                   <ChevronRight
                     size={14}

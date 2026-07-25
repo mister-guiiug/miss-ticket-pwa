@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface SearchBarProps {
   value: string;
@@ -7,12 +8,10 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export function SearchBar({
-  value,
-  onChange,
-  placeholder = 'Rechercher...',
-}: SearchBarProps) {
+export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
+  const { t } = useI18n();
   const [focused, setFocused] = useState(false);
+  const resolvedPlaceholder = placeholder ?? t('common.searchPlaceholder');
 
   return (
     <div
@@ -39,7 +38,7 @@ export function SearchBar({
         type="text"
         value={value}
         onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         style={{

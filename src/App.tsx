@@ -26,6 +26,7 @@ import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';
 import { QRCodeDisplay } from './components/QRCodeDisplay';
 import { applyTheme } from './styles/theme';
+import { useI18n } from './i18n';
 import './styles/globals.css';
 
 // Appliquer le thème par défaut au démarrage
@@ -34,6 +35,7 @@ applyTheme('dark');
 type View = 'login' | 'desktops' | 'sessions';
 
 function App() {
+  const { t } = useI18n();
   const {
     user,
     loading: authLoading,
@@ -91,14 +93,22 @@ function App() {
           if (session.status.toLowerCase().includes('achat')) {
             addNotification({
               type: 'success',
-              title: "Page d'achat atteinte !",
-              message: `${session.email} a atteint la page d'achat pour ${session.concert_url.slice(0, 30)}...`,
+              title: t('notifications.purchaseTitle'),
+              message: t('notifications.purchaseForUrl', {
+                email: session.email,
+                url: session.concert_url.slice(0, 30),
+              }),
             });
           } else if (session.status.toLowerCase().includes('attente')) {
             addNotification({
               type: 'info',
-              title: 'Nouvelle session en attente',
-              message: `${session.email} est dans la file d'attente${session.queue_position ? ` (position: ${session.queue_position})` : ''}`,
+              title: t('notifications.waitingTitle'),
+              message: session.queue_position
+                ? t('notifications.waitingQueuePosition', {
+                    email: session.email,
+                    position: session.queue_position,
+                  })
+                : t('notifications.waitingQueue', { email: session.email }),
             });
           }
         } else {
@@ -116,14 +126,18 @@ function App() {
             ) {
               addNotification({
                 type: 'success',
-                title: "Page d'achat atteinte !",
-                message: `${session.email} a atteint la page d'achat !`,
+                title: t('notifications.purchaseTitle'),
+                message: t('notifications.purchaseReached', {
+                  email: session.email,
+                }),
               });
             } else if (session.status.toLowerCase().includes('erreur')) {
               addNotification({
                 type: 'error',
-                title: 'Erreur de session',
-                message: `${session.email} a rencontré une erreur`,
+                title: t('notifications.errorTitle'),
+                message: t('notifications.errorMessage', {
+                  email: session.email,
+                }),
               });
             }
           }
@@ -153,10 +167,10 @@ function App() {
     setRefreshKey(prev => prev + 1);
     addNotification({
       type: 'info',
-      title: 'Rafraîchissement',
-      message: 'Données mises à jour',
+      title: t('notifications.refreshTitle'),
+      message: t('notifications.refreshMessage'),
     });
-  }, [addNotification]);
+  }, [addNotification, t]);
 
   const handleNavigate = useCallback((newView: View) => {
     if (newView === 'desktops') {
@@ -183,13 +197,13 @@ function App() {
       setShowEditProfile(false);
       addNotification({
         type: 'success',
-        title: 'Profil mis à jour',
-        message: `Votre pseudo est maintenant ${newPseudo}`,
+        title: t('notifications.profileTitle'),
+        message: t('notifications.profileMessage', { pseudo: newPseudo }),
       });
       // Force refresh to update the user display name
       await refreshUser();
     },
-    [addNotification, refreshUser]
+    [addNotification, refreshUser, t]
   );
 
   // État d'authentification
@@ -205,7 +219,7 @@ function App() {
           color: 'var(--text-primary, #e0e0e0)',
         }}
       >
-        Chargement...
+        {t('common.loading')}
       </div>
     );
   }
@@ -219,8 +233,8 @@ function App() {
           onPaired={() => {
             addNotification({
               type: 'success',
-              title: 'Appariement réussi',
-              message: 'Votre desktop est connecté',
+              title: t('notifications.pairedTitle'),
+              message: t('notifications.desktopConnected'),
             });
             // Recharger l'utilisateur après appariement
             refreshUser();
@@ -268,8 +282,8 @@ function App() {
             setShowPairing(false);
             addNotification({
               type: 'success',
-              title: 'Appariement réussi',
-              message: 'Le desktop a été appairé avec succès',
+              title: t('notifications.pairedTitle'),
+              message: t('notifications.desktopPaired'),
             });
             await refreshUser();
           }}
@@ -284,8 +298,8 @@ function App() {
             setShowPairing(false);
             addNotification({
               type: 'success',
-              title: 'Appariement réussi',
-              message: 'Le desktop a été appairé avec succès',
+              title: t('notifications.pairedTitle'),
+              message: t('notifications.desktopPaired'),
             });
           }}
           onCancel={() => setShowPairing(false)}
@@ -377,6 +391,7 @@ function MainApp({
   onEditProfile,
   onOpenSettings,
 }: MainAppProps) {
+  const { t } = useI18n();
   return (
     <div
       style={{
@@ -416,8 +431,8 @@ function MainApp({
             onChange={onSearchChange}
             placeholder={
               view === 'desktops'
-                ? 'Rechercher un desktop...'
-                : 'Rechercher une session...'
+                ? t('app.searchDesktop')
+                : t('app.searchSession')
             }
           />
 

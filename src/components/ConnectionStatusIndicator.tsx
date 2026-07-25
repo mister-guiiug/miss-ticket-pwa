@@ -1,8 +1,10 @@
 import { useWindowSize } from '../hooks/useWindowSize';
 import { Wifi, WifiOff } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 export function ConnectionStatusIndicator({ isOnline }: { isOnline: boolean }) {
   const { isMobile } = useWindowSize();
+  const { t } = useI18n();
 
   return (
     <div
@@ -23,8 +25,8 @@ export function ConnectionStatusIndicator({ isOnline }: { isOnline: boolean }) {
       }}
       title={
         isOnline
-          ? 'Connecté à Firestore et WebSocket'
-          : 'Mode hors ligne - données mises en cache'
+          ? t('connection.onlineTooltip')
+          : t('connection.offlineTooltip')
       }
     >
       <div
@@ -54,7 +56,7 @@ export function ConnectionStatusIndicator({ isOnline }: { isOnline: boolean }) {
       </div>
       {!isMobile && (
         <span style={{ color: isOnline ? 'var(--success)' : 'var(--error)' }}>
-          {isOnline ? 'En ligne' : 'Hors ligne'}
+          {isOnline ? t('common.online') : t('common.offline')}
         </span>
       )}
     </div>

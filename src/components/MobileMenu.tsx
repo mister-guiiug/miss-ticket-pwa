@@ -1,4 +1,5 @@
 import { Monitor, HardDrive, RefreshCw, Plus } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface MobileMenuProps {
   view: 'login' | 'desktops' | 'sessions';
@@ -17,6 +18,7 @@ export function MobileMenu({
   onRefresh,
   onClose,
 }: MobileMenuProps) {
+  const { t } = useI18n();
   return (
     <div
       style={{
@@ -31,7 +33,7 @@ export function MobileMenu({
     >
       <MobileMenuItem
         icon={<Monitor size={18} />}
-        label="Desktops"
+        label={t('nav.desktops')}
         active={view === 'desktops'}
         onClick={() => {
           onNavigate('desktops');
@@ -41,7 +43,7 @@ export function MobileMenu({
 
       <MobileMenuItem
         icon={<HardDrive size={18} />}
-        label="Sessions"
+        label={t('nav.sessions')}
         active={view === 'sessions'}
         badge={sessionsCount > 0 ? sessionsCount : undefined}
         onClick={() => {
@@ -53,7 +55,7 @@ export function MobileMenu({
       {view === 'desktops' && (
         <MobileMenuItem
           icon={<Plus size={18} />}
-          label="Appairer un desktop"
+          label={t('nav.pairDesktop')}
           onClick={() => {
             onShowPairing();
             onClose();
@@ -63,7 +65,7 @@ export function MobileMenu({
 
       <MobileMenuItem
         icon={<RefreshCw size={18} />}
-        label="Rafraîchir"
+        label={t('common.refresh')}
         onClick={() => {
           onRefresh();
           onClose();

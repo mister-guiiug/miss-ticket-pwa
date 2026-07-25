@@ -3,6 +3,7 @@ import type { SessionState } from '../hooks/useDesktops';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
 import type { SessionFilter } from './FilterBar';
+import { useI18n } from '../i18n';
 import {
   HardDrive,
   Activity,
@@ -34,15 +35,16 @@ export function SessionPanel({
   filter,
 }: SessionPanelProps) {
   const { isMobile } = useWindowSize();
+  const { t } = useI18n();
 
   const handleStopSession = async (instanceId: string) => {
-    if (confirm('Arrêter cette session ?')) {
+    if (confirm(t('sessions.confirmStop'))) {
       await stopSession(desktopId, userId, instanceId);
     }
   };
 
   const handleStopAll = async () => {
-    if (confirm('Arrêter toutes les sessions ?')) {
+    if (confirm(t('sessions.confirmStopAll'))) {
       await stopAllSessions(desktopId, userId);
     }
   };
@@ -106,7 +108,7 @@ export function SessionPanel({
             color: 'var(--text-primary)',
           }}
         >
-          Sessions de {desktopName}
+          {t('sessions.title', { name: desktopName })}
         </h2>
         <p
           style={{
@@ -115,7 +117,7 @@ export function SessionPanel({
             color: 'var(--text-secondary)',
           }}
         >
-          Gérez les sessions actives sur ce desktop
+          {t('sessions.subtitle')}
         </p>
       </div>
 
@@ -129,25 +131,25 @@ export function SessionPanel({
         }}
       >
         <StatCard
-          label="Total"
+          label={t('sessions.statTotal')}
           value={stats.total}
           icon={<HardDrive size={18} />}
           color="var(--text-primary)"
         />
         <StatCard
-          label="Connectées"
+          label={t('sessions.statConnected')}
           value={stats.connected}
           icon={<CheckCircle size={18} />}
           color="var(--success)"
         />
         <StatCard
-          label="En attente"
+          label={t('sessions.statWaiting')}
           value={stats.waiting}
           icon={<Pause size={18} />}
           color="var(--warning)"
         />
         <StatCard
-          label="Page achat"
+          label={t('sessions.statPurchase')}
           value={stats.purchase}
           icon={<Activity size={18} />}
           color="var(--info)"
@@ -193,7 +195,7 @@ export function SessionPanel({
             }}
           >
             <Ban size={16} />
-            <span>Arrêter tout</span>
+            <span>{t('sessions.stopAll')}</span>
           </button>
         )}
 
@@ -212,8 +214,15 @@ export function SessionPanel({
           >
             <Activity size={16} />
             <span>
-              Affichage de {filteredSessions.length} sur {sessions.length}{' '}
-              session{sessions.length > 1 ? 's' : ''}
+              {sessions.length > 1
+                ? t('sessions.filteredCountMany', {
+                    shown: filteredSessions.length,
+                    total: sessions.length,
+                  })
+                : t('sessions.filteredCountOne', {
+                    shown: filteredSessions.length,
+                    total: sessions.length,
+                  })}
             </span>
           </div>
         )}
@@ -239,7 +248,7 @@ export function SessionPanel({
               animation: 'spin 1s linear infinite',
             }}
           />
-          <p>Chargement des sessions...</p>
+          <p>{t('sessions.loading')}</p>
         </div>
       ) : sessions.length === 0 ? (
         <div
@@ -273,7 +282,7 @@ export function SessionPanel({
               color: 'var(--text-primary)',
             }}
           >
-            Aucune session active
+            {t('sessions.emptyTitle')}
           </h3>
           <p
             style={{
@@ -282,7 +291,7 @@ export function SessionPanel({
               color: 'var(--text-secondary)',
             }}
           >
-            Ce desktop n'a pas de session en cours
+            {t('sessions.emptyMessage')}
           </p>
         </div>
       ) : filteredSessions.length === 0 ? (
@@ -306,7 +315,7 @@ export function SessionPanel({
               color: 'var(--text-secondary)',
             }}
           >
-            Aucune session ne correspond à votre recherche
+            {t('sessions.noMatch')}
           </p>
         </div>
       ) : (
@@ -400,6 +409,7 @@ interface SessionItemProps {
 }
 
 function SessionItem({ session, onStop, isLast }: SessionItemProps) {
+  const { t } = useI18n();
   const getStatusColor = (status: string) => {
     const s = status.toLowerCase();
     if (s.includes('connecté'))
@@ -529,7 +539,11 @@ function SessionItem({ session, onStop, isLast }: SessionItemProps) {
               }}
             >
               <Pause size={12} />
-              <span>Position {session.queue_position}</span>
+              <span>
+                {t('sessions.queuePosition', {
+                  position: session.queue_position,
+                })}
+              </span>
             </div>
           )}
 
@@ -599,7 +613,7 @@ function SessionItem({ session, onStop, isLast }: SessionItemProps) {
           }}
         >
           <Ban size={14} />
-          <span>Arrêter</span>
+          <span>{t('common.stop')}</span>
         </button>
       </div>
     </div>

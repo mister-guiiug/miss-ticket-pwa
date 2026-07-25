@@ -8,6 +8,7 @@ import {
 } from '@mister-guiiug/dev-wpa-config/react/observability';
 import './index.css';
 import App from './App';
+import { I18nProvider } from './i18n';
 import { registerServiceWorker } from './register-sw';
 
 installErrorReporter();
@@ -27,7 +28,9 @@ if (rootElement) {
           recordError(error, { source: 'error-boundary' });
         }}
       >
-        <App />
+        <I18nProvider>
+          <App />
+        </I18nProvider>
       </ErrorBoundary>
     </StrictMode>
   );

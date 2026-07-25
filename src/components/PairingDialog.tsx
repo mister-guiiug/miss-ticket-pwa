@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { QrReader } from 'react-qr-reader';
 import { initiatePairing, parseQRCode } from '../lib/pairing';
 import { X, QrCode, Keyboard, Check } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface PairingDialogProps {
   userId: string;
@@ -16,6 +17,7 @@ export function PairingDialog({
   onPaired,
   onCancel,
 }: PairingDialogProps) {
+  const { t } = useI18n();
   const [method, setMethod] = useState<Method>('qr');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,21 +41,19 @@ export function PairingDialog({
       if (data.startsWith('missticket:pair?')) {
         const parsed = parseQRCode(data);
         if (!parsed) {
-          throw new Error('QR code invalide');
+          throw new Error(t('pairing.errorInvalidQr'));
         }
         token = parsed.token;
         desktopId = parsed.desktopId;
       } else {
-        throw new Error('Veuillez scanner le QR code affiché sur le desktop');
+        throw new Error(t('pairing.errorScanQr'));
       }
 
       await initiatePairing(token, desktopId, userId);
       setSuccess(true);
       setTimeout(() => onPaired(), 1500);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de l'appariement"
-      );
+      setError(err instanceof Error ? err.message : t('pairing.errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export function PairingDialog({
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (code.length !== 6) {
-      setError('Le code doit faire 6 caractères');
+      setError(t('pairing.errorCodeLength'));
       return;
     }
 
@@ -71,11 +71,9 @@ export function PairingDialog({
 
     try {
       // Pour le code manuel, utiliser le QR code pour le moment
-      throw new Error('Utilisez le QR code pour un appariement plus simple');
+      throw new Error(t('pairing.errorManualCode'));
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de l'appariement"
-      );
+      setError(err instanceof Error ? err.message : t('pairing.errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -114,7 +112,7 @@ export function PairingDialog({
               color: 'var(--success)',
             }}
           >
-            Appariement réussi !
+            {t('pairing.successTitle')}
           </h2>
           <p
             style={{
@@ -123,7 +121,7 @@ export function PairingDialog({
               color: 'var(--text-secondary)',
             }}
           >
-            Le desktop a été appairé avec succès
+            {t('pairing.successMessage')}
           </p>
         </div>
       </div>
@@ -151,7 +149,7 @@ export function PairingDialog({
                 color: 'var(--text-primary)',
               }}
             >
-              Appairer un Desktop
+              {t('pairing.title')}
             </h2>
             <p
               style={{
@@ -160,7 +158,7 @@ export function PairingDialog({
                 color: 'var(--text-secondary)',
               }}
             >
-              Scannez le QR code ou entrez le code affiché sur votre desktop
+              {t('pairing.subtitle')}
             </p>
           </div>
 
@@ -206,13 +204,13 @@ export function PairingDialog({
           <MethodButton
             active={method === 'qr'}
             icon={<QrCode size={18} />}
-            label="QR Code"
+            label={t('pairing.methodQr')}
             onClick={() => setMethod('qr')}
           />
           <MethodButton
             active={method === 'code'}
             icon={<Keyboard size={18} />}
-            label="Code 6 chiffres"
+            label={t('pairing.methodCode')}
             onClick={() => setMethod('code')}
           />
         </div>
@@ -228,7 +226,7 @@ export function PairingDialog({
                 textAlign: 'center',
               }}
             >
-              Scannez le QR code affiché sur votre desktop
+              {t('pairing.qrInstruction')}
             </p>
             <div
               style={{
@@ -269,7 +267,7 @@ export function PairingDialog({
                 textAlign: 'center',
               }}
             >
-              Entrez le code à 6 chiffres affiché sur votre desktop
+              {t('pairing.codeInstruction')}
             </p>
             <input
               type="text"
@@ -332,7 +330,7 @@ export function PairingDialog({
                 transition: 'all 0.2s',
               }}
             >
-              {loading ? 'Vérification...' : 'Appairer'}
+              {loading ? t('pairing.submitLoading') : t('common.pair')}
             </button>
           </form>
         )}
@@ -382,7 +380,7 @@ export function PairingDialog({
                 animation: 'spin 1s linear infinite',
               }}
             />
-            <span>Tentative d'appariement...</span>
+            <span>{t('pairing.inProgress')}</span>
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { Monitor } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface NotificationBadgeProps {
   count: number;
@@ -6,6 +7,7 @@ interface NotificationBadgeProps {
 }
 
 export function NotificationBadge({ count, onClick }: NotificationBadgeProps) {
+  const { t } = useI18n();
   return (
     <button
       onClick={onClick}
@@ -29,8 +31,10 @@ export function NotificationBadge({ count, onClick }: NotificationBadgeProps) {
       }}
       title={
         count > 0
-          ? `${count} session${count > 1 ? 's' : ''} active${count > 1 ? 's' : ''}`
-          : 'Sessions'
+          ? count > 1
+            ? t('header.sessionsBadgeMany', { count })
+            : t('header.sessionsBadgeOne', { count })
+          : t('nav.sessions')
       }
     >
       <Monitor size={20} style={{ color: 'var(--text-secondary)' }} />

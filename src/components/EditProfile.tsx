@@ -3,6 +3,7 @@ import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { ArrowLeft, User, Check, Loader2 } from 'lucide-react';
 import { auth, db } from '../config/firebase';
+import { useI18n } from '../i18n';
 
 interface EditProfileProps {
   currentPseudo: string;
@@ -15,6 +16,7 @@ export function EditProfile({
   onSave,
   onCancel,
 }: EditProfileProps) {
+  const { t } = useI18n();
   const [pseudo, setPseudo] = useState(currentPseudo);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export function EditProfile({
 
     try {
       const user = auth.currentUser;
-      if (!user) throw new Error('Utilisateur non connecté');
+      if (!user) throw new Error(t('editProfile.errorNotConnected'));
 
       // Mettre à jour le profil Firebase Auth
       await updateProfile(user, { displayName: trimmedPseudo });
@@ -55,7 +57,7 @@ export function EditProfile({
       }, 1000);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Erreur lors de la mise à jour'
+        err instanceof Error ? err.message : t('editProfile.errorUpdate')
       );
       setLoading(false);
     }
@@ -115,7 +117,7 @@ export function EditProfile({
               color: 'var(--success)',
             }}
           >
-            Pseudo mis à jour !
+            {t('editProfile.successTitle')}
           </h2>
           <p
             style={{
@@ -124,7 +126,7 @@ export function EditProfile({
               color: 'var(--text-secondary)',
             }}
           >
-            Votre pseudo a été changé avec succès
+            {t('editProfile.successMessage')}
           </p>
         </div>
       </div>
@@ -200,7 +202,7 @@ export function EditProfile({
                   color: 'var(--text-primary)',
                 }}
               >
-                Modifier le pseudo
+                {t('editProfile.title')}
               </h2>
               <p
                 style={{
@@ -209,7 +211,7 @@ export function EditProfile({
                   color: 'var(--text-secondary)',
                 }}
               >
-                Choisissez un nouveau pseudo
+                {t('editProfile.subtitle')}
               </p>
             </div>
           </div>
@@ -254,7 +256,7 @@ export function EditProfile({
                 marginBottom: '8px',
               }}
             >
-              Nouveau pseudo
+              {t('editProfile.label')}
             </label>
             <input
               type="text"
@@ -263,7 +265,7 @@ export function EditProfile({
                 setPseudo(e.target.value);
                 setError(null);
               }}
-              placeholder="Votre nouveau pseudo"
+              placeholder={t('editProfile.placeholder')}
               maxLength={20}
               autoFocus
               disabled={loading}
@@ -309,7 +311,7 @@ export function EditProfile({
                       : 'var(--text-tertiary)',
                 }}
               >
-                {pseudo.trim().length}/20 caractères
+                {t('editProfile.charCount', { count: pseudo.trim().length })}
               </div>
               {pseudo.trim() !== currentPseudo && pseudo.trim().length >= 2 && (
                 <div
@@ -322,7 +324,7 @@ export function EditProfile({
                   }}
                 >
                   <Check size={12} />
-                  <span>Disponible</span>
+                  <span>{t('editProfile.available')}</span>
                 </div>
               )}
             </div>
@@ -358,7 +360,7 @@ export function EditProfile({
                 marginBottom: '20px',
               }}
             >
-              Le pseudo doit contenir au moins 2 caractères
+              {t('editProfile.minChars')}
             </div>
           )}
 
@@ -394,7 +396,7 @@ export function EditProfile({
                 e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
               }}
             >
-              Annuler
+              {t('common.cancel')}
             </button>
 
             <button
@@ -444,12 +446,12 @@ export function EditProfile({
                     size={18}
                     style={{ animation: 'spin 1s linear infinite' }}
                   />
-                  <span>Enregistrement...</span>
+                  <span>{t('editProfile.saving')}</span>
                 </>
               ) : (
                 <>
                   <Check size={18} />
-                  <span>Enregistrer</span>
+                  <span>{t('common.save')}</span>
                 </>
               )}
             </button>

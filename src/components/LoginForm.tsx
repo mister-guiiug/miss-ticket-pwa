@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Zap } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface LoginFormProps {
   onLogin: (pseudo: string) => void;
 }
 
 export function LoginForm({ onLogin }: LoginFormProps) {
+  const { t } = useI18n();
   const [pseudo, setPseudo] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -75,7 +77,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             backgroundClip: 'text',
           }}
         >
-          Miss Ticket
+          {t('common.appName')}
         </h1>
 
         <p
@@ -86,7 +88,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             textAlign: 'center',
           }}
         >
-          Choisissez un pseudo pour commencer
+          {t('login.tagline')}
         </p>
 
         {/* Form */}
@@ -95,7 +97,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             type="text"
             value={pseudo}
             onChange={e => setPseudo(e.target.value)}
-            placeholder="Votre pseudo"
+            placeholder={t('login.pseudoPlaceholder')}
             disabled={loading}
             maxLength={20}
             autoFocus
@@ -167,7 +169,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             }}
           >
             <Zap size={18} />
-            <span>{loading ? 'Connexion...' : 'Commencer'}</span>
+            <span>
+              {loading ? t('login.submitLoading') : t('login.submit')}
+            </span>
           </button>
         </form>
 
@@ -181,7 +185,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             textAlign: 'center',
           }}
         >
-          Une connexion anonyme et sécurisée
+          {t('login.footer')}
         </p>
       </div>
     </div>

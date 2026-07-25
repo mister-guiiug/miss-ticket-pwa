@@ -7,6 +7,7 @@ import {
   Monitor,
   HardDrive,
 } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 export type DesktopFilter = 'all' | 'online' | 'offline';
 export type DesktopSort = 'name' | 'lastSeen' | 'sessions';
@@ -33,26 +34,27 @@ export function FilterBar({
   onSortChange,
 }: FilterBarProps) {
   const { isMobile } = useWindowSize();
+  const { t } = useI18n();
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   const desktopFilters: { value: DesktopFilter; label: string }[] = [
-    { value: 'all', label: 'Tous les desktops' },
-    { value: 'online', label: 'En ligne' },
-    { value: 'offline', label: 'Hors ligne' },
+    { value: 'all', label: t('filters.desktopAll') },
+    { value: 'online', label: t('common.online') },
+    { value: 'offline', label: t('common.offline') },
   ];
 
   const sessionFilters: { value: SessionFilter; label: string }[] = [
-    { value: 'all', label: 'Toutes les sessions' },
-    { value: 'connected', label: 'Connectées' },
-    { value: 'waiting', label: 'En attente' },
-    { value: 'purchase', label: "Page d'achat" },
-    { value: 'error', label: 'Erreurs' },
+    { value: 'all', label: t('filters.sessionAll') },
+    { value: 'connected', label: t('filters.sessionConnected') },
+    { value: 'waiting', label: t('filters.sessionWaiting') },
+    { value: 'purchase', label: t('filters.sessionPurchase') },
+    { value: 'error', label: t('filters.sessionError') },
   ];
 
   const sortOptions: { value: DesktopSort; label: string }[] = [
-    { value: 'name', label: 'Nom' },
-    { value: 'lastSeen', label: 'Dernier vu' },
-    { value: 'sessions', label: 'Sessions' },
+    { value: 'name', label: t('filters.sortName') },
+    { value: 'lastSeen', label: t('filters.sortLastSeen') },
+    { value: 'sessions', label: t('filters.sortSessions') },
   ];
 
   const filters = type === 'desktop' ? desktopFilters : sessionFilters;
@@ -227,7 +229,7 @@ export function FilterBar({
             e.currentTarget.style.borderColor = 'var(--border-subtle)';
             e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
           }}
-          title={`Trier par: ${currentSort?.label}`}
+          title={t('filters.sortByTitle', { sort: currentSort?.label ?? '' })}
         >
           <ArrowUpDown size={16} style={{ color: 'var(--text-secondary)' }} />
           {!isMobile && <span>{currentSort?.label}</span>}
