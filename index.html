@@ -2,15 +2,9 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <!--
-      Content-Security-Policy en défense en profondeur.
-      'unsafe-inline' : styles injectés au build (vite).
-      connect-src *.googleapis.com : Firebase Auth + Firestore.
-    -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
-    />
+    <!-- CSP injectée au build par cspPlugin (@mister-guiiug/dev-wpa-config/vite-csp) :
+         aucun script inline → script-src 'self'. connect-src Firebase (googleapis)
+         défini dans vite.config. -->
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"

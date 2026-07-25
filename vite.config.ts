@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react';
 import { pwaSeoPlugin } from '@mister-guiiug/dev-wpa-config/vite-pwa-base';
+import { cspPlugin } from '@mister-guiiug/dev-wpa-config/vite-csp';
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
   // Base '/' historique (deploy avec use-base-path: false). `VITE_BASE_PATH`
   // reste honorée si fournie (Lighthouse CI, éventuel passage sous /repo/).
   const basePath = process.env.VITE_BASE_PATH ?? '/';
@@ -29,6 +31,35 @@ export default defineConfig(() => {
           });
         },
       },
+      // Service worker (coquille hors-ligne) — enregistré via src/register-sw.ts
+      // (import bundlé, pas de script inline). manifest:false : on garde le
+      // public/manifest.json écrit à la main et son <link rel="manifest">.
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: false,
+        manifest: false,
+        includeAssets: [
+          'favicon.svg',
+          'icon-192.svg',
+          'icon-512.svg',
+          'manifest.json',
+        ],
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,json}'],
+          navigateFallback: 'index.html',
+          navigateFallbackDenylist: [/^\/ws/],
+          cleanupOutdatedCaches: true,
+          maximumFileSizeToCacheInBytes: 4_000_000,
+        },
+      }),
+      // CSP durcie : aucun script inline dans index.html → script-src 'self'
+      // (drop-to-self). connect-src Firebase (googleapis) porté depuis l'ancienne
+      // meta statique, désormais retirée.
+      cspPlugin({
+        dev: command === 'serve',
+        connectSrc: ["'self'", 'https://*.googleapis.com'],
+        extraDirectives: { 'frame-ancestors': "'none'" },
+      }),
     ],
     base: basePath,
     server: {

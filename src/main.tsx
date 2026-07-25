@@ -8,12 +8,14 @@ import {
 } from '@mister-guiiug/dev-wpa-config/react/observability';
 import './index.css';
 import App from './App';
+import { registerServiceWorker } from './register-sw';
 
 installErrorReporter();
 void initSentry({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
 });
+registerServiceWorker();
 
 const rootElement = document.getElementById('app');
 
