@@ -3,7 +3,7 @@
 > Interface web progressive pour contrôler à distance votre application Miss Ticket
 
 ![React](https://img.shields.io/badge/React-19-blue.svg)
-![Vite](https://img.shields.io/badge/Vite-6.0-purple.svg)
+![Vite](https://img.shields.io/badge/Vite-8-purple.svg)
 ![PWA](https://img.shields.io/badge/PWA-Enabled-green.svg)
 
 ## 📱 À Propos
@@ -24,6 +24,14 @@ npm run build
 npm run preview
 ```
 
-## 📡 Communication WebSocket
+## 📡 Communication avec le desktop
 
-La PWA communique avec l'application desktop via WebSocket (`ws://127.0.0.1:8765`).
+La PWA communique avec l'application desktop via Firebase (Firestore) :
+
+- **Appariement** : le desktop affiche un QR code
+  `missticket:pair?token=…&id=…` ; la PWA le scanne, valide le token
+  (collection `pairing_tokens`) puis enregistre le desktop.
+- **Commandes** : la PWA écrit les commandes (`launch_session`,
+  `stop_session`, `stop_all`, `get_state`) dans la collection `commands` ;
+  le desktop les exécute et publie son état (collection `desktops`),
+  observé en temps réel par la PWA.
