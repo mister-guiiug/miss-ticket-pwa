@@ -24,6 +24,7 @@ export const messages = {
       settings: 'Paramètres',
       dark: 'Sombre',
       light: 'Clair',
+      system: 'Système',
       searchPlaceholder: 'Rechercher...',
     },
     app: {
@@ -42,10 +43,6 @@ export const messages = {
     connection: {
       onlineTooltip: 'Connecté à Firestore et WebSocket',
       offlineTooltip: 'Mode hors ligne - données mises en cache',
-    },
-    theme: {
-      switchToLight: 'Passer en mode clair',
-      switchToDark: 'Passer en mode sombre',
     },
     userMenu: {
       connectedAs: 'Connecté en tant que',
@@ -161,6 +158,7 @@ export const messages = {
       themeLabel: 'Thème',
       themeDarkEnabled: 'Mode sombre activé',
       themeLightEnabled: 'Mode clair activé',
+      themeSystemEnabled: 'Suit le réglage de votre appareil',
       languageLabel: "Langue de l'interface",
       languageDescription: "Choisissez la langue de l'application",
       notificationsLevelLabel: 'Niveau de notifications',
@@ -224,6 +222,7 @@ export const messages = {
       settings: 'Settings',
       dark: 'Dark',
       light: 'Light',
+      system: 'System',
       searchPlaceholder: 'Search...',
     },
     app: {
@@ -242,10 +241,6 @@ export const messages = {
     connection: {
       onlineTooltip: 'Connected to Firestore and WebSocket',
       offlineTooltip: 'Offline mode - cached data',
-    },
-    theme: {
-      switchToLight: 'Switch to light mode',
-      switchToDark: 'Switch to dark mode',
     },
     userMenu: {
       connectedAs: 'Signed in as',
@@ -358,6 +353,7 @@ export const messages = {
       themeLabel: 'Theme',
       themeDarkEnabled: 'Dark mode enabled',
       themeLightEnabled: 'Light mode enabled',
+      themeSystemEnabled: 'Follows your device setting',
       languageLabel: 'Interface language',
       languageDescription: 'Choose the app language',
       notificationsLevelLabel: 'Notification level',
