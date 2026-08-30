@@ -25,12 +25,12 @@ import {
 import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';
 import { QRCodeDisplay } from './components/QRCodeDisplay';
-import { applyTheme } from './styles/theme';
 import { useI18n } from './i18n';
 import './styles/globals.css';
 
-// Appliquer le thème par défaut au démarrage
-applyTheme('dark');
+// Le thème est posé par `main.tsx` : amorce avant le premier rendu, puis
+// `ThemePainter` sous `ThemeProvider`. L'appel `applyTheme('dark')` qui vivait
+// ici écrasait le choix de l'utilisateur à chaque chargement de module.
 
 type View = 'login' | 'desktops' | 'sessions';
 

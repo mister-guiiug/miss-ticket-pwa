@@ -108,6 +108,55 @@ export const transitions = {
 };
 
 /**
+ * L'ANCIENNE CLÉ DE STOCKAGE, reprise par le socle.
+ *
+ * L'état du thème vient désormais de `ThemeProvider` / `useTheme`
+ * (`@mister-guiiug/dev-wpa-config`), qui stocke sous `dwc_theme`. Miss Ticket
+ * stockait sous `theme`. Sans reprise, chaque utilisateur déjà installé aurait
+ * perdu son choix au premier chargement — une seule fois, sans erreur ni
+ * trace. `legacyKeys` relit l'ancienne clé puis réécrit sous la neuve.
+ */
+export const THEME_LEGACY_KEYS: string[] = ['theme'];
+
+/** La clé du socle. Dupliquée ici pour la seule amorce ci-dessous. */
+const SOCLE_THEME_KEY = 'dwc_theme';
+
+/**
+ * L'amorce, avant React — l'équivalent local du script anti-FOUC du socle.
+ *
+ * POURQUOI PAS `theme-boot`. Le script engendré par le socle pose
+ * `data-theme` sur `<html>` ; ici les couleurs ne viennent PAS d'un sélecteur
+ * `[data-theme]` mais d'une quarantaine de variables CSS posées en ligne par
+ * `applyTheme`. L'attribut ne peindrait donc rien, et le script serait du
+ * bruit. Tant que ces couleurs ne sont pas décrites en CSS, c'est cette
+ * fonction — et elle seule — qui joue son rôle.
+ *
+ * Elle duplique la lecture de `legacyKeys` du socle, exactement comme
+ * `theme-boot` la duplique de `useTheme` : les deux doivent voir la même
+ * préférence, sinon la page peint un thème que React repeint aussitôt.
+ */
+export function readBootTheme(): 'dark' | 'light' {
+  try {
+    for (const key of [SOCLE_THEME_KEY, ...THEME_LEGACY_KEYS]) {
+      const value = localStorage.getItem(key);
+      if (value === 'light' || value === 'dark') return value;
+      // `system` est une valeur que le socle stocke : elle se résout comme une
+      // absence de choix, donc contre le réglage du système.
+      if (value === 'system') {
+        return window.matchMedia?.('(prefers-color-scheme: dark)').matches ===
+          true
+          ? 'dark'
+          : 'light';
+      }
+    }
+  } catch {
+    /* stockage refusé (navigation privée) : on retombe sur le défaut */
+  }
+  // Miss Ticket est une app sombre par défaut, et l'était déjà.
+  return 'dark';
+}
+
+/**
  * Application des variables CSS pour le thème
  */
 export function applyTheme(theme: 'dark' | 'light') {

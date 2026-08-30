@@ -9,18 +9,22 @@ import {
   Trash2,
   ChevronRight,
   Moon,
+  Monitor,
   Sun,
   Zap,
   Coffee,
   LayoutGrid,
   Languages,
 } from 'lucide-react';
-import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
+import {
+  FamilyApps,
+  ThemeToggle,
+  useThemeContext,
+} from '@mister-guiiug/dev-wpa-config/react';
 import {
   SPONSOR_URL,
   repoUrl,
 } from '@mister-guiiug/dev-wpa-config/apps-catalog';
-import { applyTheme } from '../styles/theme';
 import { useI18n, type Locale } from '../i18n';
 
 /**
@@ -37,11 +41,15 @@ interface SettingsProps {
   onClose: () => void;
 }
 
-type Theme = 'dark' | 'light';
 type NotificationPreference = 'all' | 'important' | 'none';
 
+/**
+ * Le thème ne figure PLUS ici. Il vivait dans ce blob JSON *et* dans l'état
+ * local de la bascule d'en-tête : deux sources, deux écritures, qui
+ * divergeaient dès qu'on touchait à l'une sans l'autre. La seule source est
+ * désormais `ThemeProvider`.
+ */
 interface SettingsState {
-  theme: Theme;
   notifications: NotificationPreference;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
@@ -49,27 +57,45 @@ interface SettingsState {
 
 export function Settings({ user, onClose }: SettingsProps) {
   const { t, locale, setLocale, locales } = useI18n();
+  // État partagé du ThemeProvider monté dans main.tsx. `resolved` (et non
+  // `theme`) : c'est le schéma réellement affiché qu'on décrit ici, y compris
+  // quand la préférence est « système ».
+  const themeCtx = useThemeContext();
+  const resolvedTheme = themeCtx?.resolved === 'light' ? 'light' : 'dark';
   const [settings, setSettings] = useState<SettingsState>(() => {
     const saved = localStorage.getItem('settings');
     if (saved) {
-      return JSON.parse(saved);
+      // `theme` peut traîner dans le blob des versions précédentes : on le
+      // laisse tomber au lieu de le laisser concurrencer le socle.
+      const { theme: _legacyTheme, ...rest } = JSON.parse(saved) as Record<
+        string,
+        unknown
+      >;
+      return rest as unknown as SettingsState;
     }
     return {
-      theme: (localStorage.getItem('theme') as Theme) || 'dark',
       notifications: 'all',
       soundEnabled: true,
       vibrationEnabled: true,
     };
   });
 
+  const themePreference = themeCtx?.theme ?? 'dark';
+  const themeValueLabel =
+    themePreference === 'system'
+      ? t('common.system')
+      : themePreference === 'dark'
+        ? t('common.dark')
+        : t('common.light');
+  const themeDescription =
+    themePreference === 'system'
+      ? t('settings.themeSystemEnabled')
+      : resolvedTheme === 'dark'
+        ? t('settings.themeDarkEnabled')
+        : t('settings.themeLightEnabled');
+
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [clearingData, setClearingData] = useState(false);
-
-  // Appliquer le thème
-  useEffect(() => {
-    applyTheme(settings.theme);
-    localStorage.setItem('theme', settings.theme);
-  }, [settings.theme]);
 
   // Sauvegarder les settings
   useEffect(() => {
@@ -86,11 +112,14 @@ export function Settings({ user, onClose }: SettingsProps) {
   const handleClearData = async () => {
     setClearingData(true);
     try {
-      // Clear localStorage except theme and settings
-      const theme = localStorage.getItem('theme');
+      // Clear localStorage except theme and settings. La clé du thème est
+      // celle du socle (`dwc_theme`) : sans cette ligne, « effacer les
+      // données » réinitialiserait aussi le thème, ce que l'intention
+      // d'origine excluait explicitement.
+      const theme = localStorage.getItem('dwc_theme');
       const settings = localStorage.getItem('settings');
       localStorage.clear();
-      if (theme) localStorage.setItem('theme', theme);
+      if (theme) localStorage.setItem('dwc_theme', theme);
       if (settings) localStorage.setItem('settings', settings);
 
       // Clear IndexedDB if needed
@@ -267,7 +296,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                   height: '40px',
                   borderRadius: '10px',
                   backgroundColor:
-                    settings.theme === 'dark'
+                    resolvedTheme === 'dark'
                       ? 'var(--bg-tertiary)'
                       : 'var(--warning-bg)',
                   display: 'flex',
@@ -275,7 +304,12 @@ export function Settings({ user, onClose }: SettingsProps) {
                   justifyContent: 'center',
                 }}
               >
-                {settings.theme === 'dark' ? (
+                {themePreference === 'system' ? (
+                  <Monitor
+                    size={20}
+                    style={{ color: 'var(--text-tertiary)' }}
+                  />
+                ) : themePreference === 'dark' ? (
                   <Moon size={20} style={{ color: 'var(--text-tertiary)' }} />
                 ) : (
                   <Sun size={20} style={{ color: 'var(--warning)' }} />
@@ -283,55 +317,12 @@ export function Settings({ user, onClose }: SettingsProps) {
               </div>
             }
             label={t('settings.themeLabel')}
-            value={
-              settings.theme === 'dark' ? t('common.dark') : t('common.light')
-            }
-            description={
-              settings.theme === 'dark'
-                ? t('settings.themeDarkEnabled')
-                : t('settings.themeLightEnabled')
-            }
-            action={
-              <button
-                onClick={() =>
-                  updateSetting(
-                    'theme',
-                    settings.theme === 'dark' ? 'light' : 'dark'
-                  )
-                }
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: 'var(--bg-tertiary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
-                }}
-              >
-                {settings.theme === 'dark' ? (
-                  <Sun size={16} />
-                ) : (
-                  <Moon size={16} />
-                )}
-                <span>
-                  {settings.theme === 'dark'
-                    ? t('common.light')
-                    : t('common.dark')}
-                </span>
-              </button>
-            }
+            value={themeValueLabel}
+            description={themeDescription}
+            /* La même bascule que dans l'en-tête, et le même état : cycle
+               clair → sombre → système, type="button", nom accessible qui
+               annonce l'état courant. */
+            action={<ThemeToggle />}
           />
         </Section>
 

@@ -6,6 +6,27 @@
   color-scheme: dark;
 }
 
+/* Bascule de thème partagée (socle, [data-dwc='theme-toggle']). Elle remplace
+   un bouton maison stylé en ligne : sans ces règles elle retomberait sur les
+   couleurs SYSTÈME (`GrayText`/`CanvasText`, les replis de components.css), et
+   jurerait dans un en-tête sombre. Non layered, donc prioritaire sur le
+   @layer components du socle. */
+[data-dwc='theme-toggle'] {
+  min-width: 0;
+  min-height: 0;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+[data-dwc='theme-toggle']:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+}
+
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
