@@ -16,8 +16,11 @@ import {
   Languages,
 } from 'lucide-react';
 import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
+import {
+  SPONSOR_URL,
+  repoUrl,
+} from '@mister-guiiug/dev-wpa-config/apps-catalog';
 import { applyTheme } from '../styles/theme';
-import { REPO_URL, SPONSOR_URL } from '../links';
 import { useI18n, type Locale } from '../i18n';
 
 /**
@@ -720,7 +723,7 @@ export function Settings({ user, onClose }: SettingsProps) {
         }}
       >
         <a
-          href={REPO_URL}
+          href={repoUrl('miss-ticket-pwa')}
           target="_blank"
           rel="noopener noreferrer"
           style={{
