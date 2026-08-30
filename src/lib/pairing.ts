@@ -1,16 +1,36 @@
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  ALPHABETS,
+  generateCode,
+  parseDeepLink,
+} from '@mister-guiiug/dev-wpa-config/pairing';
 import { db } from '../config/firebase';
 
 /**
- * Génère un code de 6 caractères
+ * Source injectée dans `generateCode` : le tirage historique de ce module,
+ * `Math.floor(Math.random() * 32)`, reproduit à l'identique. Les indices
+ * 0..31 sont des octets valides, tous sous la limite de rejet (256), et
+ * laissés inchangés par le `% 32` du socle : chaque valeur de `Math.random`
+ * donne le même caractère qu'avant — les tests fixent ce comportement aux
+ * extrêmes (0 → 'AAAAAA', 0.999… → '999999').
+ *
+ * Le tirage crypto par défaut du socle n'est volontairement PAS adopté ici :
+ * ce serait un changement de comportement, hors du périmètre de cette PR.
+ */
+function mathRandomIndices(count: number): number[] {
+  const size = ALPHABETS.antiConfusion.chars.length; // 32 — divise 256
+  return Array.from({ length: count }, () => Math.floor(Math.random() * size));
+}
+
+/**
+ * Génère un code de 6 caractères sur l'alphabet `antiConfusion` du socle
+ * (sans 0/O ni 1/I — l'alphabet promu depuis ce dépôt).
  */
 export function generatePairingCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Pas de 0/O, 1/I pour éviter confusion
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+  return generateCode(6, {
+    alphabet: 'antiConfusion',
+    random: mathRandomIndices,
+  });
 }
 
 /**
@@ -81,25 +101,25 @@ export async function initiatePairing(
 }
 
 /**
- * Parse un QR code au format missticket:pair?token=XXX&id=YYY
+ * Parse un QR code au format `missticket:pair?token=XXX&id=YYY`.
+ *
+ * Enveloppe locale au-dessus du `parseDeepLink` du socle — mêmes entrées et
+ * sorties qu'avant, les composants n'y voient rien. Le format est ÉMIS par le
+ * côté Rust de l'app desktop (dépôt miss-ticket, pairing_service.rs) : schéma
+ * et action en minuscules, valeurs encodées façon `URLSearchParams` — que le
+ * socle décode à l'identique de l'ancien parseur maison. L'action est
+ * comparée à la casse près (`MISSTICKET:PAIR` → null), et token/id absents ou
+ * vides restent rejetés ici.
  */
 export function parseQRCode(
   qrData: string
 ): { token: string; desktopId: string } | null {
-  try {
-    if (!qrData.startsWith('missticket:pair?')) {
-      return null;
-    }
-    const params = new URLSearchParams(qrData.replace('missticket:pair?', ''));
-    const token = params.get('token');
-    const desktopId = params.get('id');
+  const link = parseDeepLink(qrData, { scheme: 'missticket', action: 'pair' });
+  if (!link) return null;
 
-    if (!token || !desktopId) {
-      return null;
-    }
+  const token = link.params.token;
+  const desktopId = link.params.id;
+  if (!token || !desktopId) return null;
 
-    return { token, desktopId };
-  } catch {
-    return null;
-  }
+  return { token, desktopId };
 }
