@@ -15,7 +15,11 @@ import {
 import './index.css';
 import App from './App';
 import { I18nProvider } from './i18n';
-import { ThemePainter, SocleLabels } from './components/SocleProviders';
+import {
+  ThemePainter,
+  SocleLabels,
+  OfflineBanner,
+} from './components/SocleProviders';
 import { registerSW } from 'virtual:pwa-register';
 import { unregisterServiceWorkers } from '@mister-guiiug/dev-wpa-config/sw-update';
 import { applyTheme, readBootTheme, THEME_LEGACY_KEYS } from './styles/theme';
@@ -85,6 +89,11 @@ if (rootElement) {
             <ThemePainter>
               <SocleLabels>
                 <IconsProvider icons={icons}>
+                  {/* Le bandeau hors-ligne est un FRÈRE d'`App`, pas un
+                      descendant : `App` sort trois fois avant sa mise en page
+                      (chargement, QR Tauri, connexion) et l'écran de connexion
+                      est celui où la coupure fait le plus de dégâts. */}
+                  <OfflineBanner />
                   <App />
                 </IconsProvider>
               </SocleLabels>

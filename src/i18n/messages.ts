@@ -42,7 +42,19 @@ export const messages = {
     },
     connection: {
       onlineTooltip: 'Connecté à Firestore et WebSocket',
-      offlineTooltip: 'Mode hors ligne - données mises en cache',
+      // CE TEXTE ÉTAIT FAUX : « données mises en cache ». Firestore est
+      // initialisé par un `getFirestore(app)` nu, donc sur le cache MÉMOIRE —
+      // rien ne survit à un rechargement — et `initializeAuth` reçoit
+      // `persistence: undefined`, donc la session non plus. Promettre un cache
+      // qui n'existe pas est pire que de ne rien dire : l'utilisateur ferme
+      // l'onglet en confiance.
+      offlineTooltip: 'Hors ligne — aucune commande ne part',
+      // Le bandeau du shell. Il ne dit pas « hors ligne » tout court : ce que
+      // l'utilisateur doit savoir, c'est que les commandes qu'il enverrait
+      // resteraient en suspens (Firestore ne résout ni ne rejette une écriture
+      // hors ligne — elle attend, indéfiniment).
+      bannerOffline:
+        'Hors ligne — les commandes envoyées aux postes n’aboutiront pas.',
     },
     userMenu: {
       connectedAs: 'Connecté en tant que',
@@ -240,7 +252,8 @@ export const messages = {
     },
     connection: {
       onlineTooltip: 'Connected to Firestore and WebSocket',
-      offlineTooltip: 'Offline mode - cached data',
+      offlineTooltip: 'Offline — no command is sent',
+      bannerOffline: 'Offline — commands sent to desktops will not go through.',
     },
     userMenu: {
       connectedAs: 'Signed in as',

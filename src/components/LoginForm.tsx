@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Zap } from 'lucide-react';
+import { useActionGuard } from '@mister-guiiug/dev-wpa-config/react/use-action-guard';
 import { useI18n } from '../i18n';
 
 interface LoginFormProps {
@@ -11,17 +12,44 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [pseudo, setPseudo] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pseudo.trim()) {
-      setLoading(true);
-      try {
-        await onLogin(pseudo.trim());
-      } finally {
-        setLoading(false);
-      }
+  /**
+   * LE DÉFAUT LE PLUS COÛTEUX DE L'APP, ET LE PLUS SILENCIEUX.
+   *
+   * `signInWithPseudo` commence par `signInAnonymously`, qui hors connexion
+   * REJETTE (`auth/network-request-failed`). Or `handleSubmit` n'a qu'un
+   * `finally`, pas de `catch` : la promesse rejetée partait en
+   * `unhandledrejection`, le bouton reprenait son état normal, et il ne se
+   * passait RIEN. Aucun message, aucune erreur à l'écran. L'utilisateur
+   * appuie, réappuie, et s'en va.
+   *
+   * `online: true` sans aucune autre vérification : la connexion est le seul
+   * motif de blocage ici — le pseudo vide est déjà couvert par le bouton, et
+   * n'a pas besoin d'être expliqué (le champ est juste au-dessus, vide).
+   */
+  const guard = useActionGuard({ online: true });
+
+  const login = async () => {
+    if (!pseudo.trim()) return;
+    setLoading(true);
+    try {
+      await onLogin(pseudo.trim());
+    } finally {
+      setLoading(false);
     }
   };
+
+  /**
+   * `preventDefault` AVANT la garde, jamais après : `wrap` rend la fonction
+   * inerte, et une soumission inerte qui n'a pas annulé l'événement laisse le
+   * navigateur recharger la page. Le clavier (touche Entrée) passe par ici
+   * aussi — garder seulement le bouton laisserait la porte ouverte.
+   */
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void guard.wrap(login)();
+  };
+
+  const blocked = loading || !pseudo.trim() || guard.disabled;
 
   return (
     <div
@@ -127,7 +155,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
           <button
             type="submit"
-            disabled={loading || !pseudo.trim()}
+            disabled={blocked}
             style={{
               width: '100%',
               display: 'flex',
@@ -136,32 +164,27 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               gap: '8px',
               marginTop: '16px',
               padding: '14px',
-              background:
-                loading || !pseudo.trim()
-                  ? 'var(--bg-tertiary)'
-                  : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+              background: blocked
+                ? 'var(--bg-tertiary)'
+                : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
               border: 'none',
               borderRadius: '12px',
-              color:
-                loading || !pseudo.trim() ? 'var(--text-tertiary)' : '#ffffff',
+              color: blocked ? 'var(--text-tertiary)' : '#ffffff',
               fontSize: '15px',
               fontWeight: '600',
-              cursor: loading || !pseudo.trim() ? 'not-allowed' : 'pointer',
-              boxShadow:
-                loading || !pseudo.trim()
-                  ? 'none'
-                  : '0 4px 12px rgba(244, 63, 94, 0.3)',
+              cursor: blocked ? 'not-allowed' : 'pointer',
+              boxShadow: blocked ? 'none' : '0 4px 12px rgba(244, 63, 94, 0.3)',
               transition: 'all 0.2s',
             }}
             onMouseEnter={e => {
-              if (!loading && pseudo.trim()) {
+              if (!blocked) {
                 e.currentTarget.style.transform = 'translateY(-1px)';
                 e.currentTarget.style.boxShadow =
                   '0 6px 16px rgba(244, 63, 94, 0.4)';
               }
             }}
             onMouseLeave={e => {
-              if (!loading && pseudo.trim()) {
+              if (!blocked) {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow =
                   '0 4px 12px rgba(244, 63, 94, 0.3)';
@@ -173,6 +196,22 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               {loading ? t('login.submitLoading') : t('login.submit')}
             </span>
           </button>
+
+          {/* Le motif, sous le bouton qu'il explique. Un bouton grisé sans
+              explication est le même cul-de-sac qu'avant, en plus poli. */}
+          {guard.reason && (
+            <p
+              role="status"
+              style={{
+                margin: '12px 0 0 0',
+                fontSize: '13px',
+                color: 'var(--warning)',
+                textAlign: 'center',
+              }}
+            >
+              {guard.reason}
+            </p>
+          )}
         </form>
 
         {/* Footer — text-secondary (pas tertiary) : contraste ≥ 4.5:1
