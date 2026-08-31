@@ -31,7 +31,7 @@ export default defineConfig(({ command }) => {
           });
         },
       },
-      // Service worker (coquille hors-ligne) — enregistré via src/register-sw.ts
+      // Service worker (coquille hors-ligne) — enregistré depuis src/main.tsx
       // (import bundlé, pas de script inline). manifest:false : on garde le
       // public/manifest.json écrit à la main et son <link rel="manifest">.
       VitePWA({
