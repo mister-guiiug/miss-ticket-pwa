@@ -16,7 +16,8 @@ import './index.css';
 import App from './App';
 import { I18nProvider } from './i18n';
 import { ThemePainter, SocleLabels } from './components/SocleProviders';
-import { registerServiceWorker } from './register-sw';
+import { registerSW } from 'virtual:pwa-register';
+import { unregisterServiceWorkers } from '@mister-guiiug/dev-wpa-config/sw-update';
 import { applyTheme, readBootTheme, THEME_LEGACY_KEYS } from './styles/theme';
 
 installErrorReporter();
@@ -24,7 +25,29 @@ void initSentry({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
 });
-registerServiceWorker();
+/**
+ * Service worker : coquille hors-ligne, en mode `autoUpdate` (voir
+ * `vite.config.ts`). Aucune invite, aucun bandeau — la nouvelle version prend
+ * la main d'elle-même. L'import est bundlé, pas de script en ligne : la CSP
+ * stricte le refuserait.
+ *
+ * EN DÉVELOPPEMENT, on désinscrit d'abord : un worker resté d'une session
+ * précédente sert du cache périmé pendant qu'on code, et le HMR se bat contre
+ * lui. `unregisterServiceWorkers` vient du socle et corrige trois défauts de la
+ * douzaine de lignes qu'il remplace — un `catch` PAR désinscription (le nôtre
+ * ne couvrait que `getRegistrations()`, si bien qu'un `unregister()` en échec
+ * devenait un `unhandledrejection`), un plafond de temps (`getRegistrations()`
+ * peut bloquer plusieurs secondes sur iOS en mode autonome, ici sur le chemin
+ * du démarrage), et un compte en retour au lieu d'un `void` inobservable.
+ *
+ * LA CONDITION RESTE ICI : le paquet est aussi lu par `node --test`, il ne peut
+ * pas interroger `import.meta.env`.
+ */
+if (import.meta.env.DEV) {
+  void unregisterServiceWorkers();
+} else {
+  registerSW({ immediate: true });
+}
 
 // Avant le premier rendu : les couleurs de l'app sont des variables CSS posées
 // en ligne, elles n'existent pas tant que `applyTheme` n'a pas tourné. Sans cet
