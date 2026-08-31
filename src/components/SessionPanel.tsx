@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useActionGuard } from '@mister-guiiug/dev-wpa-config/react/use-action-guard';
 import type { SessionState } from '../hooks/useDesktops';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
@@ -36,6 +37,23 @@ export function SessionPanel({
 }: SessionPanelProps) {
   const { isMobile } = useWindowSize();
   const { t } = useI18n();
+
+  /**
+   * ARRÊTER UNE SESSION HORS CONNEXION NE FAISAIT RIEN — SANS RIEN DIRE.
+   *
+   * Les deux commandes passent par `addDoc` sur `commands`. Firestore est ici
+   * sur son cache MÉMOIRE (`getFirestore(app)` nu, aucune persistance) : hors
+   * connexion, la promesse d'écriture n'est ni tenue ni rompue, elle ATTEND.
+   * Ces deux gestionnaires n'ont ni état de chargement ni `catch` — après la
+   * confirmation, la ligne restait telle quelle, indéfiniment. L'utilisateur
+   * ne pouvait pas distinguer « la commande est partie » de « rien ne s'est
+   * produit », et si l'onglet se fermait, l'écriture était perdue sans trace.
+   *
+   * `aria-disabled` plutôt que `disabled` (le motif du paquet) : le bouton
+   * reste focusable, donc le motif reste DÉCOUVRABLE au clavier. `wrap` rend
+   * l'action inerte, y compris pour un lecteur d'écran qui passerait outre.
+   */
+  const guard = useActionGuard({ online: true });
 
   const handleStopSession = async (instanceId: string) => {
     if (confirm(t('sessions.confirmStop'))) {
@@ -167,7 +185,9 @@ export function SessionPanel({
       >
         {sessions.length > 0 && (
           <button
-            onClick={handleStopAll}
+            onClick={guard.wrap(handleStopAll)}
+            {...guard.disabledProps}
+            title={guard.reason ?? undefined}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -179,16 +199,19 @@ export function SessionPanel({
               borderRadius: '10px',
               fontSize: '14px',
               fontWeight: '600',
-              cursor: 'pointer',
+              cursor: guard.disabled ? 'not-allowed' : 'pointer',
+              opacity: guard.disabled ? 0.45 : 1,
               boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)',
               transition: 'all 0.2s',
             }}
             onMouseEnter={e => {
+              if (guard.disabled) return;
               e.currentTarget.style.transform = 'translateY(-1px)';
               e.currentTarget.style.boxShadow =
                 '0 6px 16px rgba(239, 68, 68, 0.35)';
             }}
             onMouseLeave={e => {
+              if (guard.disabled) return;
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow =
                 '0 4px 12px rgba(239, 68, 68, 0.25)';
@@ -197,6 +220,24 @@ export function SessionPanel({
             <Ban size={16} />
             <span>{t('sessions.stopAll')}</span>
           </button>
+        )}
+
+        {/* Le motif, écrit une seule fois pour toute la zone d'actions : il
+            vaut pour « Tout arrêter » comme pour chaque « Arrêter » de ligne.
+            Le répéter sur chaque ligne en ferait du bruit. Pas de session, pas
+            de bouton à expliquer — le bandeau du shell suffit alors. */}
+        {sessions.length > 0 && guard.reason && (
+          <p
+            role="status"
+            style={{
+              margin: 0,
+              alignSelf: 'center',
+              fontSize: '13px',
+              color: 'var(--warning)',
+            }}
+          >
+            {guard.reason}
+          </p>
         )}
 
         {filteredSessions.length !== sessions.length && (
@@ -331,7 +372,8 @@ export function SessionPanel({
             <SessionItem
               key={session.instance_id}
               session={session}
-              onStop={() => handleStopSession(session.instance_id)}
+              onStop={guard.wrap(() => handleStopSession(session.instance_id))}
+              stopBlockedReason={guard.reason}
               isLast={index === filteredSessions.length - 1}
             />
           ))}
@@ -405,10 +447,17 @@ function StatCard({ label, value, icon, color }: StatCardProps) {
 interface SessionItemProps {
   session: SessionState;
   onStop: () => void;
+  /** Motif de blocage, ou `null` si l'arrêt est possible. Décidé par le panneau. */
+  stopBlockedReason: string | null;
   isLast: boolean;
 }
 
-function SessionItem({ session, onStop, isLast }: SessionItemProps) {
+function SessionItem({
+  session,
+  onStop,
+  stopBlockedReason,
+  isLast,
+}: SessionItemProps) {
   const { t } = useI18n();
   const getStatusColor = (status: string) => {
     const s = status.toLowerCase();
@@ -588,6 +637,11 @@ function SessionItem({ session, onStop, isLast }: SessionItemProps) {
         {/* Stop button */}
         <button
           onClick={onStop}
+          aria-disabled={stopBlockedReason ? true : undefined}
+          // Le motif complet, à la portée du survol comme du focus. Il est
+          // aussi affiché EN CLAIR au-dessus de la liste : un `title` seul ne
+          // se découvre pas au doigt.
+          title={stopBlockedReason ?? undefined}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -599,15 +653,18 @@ function SessionItem({ session, onStop, isLast }: SessionItemProps) {
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: '600',
-            cursor: 'pointer',
+            cursor: stopBlockedReason ? 'not-allowed' : 'pointer',
+            opacity: stopBlockedReason ? 0.45 : 1,
             boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)',
             transition: 'all 0.15s',
           }}
           onMouseEnter={e => {
+            if (stopBlockedReason) return;
             e.currentTarget.style.backgroundColor = '#dc2626';
             e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={e => {
+            if (stopBlockedReason) return;
             e.currentTarget.style.backgroundColor = 'var(--error)';
             e.currentTarget.style.transform = 'translateY(0)';
           }}
