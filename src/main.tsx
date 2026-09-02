@@ -21,6 +21,7 @@ import {
   OfflineBanner,
 } from './components/SocleProviders';
 import { registerSW } from 'virtual:pwa-register';
+import { AppUpdates } from '@mister-guiiug/dev-wpa-config/react/app-updates';
 import { unregisterServiceWorkers } from '@mister-guiiug/dev-wpa-config/sw-update';
 import { applyTheme, readBootTheme, THEME_LEGACY_KEYS } from './styles/theme';
 
@@ -30,10 +31,12 @@ void initSentry({
   environment: import.meta.env.MODE,
 });
 /**
- * Service worker : coquille hors-ligne, en mode `autoUpdate` (voir
- * `vite.config.ts`). Aucune invite, aucun bandeau — la nouvelle version prend
- * la main d'elle-même. L'import est bundlé, pas de script en ligne : la CSP
- * stricte le refuserait.
+ * Service worker : coquille hors-ligne, en mode `prompt` (voir
+ * `vite.config.ts`). La nouvelle version est téléchargée en fond ; le bandeau
+ * du socle (`<AppUpdates>`, ci-dessous) propose de recharger et l'utilisateur
+ * choisit le moment — avant le 02/09/2026, `autoUpdate` rechargeait en pleine
+ * session. L'import est bundlé, pas de script en ligne : la CSP stricte le
+ * refuserait.
  *
  * EN DÉVELOPPEMENT, on désinscrit d'abord : un worker resté d'une session
  * précédente sert du cache périmé pendant qu'on code, et le HMR se bat contre
@@ -49,8 +52,6 @@ void initSentry({
  */
 if (import.meta.env.DEV) {
   void unregisterServiceWorkers();
-} else {
-  registerSW({ immediate: true });
 }
 
 // Avant le premier rendu : les couleurs de l'app sont des variables CSS posées
@@ -94,7 +95,11 @@ if (rootElement) {
                       (chargement, QR Tauri, connexion) et l'écran de connexion
                       est celui où la coupure fait le plus de dégâts. */}
                   <OfflineBanner />
-                  <App />
+                  <AppUpdates
+                    registerSW={import.meta.env.PROD ? registerSW : undefined}
+                  >
+                    <App />
+                  </AppUpdates>
                 </IconsProvider>
               </SocleLabels>
             </ThemePainter>

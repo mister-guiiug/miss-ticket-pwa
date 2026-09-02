@@ -40,7 +40,11 @@
     __ANALYTICS_HEAD__
     <meta name="theme-color" content="#ff6b6b" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.json" />
+    <!-- Relatif, pas « /manifest.json » : ce lien absolu visait la racine de
+         l'ORIGINE (mister-guiiug.github.io), pas le site — 404 en production,
+         l'app ne s'installait pas (relevé du 02/09/2026). -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
   </head>
   <body>
     __ANALYTICS_BODY__
