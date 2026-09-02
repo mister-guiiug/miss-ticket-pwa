@@ -8,6 +8,9 @@ import {
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('hooks');
 
 export interface Desktop {
   id: string;
@@ -61,7 +64,7 @@ export function useDesktops(userId: string | undefined) {
         setLoading(false);
       },
       error => {
-        console.error('Error listening to desktops:', error);
+        log.error('Error listening to desktops:', { error: error });
         setLoading(false);
       }
     );

@@ -9,6 +9,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { SessionState } from './useDesktops';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('hooks');
 
 export function useSessions(desktopId: string | undefined) {
   const [sessions, setSessions] = useState<SessionState[]>([]);
@@ -49,7 +52,7 @@ export function useSessions(desktopId: string | undefined) {
         setLoading(false);
       },
       error => {
-        console.error('Error listening to sessions:', error);
+        log.error('Error listening to sessions:', { error: error });
         setLoading(false);
       }
     );

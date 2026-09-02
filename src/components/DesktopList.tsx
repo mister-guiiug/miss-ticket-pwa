@@ -3,6 +3,7 @@ import { Monitor, Clock, Activity, Zap } from 'lucide-react';
 import type { Desktop } from '../hooks/useDesktops';
 import type { DesktopFilter, DesktopSort } from './FilterBar';
 import { useI18n } from '../i18n';
+import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
 
 interface DesktopListProps {
   desktops: Desktop[];
@@ -297,7 +298,7 @@ function DesktopCard({ desktop, onClick }: DesktopCardProps) {
       >
         <Clock size={12} />
         <span>
-          {desktop.lastSeen.toLocaleString('fr-FR', {
+          {desktop.lastSeen.toLocaleString(getDefaultLocale(), {
             day: '2-digit',
             month: '2-digit',
             hour: '2-digit',

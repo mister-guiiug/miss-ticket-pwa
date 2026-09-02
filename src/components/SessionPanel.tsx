@@ -15,6 +15,7 @@ import {
   Ban,
   XCircle,
 } from 'lucide-react';
+import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
 
 interface SessionPanelProps {
   desktopId: string;
@@ -610,12 +611,15 @@ function SessionItem({
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Clock size={12} />
               <span>
-                {new Date(session.timestamp).toLocaleString('fr-FR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+                {new Date(session.timestamp).toLocaleString(
+                  getDefaultLocale(),
+                  {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }
+                )}
               </span>
             </div>
 

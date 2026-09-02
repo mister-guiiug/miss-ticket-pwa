@@ -5,6 +5,9 @@ import {
   parseDeepLink,
 } from '@mister-guiiug/dev-wpa-config/pairing';
 import { db } from '../config/firebase';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('pairing');
 
 /**
  * Source injectée dans `generateCode` : le tirage historique de ce module,
@@ -95,7 +98,7 @@ export async function initiatePairing(
 
     return true;
   } catch (error) {
-    console.error('Pairing error:', error);
+    log.error('Pairing error:', { error: error });
     throw error;
   }
 }
