@@ -16,6 +16,9 @@ export default defineConfig(({ command }) => {
       // sitemap.xml/robots.txt générés au build. Le basePath SEO est celui
       // de l'URL publique GitHub Pages, indépendant de la base des assets.
       pwaSeoPlugin({
+        // Deux <meta name="theme-color"> par schéma : la barre du navigateur suit
+        // le mode sombre dès le premier rendu (relevé du 02/09/2026 : 5 apps sur 16).
+        themeColor: { light: '#ffffff', dark: '#0a0a0a' },
         siteName: 'Miss Ticket',
         basePath: '/miss-ticket-pwa/',
         logoPath: '/icon-192.svg',
@@ -35,7 +38,10 @@ export default defineConfig(({ command }) => {
       // (import bundlé, pas de script inline). manifest:false : on garde le
       // public/manifest.json écrit à la main et son <link rel="manifest">.
       VitePWA({
-        registerType: 'autoUpdate',
+        // `prompt`, pas `autoUpdate` : un déploiement ne recharge plus la page
+        // en pleine session ; le bandeau du socle (AppUpdates, main.tsx) laisse
+        // l'utilisateur choisir le moment.
+        registerType: 'prompt',
         injectRegister: false,
         manifest: false,
         includeAssets: [
