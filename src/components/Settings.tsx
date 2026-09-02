@@ -26,6 +26,9 @@ import {
   repoUrl,
 } from '@mister-guiiug/dev-wpa-config/apps-catalog';
 import { useI18n, type Locale } from '../i18n';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('components');
 
 /**
  * Endonymes des langues : le nom d'une langue s'affiche dans sa propre langue,
@@ -127,7 +130,7 @@ export function Settings({ user, onClose }: SettingsProps) {
 
       setShowClearDialog(false);
     } catch (err) {
-      console.error('Error clearing data:', err);
+      log.error('Error clearing data:', { error: err });
     } finally {
       setClearingData(false);
     }

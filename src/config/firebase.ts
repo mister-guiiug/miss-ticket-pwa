@@ -1,6 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { initializeAuth } from 'firebase/auth';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('config');
 
 // Variables d'environnement requises. measurementId est optionnel (analytics).
 const REQUIRED = [
@@ -24,7 +27,7 @@ if (missing.length > 0) {
     `[Firebase] Configuration incomplète — variables manquantes : ${missing.join(', ')}.\n` +
     `Renseignez les VITE_FIREBASE_* (.env.local en dev, secrets CI au build). Voir .env.example.`;
   if (env.PROD) throw new Error(message);
-  else console.error(message);
+  else log.error(message);
 }
 
 const firebaseConfig = {

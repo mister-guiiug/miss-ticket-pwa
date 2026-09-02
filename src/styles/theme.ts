@@ -3,66 +3,6 @@
  * Palette de couleurs moderne avec support dark/light mode
  */
 
-export const colors = {
-  // Primary colors
-  primary: {
-    50: '#fff1f2',
-    100: '#ffe4e6',
-    200: '#fecdd3',
-    300: '#fda4af',
-    400: '#fb7185',
-    500: '#f43f5e', // Primary main
-    600: '#e11d48',
-    700: '#be123c',
-    800: '#9f1239',
-    900: '#881337',
-  },
-
-  // Neutral colors
-  neutral: {
-    50: '#fafafa',
-    100: '#f5f5f5',
-    200: '#e5e5e5',
-    300: '#d4d4d4',
-    400: '#a3a3a3',
-    500: '#737373',
-    600: '#525252',
-    700: '#404040',
-    800: '#262626',
-    900: '#171717',
-    950: '#0a0a0a',
-  },
-
-  // Semantic colors
-  success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    500: '#22c55e',
-    600: '#16a34a',
-  },
-
-  warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    500: '#f59e0b',
-    600: '#d97706',
-  },
-
-  error: {
-    50: '#fef2f2',
-    100: '#fee2e2',
-    500: '#ef4444',
-    600: '#dc2626',
-  },
-
-  info: {
-    50: '#eff6ff',
-    100: '#dbeafe',
-    500: '#3b82f6',
-    600: '#2563eb',
-  },
-};
-
 export const spacing = {
   xs: '4px',
   sm: '8px',
@@ -83,14 +23,6 @@ export const borderRadius = {
   full: '9999px',
 };
 
-export const shadows = {
-  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-  '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-};
-
 export const fontSize = {
   xs: '12px',
   sm: '14px',
@@ -99,12 +31,6 @@ export const fontSize = {
   xl: '20px',
   '2xl': '24px',
   '3xl': '30px',
-};
-
-export const transitions = {
-  fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
-  base: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
-  slow: '300ms cubic-bezier(0.4, 0, 0.2, 1)',
 };
 
 /**
@@ -256,47 +182,3 @@ export function applyTheme(theme: 'dark' | 'light') {
     root.style.setProperty('--header-border', 'rgba(0, 0, 0, 0.06)');
   }
 }
-
-/**
- * Styles communs réutilisables
- */
-export const commonStyles = {
-  card: {
-    backgroundColor: 'var(--bg-card)',
-    border: '1px solid var(--border-subtle)',
-    borderRadius: borderRadius.lg,
-  },
-
-  input: {
-    backgroundColor: 'var(--bg-tertiary)',
-    border: '1px solid var(--border-default)',
-    borderRadius: borderRadius.md,
-    color: 'var(--text-primary)',
-    outline: 'none',
-    transition: `border-color ${transitions.base}, box-shadow ${transitions.base}`,
-  },
-
-  button: {
-    border: 'none',
-    borderRadius: borderRadius.md,
-    cursor: 'pointer',
-    fontSize: fontSize.sm,
-    fontWeight: '500',
-    transition: `all ${transitions.base}`,
-  },
-
-  buttonPrimary: {
-    backgroundColor: 'var(--primary-500)',
-    color: '#ffffff',
-  },
-
-  buttonSecondary: {
-    backgroundColor: 'var(--bg-tertiary)',
-    color: 'var(--text-primary)',
-  },
-
-  buttonGhost: {
-    backgroundColor: 'transparent',
-    color: 'var(--text-secondary)',
-  },
-};
