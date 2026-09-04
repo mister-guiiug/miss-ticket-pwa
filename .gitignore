@@ -4,9 +4,21 @@ dist/
 .vscode/
 .idea/
 *.log
-.env
 .DS_Store
 Thumbs.db
+
+# Fichiers d'environnement. `.env` seul ne couvrait ni `.env.local` ni
+# `.env.development` : un fichier de travail posé pour un essai partait au
+# prochain `git add -A`, dans un dépôt public.
+.env
+.env.*
+# DEUX EXCEPTIONS, versionnées volontairement. `.env.example` documente les
+# variables. `.env.production` ne contient que des `VITE_FIREBASE_*`, publiques
+# par construction — Vite les copie de toute façon dans le bundle servi sur
+# Pages ; les versionner supprime la dérive entre le dépôt et le site. Rien
+# d'autre n'a le droit d'y entrer : un secret y serait publié.
+!.env.example
+!.env.production
 
 # Playwright
 test-results/
