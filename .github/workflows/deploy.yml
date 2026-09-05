@@ -1,4 +1,4 @@
-# Déploiement délégué au reusable famille (dev-wpa-config) : Pages + Firebase.
+# Déploiement délégué au reusable famille (dev-pwa-config) : Pages + Firebase.
 # base path = '/' (vite.config le force) → use-base-path: false.
 # Le job Firebase utilise le secret FIREBASE_SERVICE_ACCOUNT_KEY (secrets: inherit).
 name: Deploy to GitHub Pages & Firebase
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: mister-guiiug/dev-wpa-config/.github/workflows/pwa-deploy.yml@v3
+    uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-deploy.yml@v4
     secrets: inherit
     with:
       use-base-path: false

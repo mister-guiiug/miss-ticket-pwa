@@ -3,9 +3,9 @@ import {
   ALPHABETS,
   generateCode,
   parseDeepLink,
-} from '@mister-guiiug/dev-wpa-config/pairing';
+} from '@mister-guiiug/dev-pwa-config/pairing';
 import { db } from '../config/firebase';
-import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 
 const log = createLogger('pairing');
 

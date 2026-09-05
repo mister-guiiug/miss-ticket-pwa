@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react';
-import { pwaSeoPlugin } from '@mister-guiiug/dev-wpa-config/vite-pwa-base';
-import { cspPlugin } from '@mister-guiiug/dev-wpa-config/vite-csp';
+import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
+import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 
 export default defineConfig(({ command }) => {
   // Base '/' historique (deploy avec use-base-path: false). `VITE_BASE_PATH`

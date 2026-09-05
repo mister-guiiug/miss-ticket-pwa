@@ -1,6 +1,6 @@
 /* Habillage partagé des composants [data-dwc] du socle (tout en
    @layer components : le CSS non-layered de l'app garde priorité). */
-@import '@mister-guiiug/dev-wpa-config/components.css';
+@import '@mister-guiiug/dev-pwa-config/components.css';
 
 :root {
   color-scheme: dark;
@@ -41,7 +41,7 @@ body {
 }
 
 /* Grille « Nos autres applications » — composant partagé FamilyApps
-   (dev-wpa-config, attributs [data-dwc]). Styles scopés sous .family-apps.
+   (dev-pwa-config, attributs [data-dwc]). Styles scopés sous .family-apps.
    Les couleurs proviennent des variables de thème (posées par applyTheme) :
    l'adaptation clair/sombre est donc automatique, y compris pour les badges
    de maturité qui réutilisent les couleurs sémantiques de l'app. */

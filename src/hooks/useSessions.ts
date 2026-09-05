@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { SessionState } from './useDesktops';
-import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 
 const log = createLogger('hooks');
 

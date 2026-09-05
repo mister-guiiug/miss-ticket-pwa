@@ -20,13 +20,13 @@ import {
   FamilyApps,
   ThemeToggle,
   useThemeContext,
-} from '@mister-guiiug/dev-wpa-config/react';
+} from '@mister-guiiug/dev-pwa-config/react';
 import {
   SPONSOR_URL,
   repoUrl,
-} from '@mister-guiiug/dev-wpa-config/apps-catalog';
+} from '@mister-guiiug/dev-pwa-config/apps-catalog';
 import { useI18n, type Locale } from '../i18n';
-import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 
 const log = createLogger('components');
 
@@ -542,7 +542,7 @@ export function Settings({ user, onClose }: SettingsProps) {
         </Section>
 
         {/* Nos autres applications — cross-promotion famille (composant partagé
-            dev-wpa-config, catalogue). Styles [data-dwc] dans index.css. */}
+            dev-pwa-config, catalogue). Styles [data-dwc] dans index.css. */}
         <Section
           title={t('settings.sectionOtherApps')}
           icon={<LayoutGrid size={18} />}

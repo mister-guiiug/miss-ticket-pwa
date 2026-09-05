@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useActionGuard } from '@mister-guiiug/dev-wpa-config/react/use-action-guard';
+import { useActionGuard } from '@mister-guiiug/dev-pwa-config/react/use-action-guard';
 import type { SessionState } from '../hooks/useDesktops';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
@@ -15,7 +15,7 @@ import {
   Ban,
   XCircle,
 } from 'lucide-react';
-import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
+import { getDefaultLocale } from '@mister-guiiug/dev-pwa-config/format';
 
 interface SessionPanelProps {
   desktopId: string;

@@ -3,7 +3,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import {
   ThemeProvider,
   ThemeToggle,
-} from '@mister-guiiug/dev-wpa-config/react';
+} from '@mister-guiiug/dev-pwa-config/react';
 import { ThemePainter } from '../components/SocleProviders';
 import { readBootTheme, THEME_LEGACY_KEYS } from './theme';
 

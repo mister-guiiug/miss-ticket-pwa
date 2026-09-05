@@ -5,13 +5,13 @@ import {
   ErrorBoundary,
   IconsProvider,
   ThemeProvider,
-} from '@mister-guiiug/dev-wpa-config/react';
-import { lucideIconSet } from '@mister-guiiug/dev-wpa-config/react/icons-lucide';
+} from '@mister-guiiug/dev-pwa-config/react';
+import { lucideIconSet } from '@mister-guiiug/dev-pwa-config/react/icons-lucide';
 import {
   installErrorReporter,
   initSentry,
   recordError,
-} from '@mister-guiiug/dev-wpa-config/react/observability';
+} from '@mister-guiiug/dev-pwa-config/react/observability';
 import './index.css';
 import App from './App';
 import { I18nProvider } from './i18n';
@@ -21,8 +21,8 @@ import {
   OfflineBanner,
 } from './components/SocleProviders';
 import { registerSW } from 'virtual:pwa-register';
-import { AppUpdates } from '@mister-guiiug/dev-wpa-config/react/app-updates';
-import { unregisterServiceWorkers } from '@mister-guiiug/dev-wpa-config/sw-update';
+import { AppUpdates } from '@mister-guiiug/dev-pwa-config/react/app-updates';
+import { unregisterServiceWorkers } from '@mister-guiiug/dev-pwa-config/sw-update';
 import { applyTheme, readBootTheme, THEME_LEGACY_KEYS } from './styles/theme';
 
 installErrorReporter();

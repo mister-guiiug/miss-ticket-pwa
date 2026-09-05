@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-import { definePwaPlaywrightConfig } from '@mister-guiiug/dev-wpa-config/playwright-base';
+import { definePwaPlaywrightConfig } from '@mister-guiiug/dev-pwa-config/playwright-base';
 
 // Factory famille : matrice navigateurs, reporters, snapshots, reducedMotion.
-// `preview: true` (dev-wpa-config 3.x) : les e2e testent un BUILD de prod.
+// `preview: true` (dev-pwa-config 3.x) : les e2e testent un BUILD de prod.
 // La base est '/' par défaut ici (use-base-path: false au deploy), donc pas
 // besoin de neutraliser VITE_BASE_PATH. Port 4173 pour éviter les collisions.
 // Non exécuté en CI (run-e2e: false) — local : `npm run test:e2e`.
