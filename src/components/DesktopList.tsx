@@ -3,7 +3,7 @@ import { Monitor, Clock, Activity, Zap } from 'lucide-react';
 import type { Desktop } from '../hooks/useDesktops';
 import type { DesktopFilter, DesktopSort } from './FilterBar';
 import { useI18n } from '../i18n';
-import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
+import { getDefaultLocale } from '@mister-guiiug/dev-pwa-config/format';
 
 interface DesktopListProps {
   desktops: Desktop[];

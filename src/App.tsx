@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useDesktops } from './hooks/useDesktops';
 import { useSessions } from './hooks/useSessions';
-import { useOnline } from '@mister-guiiug/dev-wpa-config/react/use-online';
+import { useOnline } from '@mister-guiiug/dev-pwa-config/react/use-online';
 import { LoginForm } from './components/LoginForm';
 import { PairingDialog } from './components/PairingDialog';
 import { DesktopList } from './components/DesktopList';

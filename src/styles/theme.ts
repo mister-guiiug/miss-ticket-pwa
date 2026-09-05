@@ -37,7 +37,7 @@ export const fontSize = {
  * L'ANCIENNE CLÉ DE STOCKAGE, reprise par le socle.
  *
  * L'état du thème vient désormais de `ThemeProvider` / `useTheme`
- * (`@mister-guiiug/dev-wpa-config`), qui stocke sous `dwc_theme`. Miss Ticket
+ * (`@mister-guiiug/dev-pwa-config`), qui stocke sous `dwc_theme`. Miss Ticket
  * stockait sous `theme`. Sans reprise, chaque utilisateur déjà installé aurait
  * perdu son choix au premier chargement — une seule fois, sans erreur ni
  * trace. `legacyKeys` relit l'ancienne clé puis réécrit sous la neuve.

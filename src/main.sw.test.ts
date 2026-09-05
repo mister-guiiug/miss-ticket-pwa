@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { swStub } from '@mister-guiiug/dev-wpa-config/testing/pwa-register';
+import { swStub } from '@mister-guiiug/dev-pwa-config/testing/pwa-register';
 
 /**
  * CE QUE CE FICHIER TIENT. `src/register-sw.ts` n'était couvert par aucun test,

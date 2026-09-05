@@ -2,8 +2,8 @@ import { useEffect, type ReactNode } from 'react';
 import {
   LabelsProvider,
   useThemeContext,
-} from '@mister-guiiug/dev-wpa-config/react';
-import { ConnectionBanner } from '@mister-guiiug/dev-wpa-config/react/connection-banner';
+} from '@mister-guiiug/dev-pwa-config/react';
+import { ConnectionBanner } from '@mister-guiiug/dev-pwa-config/react/connection-banner';
 import { useI18n } from '../i18n';
 import { applyTheme } from '../styles/theme';
 
