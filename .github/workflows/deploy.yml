@@ -17,7 +17,11 @@ permissions:
 jobs:
   deploy:
     uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-deploy.yml@v4
-    secrets: inherit
+    # Le seul secret que `pwa-deploy.yml` déclare, nommé plutôt qu'hérité :
+    # `secrets: inherit` enverrait TOUS les secrets du dépôt à un workflow
+    # qui n'en attend qu'un.
+    secrets:
+      FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
     with:
       use-base-path: true
       firebase-project: miss-ticket
