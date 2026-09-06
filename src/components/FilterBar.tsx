@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Monitor,
   HardDrive,
+  History,
 } from 'lucide-react';
 import { useI18n } from '../i18n';
 
@@ -17,12 +18,20 @@ export type SessionFilter =
   | 'waiting'
   | 'purchase'
   | 'error';
+/**
+ * Les issues de l'historique. Ce sont les valeurs de `SessionOutcome`, plus
+ * `all` : filtrer l'historique, c'est choisir une issue — pas un statut
+ * courant, qu'une session terminée n'a plus.
+ */
+export type HistoryFilter = 'all' | 'purchase' | 'error' | 'manual' | 'stopped';
+
+export type AnyFilter = DesktopFilter | SessionFilter | HistoryFilter;
 
 interface FilterBarProps {
-  type: 'desktop' | 'session';
-  filter: DesktopFilter | SessionFilter;
+  type: 'desktop' | 'session' | 'history';
+  filter: AnyFilter;
   sort: DesktopSort;
-  onFilterChange: (filter: DesktopFilter | SessionFilter) => void;
+  onFilterChange: (filter: AnyFilter) => void;
   onSortChange: (sort: DesktopSort) => void;
 }
 
@@ -51,13 +60,26 @@ export function FilterBar({
     { value: 'error', label: t('filters.sessionError') },
   ];
 
+  const historyFilters: { value: HistoryFilter; label: string }[] = [
+    { value: 'all', label: t('filters.historyAll') },
+    { value: 'purchase', label: t('filters.historyPurchase') },
+    { value: 'error', label: t('filters.historyError') },
+    { value: 'manual', label: t('filters.historyManual') },
+    { value: 'stopped', label: t('filters.historyStopped') },
+  ];
+
   const sortOptions: { value: DesktopSort; label: string }[] = [
     { value: 'name', label: t('filters.sortName') },
     { value: 'lastSeen', label: t('filters.sortLastSeen') },
     { value: 'sessions', label: t('filters.sortSessions') },
   ];
 
-  const filters = type === 'desktop' ? desktopFilters : sessionFilters;
+  const filters: { value: AnyFilter; label: string }[] =
+    type === 'desktop'
+      ? desktopFilters
+      : type === 'session'
+        ? sessionFilters
+        : historyFilters;
   const currentFilter = filters.find(f => f.value === filter);
   const currentSort = sortOptions.find(s => s.value === sort);
 
@@ -178,6 +200,9 @@ export function FilterBar({
                   )}
                   {type === 'session' && f.value === 'all' && (
                     <HardDrive size={16} />
+                  )}
+                  {type === 'history' && f.value === 'all' && (
+                    <History size={16} />
                   )}
                   <span>{f.label}</span>
                   {filter === f.value && (

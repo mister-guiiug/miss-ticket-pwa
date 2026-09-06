@@ -30,10 +30,12 @@ export const messages = {
     app: {
       searchDesktop: 'Rechercher un desktop...',
       searchSession: 'Rechercher une session...',
+      searchHistory: 'Rechercher dans l’historique...',
     },
     nav: {
       desktops: 'Desktops',
       sessions: 'Sessions',
+      history: 'Historique',
       pairDesktop: 'Appairer un desktop',
     },
     header: {
@@ -142,6 +144,34 @@ export const messages = {
       noMatch: 'Aucune session ne correspond à votre recherche',
       queuePosition: 'Position {position}',
     },
+    history: {
+      title: 'Historique des sessions',
+      subtitle: 'Ce que sont devenues les sessions terminées',
+      statTotal: 'Terminées',
+      statPurchase: 'Page d’achat',
+      statError: 'Échecs',
+      // Dit CE QUE l'app sait, et rien de plus : elle constate l'issue en
+      // regardant, elle ne la reçoit pas du poste.
+      localOnly:
+        'Conservé sur cet appareil uniquement, à partir de ce que cette télécommande a vu.',
+      filteredCountOne: 'Affichage de {shown} sur {total} session',
+      filteredCountMany: 'Affichage de {shown} sur {total} sessions',
+      emptyTitle: 'Aucune session terminée',
+      emptyMessage:
+        'Les sessions qui s’arrêtent pendant que l’application est ouverte apparaîtront ici.',
+      noMatch: 'Aucune session terminée ne correspond à votre recherche',
+      clear: 'Vider l’historique',
+      confirmClear: 'Vider l’historique des sessions terminées ?',
+      // « Page d'achat atteinte », pas « achat réussi » : le poste ne publie
+      // que le fait d'y être arrivé.
+      outcomePurchase: 'Page d’achat atteinte',
+      outcomeError: 'Échec',
+      outcomeManual: 'Arrêt demandé',
+      outcomeStopped: 'Terminée',
+      finalQueuePosition: 'Position finale : {position}',
+      endedAt: 'Terminée le {date}',
+      startedAt: 'Démarrée le {date}',
+    },
     filters: {
       desktopAll: 'Tous les desktops',
       sessionAll: 'Toutes les sessions',
@@ -149,6 +179,11 @@ export const messages = {
       sessionWaiting: 'En attente',
       sessionPurchase: "Page d'achat",
       sessionError: 'Erreurs',
+      historyAll: 'Toutes les issues',
+      historyPurchase: 'Page d’achat atteinte',
+      historyError: 'Échecs',
+      historyManual: 'Arrêts demandés',
+      historyStopped: 'Terminées',
       sortName: 'Nom',
       sortLastSeen: 'Dernier vu',
       sortSessions: 'Sessions',
@@ -240,10 +275,12 @@ export const messages = {
     app: {
       searchDesktop: 'Search for a desktop...',
       searchSession: 'Search for a session...',
+      searchHistory: 'Search the history...',
     },
     nav: {
       desktops: 'Desktops',
       sessions: 'Sessions',
+      history: 'History',
       pairDesktop: 'Pair a desktop',
     },
     header: {
@@ -338,6 +375,30 @@ export const messages = {
       noMatch: 'No session matches your search',
       queuePosition: 'Position {position}',
     },
+    history: {
+      title: 'Session history',
+      subtitle: 'What became of the sessions that ended',
+      statTotal: 'Ended',
+      statPurchase: 'Purchase page',
+      statError: 'Failures',
+      localOnly:
+        'Kept on this device only, from what this remote actually saw.',
+      filteredCountOne: 'Showing {shown} of {total} session',
+      filteredCountMany: 'Showing {shown} of {total} sessions',
+      emptyTitle: 'No session has ended yet',
+      emptyMessage:
+        'Sessions that stop while the application is open will show up here.',
+      noMatch: 'No ended session matches your search',
+      clear: 'Clear history',
+      confirmClear: 'Clear the history of ended sessions?',
+      outcomePurchase: 'Purchase page reached',
+      outcomeError: 'Failed',
+      outcomeManual: 'Stopped on request',
+      outcomeStopped: 'Ended',
+      finalQueuePosition: 'Final position: {position}',
+      endedAt: 'Ended on {date}',
+      startedAt: 'Started on {date}',
+    },
     filters: {
       desktopAll: 'All desktops',
       sessionAll: 'All sessions',
@@ -345,6 +406,11 @@ export const messages = {
       sessionWaiting: 'Waiting',
       sessionPurchase: 'Purchase page',
       sessionError: 'Errors',
+      historyAll: 'All outcomes',
+      historyPurchase: 'Purchase page reached',
+      historyError: 'Failures',
+      historyManual: 'Stopped on request',
+      historyStopped: 'Ended',
       sortName: 'Name',
       sortLastSeen: 'Last seen',
       sortSessions: 'Sessions',

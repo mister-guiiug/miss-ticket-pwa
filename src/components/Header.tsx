@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Monitor,
   ChevronRight,
+  History,
   User,
   RefreshCw,
   Plus,
@@ -18,10 +19,10 @@ import { useI18n } from '../i18n';
 
 interface HeaderProps {
   user: { displayName: string | null; uid: string };
-  view: 'login' | 'desktops' | 'sessions';
+  view: 'login' | 'desktops' | 'sessions' | 'history';
   selectedDesktopName?: string;
   sessionsCount: number;
-  onNavigate: (view: 'desktops' | 'sessions') => void;
+  onNavigate: (view: 'desktops' | 'sessions' | 'history') => void;
   onSignOut: () => void;
   onShowPairing: () => void;
   onRefresh: () => void;
@@ -165,6 +166,48 @@ export function Header({
                 <Monitor size={16} />
                 <span>{t('nav.desktops')}</span>
               </button>
+
+              {/* L'historique se rejoint de PARTOUT : c'est un écran, pas une
+                  étape du fil d'Ariane. Masqué sur mobile, où le menu
+                  hamburger le porte déjà — trois entrées ne tiennent pas dans
+                  cette barre. */}
+              {!isMobile && (
+                <button
+                  onClick={() => onNavigate('history')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color:
+                      view === 'history'
+                        ? 'var(--text-primary)'
+                        : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    padding: '6px 12px',
+                    fontSize: '14px',
+                    fontWeight: view === 'history' ? '600' : '500',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                  onMouseEnter={e => {
+                    if (view !== 'history') {
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (view !== 'history') {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
+                    }
+                  }}
+                >
+                  <History size={16} />
+                  <span>{t('nav.history')}</span>
+                </button>
+              )}
 
               {view === 'sessions' && selectedDesktopName && (
                 <>

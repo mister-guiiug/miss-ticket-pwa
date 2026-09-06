@@ -1,10 +1,10 @@
-import { Monitor, HardDrive, RefreshCw, Plus } from 'lucide-react';
+import { Monitor, HardDrive, History, RefreshCw, Plus } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface MobileMenuProps {
-  view: 'login' | 'desktops' | 'sessions';
+  view: 'login' | 'desktops' | 'sessions' | 'history';
   sessionsCount: number;
-  onNavigate: (view: 'desktops' | 'sessions') => void;
+  onNavigate: (view: 'desktops' | 'sessions' | 'history') => void;
   onShowPairing: () => void;
   onRefresh: () => void;
   onClose: () => void;
@@ -48,6 +48,16 @@ export function MobileMenu({
         badge={sessionsCount > 0 ? sessionsCount : undefined}
         onClick={() => {
           onNavigate('sessions');
+          onClose();
+        }}
+      />
+
+      <MobileMenuItem
+        icon={<History size={18} />}
+        label={t('nav.history')}
+        active={view === 'history'}
+        onClick={() => {
+          onNavigate('history');
           onClose();
         }}
       />

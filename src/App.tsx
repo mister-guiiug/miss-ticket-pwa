@@ -6,11 +6,14 @@ import { useAuth } from './hooks/useAuth';
 import { useDesktops, type Desktop } from './hooks/useDesktops';
 import type { SessionState } from './lib/sessionState';
 import { useSessions } from './hooks/useSessions';
+import { useSessionHistory } from './hooks/useSessionHistory';
+import type { SessionHistoryEntry } from './lib/sessionHistory';
 import { useOnline } from '@mister-guiiug/dev-pwa-config/react/use-online';
 import { LoginForm } from './components/LoginForm';
 import { PairingDialog } from './components/PairingDialog';
 import { DesktopList } from './components/DesktopList';
 import { SessionPanel } from './components/SessionPanel';
+import { HistoryPanel } from './components/HistoryPanel';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import {
@@ -19,7 +22,9 @@ import {
 } from './components/NotificationToast';
 import {
   FilterBar,
+  type AnyFilter,
   type DesktopFilter,
+  type HistoryFilter,
   type SessionFilter,
   type DesktopSort,
 } from './components/FilterBar';
@@ -34,7 +39,7 @@ import './styles/globals.css';
 // `ThemePainter` sous `ThemeProvider`. L'appel `applyTheme('dark')` qui vivait
 // ici écrasait le choix de l'utilisateur à chaque chargement de module.
 
-type View = 'login' | 'desktops' | 'sessions';
+type View = 'login' | 'desktops' | 'sessions' | 'history';
 
 function App() {
   const { t } = useI18n();
@@ -55,6 +60,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [desktopFilter, setDesktopFilter] = useState<DesktopFilter>('all');
   const [sessionFilter, setSessionFilter] = useState<SessionFilter>('all');
+  const [historyFilter, setHistoryFilter] = useState<HistoryFilter>('all');
   const [desktopSort, setDesktopSort] = useState<DesktopSort>('name');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -68,6 +74,22 @@ function App() {
 
   const { desktops, loading: desktopsLoading } = useDesktops(user?.uid);
   const { sessions, loading: sessionsLoading } = useSessions(selectedDesktopId);
+
+  /**
+   * L'historique est observé ICI, au niveau du shell, et non depuis son écran :
+   * une session se termine pendant qu'on regarde AILLEURS. Branché sur le
+   * panneau, il ne verrait que les fins survenues pendant qu'on le consulte —
+   * c'est-à-dire presque aucune.
+   */
+  const {
+    history,
+    markStopRequested,
+    clear: clearSessionHistory,
+  } = useSessionHistory({
+    desktops,
+    openDesktopId: selectedDesktopId,
+    openSessions: sessions,
+  });
 
   // Réinitialiser la recherche quand on change de vue
   useEffect(() => {
@@ -258,9 +280,11 @@ function App() {
         selectedDesktopId={selectedDesktopId}
         selectedDesktopName={selectedDesktopName}
         user={user}
+        history={history}
         searchQuery={searchQuery}
         desktopFilter={desktopFilter}
         sessionFilter={sessionFilter}
+        historyFilter={historyFilter}
         desktopSort={desktopSort}
         totalSessionsCount={totalSessionsCount}
         isOnline={isOnline}
@@ -271,7 +295,10 @@ function App() {
         onSearchChange={setSearchQuery}
         onDesktopFilterChange={setDesktopFilter}
         onSessionFilterChange={setSessionFilter}
+        onHistoryFilterChange={setHistoryFilter}
         onDesktopSortChange={setDesktopSort}
+        onStopRequested={markStopRequested}
+        onClearHistory={clearSessionHistory}
         onSignOut={signOut}
         onEditProfile={() => setShowEditProfile(true)}
         onOpenSettings={() => setShowSettings(true)}
@@ -352,9 +379,11 @@ interface MainAppProps {
   selectedDesktopId: string | undefined;
   selectedDesktopName: string;
   user: { displayName: string | null; uid: string };
+  history: SessionHistoryEntry[];
   searchQuery: string;
   desktopFilter: DesktopFilter;
   sessionFilter: SessionFilter;
+  historyFilter: HistoryFilter;
   desktopSort: DesktopSort;
   totalSessionsCount: number;
   isOnline: boolean;
@@ -365,7 +394,10 @@ interface MainAppProps {
   onSearchChange: (query: string) => void;
   onDesktopFilterChange: (filter: DesktopFilter) => void;
   onSessionFilterChange: (filter: SessionFilter) => void;
+  onHistoryFilterChange: (filter: HistoryFilter) => void;
   onDesktopSortChange: (sort: DesktopSort) => void;
+  onStopRequested: (instanceIds: readonly string[]) => void;
+  onClearHistory: () => void;
   onSignOut: () => void;
   onEditProfile: () => void;
   onOpenSettings: () => void;
@@ -380,9 +412,11 @@ function MainApp({
   selectedDesktopId,
   selectedDesktopName,
   user,
+  history,
   searchQuery,
   desktopFilter,
   sessionFilter,
+  historyFilter,
   desktopSort,
   totalSessionsCount,
   isOnline,
@@ -393,7 +427,10 @@ function MainApp({
   onSearchChange,
   onDesktopFilterChange,
   onSessionFilterChange,
+  onHistoryFilterChange,
   onDesktopSortChange,
+  onStopRequested,
+  onClearHistory,
   onSignOut,
   onEditProfile,
   onOpenSettings,
@@ -439,7 +476,9 @@ function MainApp({
             placeholder={
               view === 'desktops'
                 ? t('app.searchDesktop')
-                : t('app.searchSession')
+                : view === 'history'
+                  ? t('app.searchHistory')
+                  : t('app.searchSession')
             }
           />
 
@@ -449,9 +488,7 @@ function MainApp({
               filter={desktopFilter}
               sort={desktopSort}
               onFilterChange={
-                onDesktopFilterChange as (
-                  filter: DesktopFilter | SessionFilter
-                ) => void
+                onDesktopFilterChange as (filter: AnyFilter) => void
               }
               onSortChange={onDesktopSortChange}
             />
@@ -463,9 +500,19 @@ function MainApp({
               filter={sessionFilter}
               sort={desktopSort}
               onFilterChange={
-                onSessionFilterChange as (
-                  filter: DesktopFilter | SessionFilter
-                ) => void
+                onSessionFilterChange as (filter: AnyFilter) => void
+              }
+              onSortChange={onDesktopSortChange}
+            />
+          )}
+
+          {view === 'history' && (
+            <FilterBar
+              type="history"
+              filter={historyFilter}
+              sort={desktopSort}
+              onFilterChange={
+                onHistoryFilterChange as (filter: AnyFilter) => void
               }
               onSortChange={onDesktopSortChange}
             />
@@ -494,6 +541,16 @@ function MainApp({
             loading={sessionsLoading}
             searchQuery={searchQuery}
             filter={sessionFilter}
+            onStopRequested={onStopRequested}
+          />
+        )}
+
+        {view === 'history' && (
+          <HistoryPanel
+            entries={history}
+            searchQuery={searchQuery}
+            filter={historyFilter}
+            onClear={onClearHistory}
           />
         )}
       </div>
