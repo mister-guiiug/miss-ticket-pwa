@@ -3,6 +3,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react';
 import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
+import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
 
 export default defineConfig(({ command }) => {
   // LE SITE VIT SOUS `/miss-ticket-pwa/`, ET LES ASSETS DOIVENT LE SAVOIR.
@@ -25,6 +26,9 @@ export default defineConfig(({ command }) => {
 
   return {
     plugins: [
+      // AVANT cspPlugin : il pose un script inline dans le <head>, que la
+      // CSP doit hacher après coup ; et il écrit version.json au build.
+      versionPlugin({ manifest: true }),
       react(),
       // SEO partagé famille : canonical/OG via placeholders index.html +
       // sitemap.xml/robots.txt générés au build. Le basePath SEO est celui
