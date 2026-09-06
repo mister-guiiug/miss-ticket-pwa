@@ -31,17 +31,23 @@ function session(over: Partial<SessionState> = {}): SessionState {
 
 type Props = Parameters<typeof useSessionNotifications>[0];
 
-/** Le hook branché sur un poste ouvert, avec le carnet de ce qu'il annonce. */
-function watch(
-  sessions: SessionState[],
-  desktopId: string | undefined = 'd-1'
-) {
-  const onNotice = vi.fn<(notice: SessionNotice) => void>();
-  const view = renderHook((props: Props) => useSessionNotifications(props), {
-    initialProps: { desktopId, sessions, onNotice },
+function monter(initialProps: Props) {
+  return renderHook((props: Props) => useSessionNotifications(props), {
+    initialProps,
   });
+}
+
+/** Le hook branché sur un poste ouvert, avec le carnet de ce qu'il annonce. */
+function watch(sessions: SessionState[], desktopId = 'd-1') {
+  const onNotice = vi.fn<(notice: SessionNotice) => void>();
+  const view = monter({ desktopId, sessions, loading: false, onNotice });
   const relever = (next: SessionState[], poste = desktopId) =>
-    view.rerender({ desktopId: poste, sessions: next, onNotice });
+    view.rerender({
+      desktopId: poste,
+      sessions: next,
+      loading: false,
+      onNotice,
+    });
   return { onNotice, relever };
 }
 
@@ -148,5 +154,58 @@ describe('la référence suit le monde, quoi qu’on en conclue', () => {
     const { onNotice } = watch([session({ status: "Page d'achat" })]);
 
     expect(onNotice).not.toHaveBeenCalled();
+  });
+
+  it('n’annonce pas les sessions déjà là quand on OUVRE un poste', () => {
+    // Le piège que `loading` ferme : en ouvrant un poste, la liste est vide
+    // AVANT la réponse de Firestore. Retenue comme relevé, elle ferait passer
+    // pour nouvelles toutes les sessions déjà en cours — et l'abstention du
+    // changement de poste, qui existe pour ça, tomberait à côté.
+    const onNotice = vi.fn<(notice: SessionNotice) => void>();
+    const enCours = [
+      session({ instance_id: 'i-1', status: 'En attente' }),
+      session({ instance_id: 'i-2', status: "Page d'achat" }),
+    ];
+    // Sur la liste des postes : aucun poste ouvert.
+    const view = monter({
+      desktopId: undefined,
+      sessions: [],
+      loading: false,
+      onNotice,
+    });
+
+    // On ouvre un poste : Firestore n'a pas encore répondu.
+    view.rerender({
+      desktopId: 'd-1',
+      sessions: [],
+      loading: true,
+      onNotice,
+    });
+    // Il répond : deux sessions y tournaient déjà.
+    view.rerender({
+      desktopId: 'd-1',
+      sessions: enCours,
+      loading: false,
+      onNotice,
+    });
+
+    expect(onNotice).not.toHaveBeenCalled();
+
+    // Et ce relevé est bien devenu la référence : ce qui arrive APRÈS est dit.
+    view.rerender({
+      desktopId: 'd-1',
+      sessions: [
+        ...enCours,
+        session({ instance_id: 'i-3', status: 'En attente', email: 'c@d.fr' }),
+      ],
+      loading: false,
+      onNotice,
+    });
+
+    expect(onNotice).toHaveBeenCalledExactlyOnceWith({
+      kind: 'new-waiting',
+      email: 'c@d.fr',
+      queuePosition: '',
+    });
   });
 });

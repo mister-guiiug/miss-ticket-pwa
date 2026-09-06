@@ -179,6 +179,7 @@ function App() {
   useSessionNotifications({
     desktopId: selectedDesktopId,
     sessions,
+    loading: sessionsLoading,
     onNotice: notifySession,
   });
 
