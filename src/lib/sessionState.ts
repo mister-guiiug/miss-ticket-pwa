@@ -26,6 +26,34 @@ export interface SessionState {
   timestamp: number;
 }
 
+/**
+ * LE VOCABULAIRE DES STATUTS.
+ *
+ * Le desktop publie des libellés français et libres (`Connecté`, `En attente`,
+ * `Page d'achat`, `Erreur réseau`, `Échec du paiement`) : l'app ne peut que
+ * chercher des morceaux. Chaque endroit qui le faisait portait sa propre règle,
+ * et elles avaient divergé — l'issue d'une session et le filtre du panneau
+ * comptent `échec` comme une erreur, les notifications non. Une session en
+ * échec ne prévenait donc personne, alors même qu'elle s'archivait en `error`.
+ *
+ * Ces trois prédicats sont la définition ; `sessionHistory` et les
+ * notifications s'y rangent. Les filtres de `SessionPanel` gardent leurs
+ * copies : ils appartiennent à l'affichage, et changer ce qu'ils montrent n'est
+ * pas ce chantier.
+ */
+export function isPurchaseStatus(status: string): boolean {
+  return status.toLowerCase().includes('achat');
+}
+
+export function isErrorStatus(status: string): boolean {
+  const s = status.toLowerCase();
+  return s.includes('erreur') || s.includes('échec');
+}
+
+export function isWaitingStatus(status: string): boolean {
+  return status.toLowerCase().includes('attente');
+}
+
 function asText(value: unknown): string {
   if (typeof value === 'string') return value;
   // Le desktop publie parfois la position de file en nombre.
