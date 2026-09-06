@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useActionGuard } from '@mister-guiiug/dev-pwa-config/react/use-action-guard';
-import type { SessionState } from '../hooks/useDesktops';
+import type { SessionState } from '../lib/sessionState';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
 import type { SessionFilter } from './FilterBar';
+import { StatCard } from './StatCard';
 import { useI18n } from '../i18n';
 import {
   HardDrive,
@@ -25,6 +26,18 @@ interface SessionPanelProps {
   loading: boolean;
   searchQuery: string;
   filter: SessionFilter;
+  /**
+   * Prévient que l'utilisateur a DEMANDÉ l'arrêt de ces sessions.
+   *
+   * Sans ce signal, l'historique ne peut pas distinguer « la session s'est
+   * arrêtée » de « je l'ai arrêtée » : la télécommande ne voit que la
+   * disparition, jamais sa cause. Le desktop, lui, ne publie pas de motif.
+   * On prévient APRÈS la confirmation et AVANT que la commande ne parte —
+   * l'intention est ce qu'on sait, et elle est vraie même si la commande
+   * échoue ensuite (la session ne disparaîtra alors pas, et rien ne sera
+   * archivé).
+   */
+  onStopRequested?: (instanceIds: readonly string[]) => void;
 }
 
 export function SessionPanel({
@@ -35,6 +48,7 @@ export function SessionPanel({
   loading,
   searchQuery,
   filter,
+  onStopRequested,
 }: SessionPanelProps) {
   const { isMobile } = useWindowSize();
   const { t } = useI18n();
@@ -58,12 +72,14 @@ export function SessionPanel({
 
   const handleStopSession = async (instanceId: string) => {
     if (confirm(t('sessions.confirmStop'))) {
+      onStopRequested?.([instanceId]);
       await stopSession(desktopId, userId, instanceId);
     }
   };
 
   const handleStopAll = async () => {
     if (confirm(t('sessions.confirmStopAll'))) {
+      onStopRequested?.(sessions.map(s => s.instance_id));
       await stopAllSessions(desktopId, userId);
     }
   };
@@ -380,67 +396,6 @@ export function SessionPanel({
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-interface StatCardProps {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  color: string;
-}
-
-function StatCard({ label, value, icon, color }: StatCardProps) {
-  return (
-    <div
-      style={{
-        padding: '16px',
-        backgroundColor: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '12px',
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: '36px',
-          height: '36px',
-          margin: '0 auto 12px',
-          borderRadius: '10px',
-          backgroundColor:
-            color === 'var(--text-primary)'
-              ? 'var(--bg-tertiary)'
-              : color
-                  .replace(')', ', 0.1)')
-                  .replace('rgb', 'rgba')
-                  .replace('var(', 'var('),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ color }}>{icon}</span>
-      </div>
-      <div
-        style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color,
-          marginBottom: '4px',
-        }}
-      >
-        {value}
-      </div>
-      <div
-        style={{
-          fontSize: '12px',
-          color: 'var(--text-secondary)',
-          fontWeight: '500',
-        }}
-      >
-        {label}
-      </div>
     </div>
   );
 }

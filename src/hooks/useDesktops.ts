@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
+import { toSessionStates, type SessionState } from '../lib/sessionState';
 
 const log = createLogger('hooks');
 
@@ -18,17 +19,6 @@ export interface Desktop {
   online: boolean;
   lastSeen: Date;
   sessions: SessionState[];
-}
-
-export interface SessionState {
-  instance_id: string;
-  email: string;
-  concert_url: string;
-  status: string;
-  queue_position: string;
-  proxy: string;
-  effective_ip: string;
-  timestamp: number;
 }
 
 export function useDesktops(userId: string | undefined) {
@@ -56,7 +46,7 @@ export function useDesktops(userId: string | undefined) {
               name: data.name || 'Desktop',
               online: data.online || false,
               lastSeen: data.lastSeen?.toDate() || new Date(),
-              sessions: data.sessions || [],
+              sessions: toSessionStates(data.sessions),
             });
           }
         });
