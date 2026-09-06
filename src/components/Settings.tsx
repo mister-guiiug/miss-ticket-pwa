@@ -27,6 +27,13 @@ import {
 } from '@mister-guiiug/dev-pwa-config/apps-catalog';
 import { useI18n, type Locale } from '../i18n';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
+import {
+  clearAppData,
+  loadSettings,
+  saveSettings,
+  type NotificationPreference,
+  type SettingsState,
+} from '../lib/storage';
 
 const log = createLogger('components');
 
@@ -44,20 +51,16 @@ interface SettingsProps {
   onClose: () => void;
 }
 
-type NotificationPreference = 'all' | 'important' | 'none';
-
 /**
- * Le thème ne figure PLUS ici. Il vivait dans ce blob JSON *et* dans l'état
- * local de la bascule d'en-tête : deux sources, deux écritures, qui
- * divergeaient dès qu'on touchait à l'une sans l'autre. La seule source est
- * désormais `ThemeProvider`.
+ * La FORME des réglages n'est plus déclarée ici : elle vit dans
+ * `../lib/storage`, avec sa version, sa migration et sa validation. Ce
+ * composant lit et écrit, il ne décide plus du format sur le disque.
+ *
+ * Le thème, lui, ne figure nulle part dans ces réglages. Il vivait dans ce
+ * blob JSON *et* dans l'état local de la bascule d'en-tête : deux sources,
+ * deux écritures, qui divergeaient dès qu'on touchait à l'une sans l'autre. La
+ * seule source est désormais `ThemeProvider` (clé `dwc_theme` du socle).
  */
-interface SettingsState {
-  notifications: NotificationPreference;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-}
-
 export function Settings({ user, onClose }: SettingsProps) {
   const { t, locale, setLocale, locales } = useI18n();
   // État partagé du ThemeProvider monté dans main.tsx. `resolved` (et non
@@ -65,23 +68,10 @@ export function Settings({ user, onClose }: SettingsProps) {
   // quand la préférence est « système ».
   const themeCtx = useThemeContext();
   const resolvedTheme = themeCtx?.resolved === 'light' ? 'light' : 'dark';
-  const [settings, setSettings] = useState<SettingsState>(() => {
-    const saved = localStorage.getItem('settings');
-    if (saved) {
-      // `theme` peut traîner dans le blob des versions précédentes : on le
-      // laisse tomber au lieu de le laisser concurrencer le socle.
-      const { theme: _legacyTheme, ...rest } = JSON.parse(saved) as Record<
-        string,
-        unknown
-      >;
-      return rest as unknown as SettingsState;
-    }
-    return {
-      notifications: 'all',
-      soundEnabled: true,
-      vibrationEnabled: true,
-    };
-  });
+  // `loadSettings` reprend la clé nue d'hier, applique la migration 0 → 1 et
+  // valide. Le `JSON.parse` à la main qui vivait ici — et sa rustine pour
+  // laisser tomber le `theme` mort — sont devenus une migration nommée.
+  const [settings, setSettings] = useState<SettingsState>(loadSettings);
 
   const themePreference = themeCtx?.theme ?? 'dark';
   const themeValueLabel =
@@ -100,9 +90,9 @@ export function Settings({ user, onClose }: SettingsProps) {
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [clearingData, setClearingData] = useState(false);
 
-  // Sauvegarder les settings
+  // Sauvegarder les settings, sous l'enveloppe versionnée du magasin.
   useEffect(() => {
-    localStorage.setItem('settings', JSON.stringify(settings));
+    saveSettings(settings);
   }, [settings]);
 
   const updateSetting = <K extends keyof SettingsState>(
@@ -112,22 +102,19 @@ export function Settings({ user, onClose }: SettingsProps) {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * `localStorage.clear()` vivait ici : il effaçait l'ORIGINE entière. Sur
+   * `mister-guiiug.github.io`, « effacer les données de Miss Ticket »
+   * emportait donc celles des dix-huit autres PWA de la famille. Le code
+   * remettait ensuite les deux seules clés qu'il connaissait (`dwc_theme` et
+   * `settings`) et laissait tomber le reste — à commencer par la langue.
+   * `clearAppData` n'énumère que le préfixe `ticket_` et garde les
+   * préférences ; le thème est hors préfixe, il n'est donc plus jamais touché.
+   */
   const handleClearData = async () => {
     setClearingData(true);
     try {
-      // Clear localStorage except theme and settings. La clé du thème est
-      // celle du socle (`dwc_theme`) : sans cette ligne, « effacer les
-      // données » réinitialiserait aussi le thème, ce que l'intention
-      // d'origine excluait explicitement.
-      const theme = localStorage.getItem('dwc_theme');
-      const settings = localStorage.getItem('settings');
-      localStorage.clear();
-      if (theme) localStorage.setItem('dwc_theme', theme);
-      if (settings) localStorage.setItem('settings', settings);
-
-      // Clear IndexedDB if needed
-      // ...
-
+      clearAppData();
       setShowClearDialog(false);
     } catch (err) {
       log.error('Error clearing data:', { error: err });
