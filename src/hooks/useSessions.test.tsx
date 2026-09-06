@@ -122,6 +122,41 @@ describe('ce qu’on tient, et de quel poste il parle', () => {
     expect(result.current.sessions.map(s => s.instance_id)).toEqual(['i-9']);
   });
 
+  it('en REVENANT sur un poste, il attend le nouvel abonnement', () => {
+    // Ce qu'on tient appartient à un abonnement, pas à un poste. Le relevé de
+    // la visite précédente peut avoir des minutes : le servir comme s'il était
+    // frais ferait passer pour NOUVEAU tout ce qui a changé entre-temps.
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string | undefined }) => useSessions(id),
+      { initialProps: { id: 'd-1' as string | undefined } }
+    );
+    repondre('d-1', [{ id: 'i-1', status: 'En attente' }]);
+
+    rerender({ id: undefined }); // retour à la liste des postes
+    rerender({ id: 'd-1' }); // et on rouvre le même poste
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.sessions).toEqual([]);
+  });
+
+  it('après un ÉCHEC, revenir sur le poste repart d’une attente', () => {
+    // Une erreur Firestore ferme l'écoute pour de bon. Sans l'oubli au rendu,
+    // le vide qu'elle laisse serait resservi à la visite suivante comme un
+    // relevé — et les sessions bien vivantes du poste arriveraient toutes
+    // comme nouvelles.
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string | undefined }) => useSessions(id),
+      { initialProps: { id: 'd-1' as string | undefined } }
+    );
+    act(() => listenerOf('d-1').fail(new Error('permission-denied')));
+    expect(result.current.loading).toBe(false);
+
+    rerender({ id: undefined });
+    rerender({ id: 'd-1' });
+
+    expect(result.current.loading).toBe(true);
+  });
+
   it('ferme l’abonnement du poste qu’on quitte', () => {
     const { rerender } = renderHook(
       ({ id }: { id: string }) => useSessions(id),
