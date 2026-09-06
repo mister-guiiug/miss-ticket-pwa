@@ -39,7 +39,11 @@
  * deviendra un cache et non plus la seule trace.
  */
 import { createVersionedStore } from '@mister-guiiug/dev-pwa-config/versioned-store';
-import type { SessionState } from './sessionState';
+import {
+  isErrorStatus,
+  isPurchaseStatus,
+  type SessionState,
+} from './sessionState';
 import { appStore } from './storage';
 
 /**
@@ -111,16 +115,16 @@ const OUTCOMES: readonly SessionOutcome[] = [
  * que pour une session qu'on interrompt sans issue propre.
  *
  * Les libellés du desktop sont français et libres (`Connecté`, `En attente`,
- * `Page d'achat`, `Erreur …`) : on cherche des morceaux, comme le reste de
- * l'app le fait déjà pour ses filtres et ses statistiques.
+ * `Page d'achat`, `Erreur …`) : on cherche des morceaux — le vocabulaire vit
+ * dans `sessionState.ts`, pour que l'issue archivée et la notification qui
+ * prévient disent la même chose du même statut.
  */
 export function deriveOutcome(
   status: string,
   stoppedByUser: boolean
 ): SessionOutcome {
-  const s = status.toLowerCase();
-  if (s.includes('erreur') || s.includes('échec')) return 'error';
-  if (s.includes('achat')) return 'purchase';
+  if (isErrorStatus(status)) return 'error';
+  if (isPurchaseStatus(status)) return 'purchase';
   if (stoppedByUser) return 'manual';
   return 'stopped';
 }

@@ -1,13 +1,15 @@
 /**
  * Composant principal de la PWA Miss Ticket avec Firebase
  */
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useDesktops, type Desktop } from './hooks/useDesktops';
 import type { SessionState } from './lib/sessionState';
 import { useSessions } from './hooks/useSessions';
 import { useSessionHistory } from './hooks/useSessionHistory';
+import { useSessionNotifications } from './hooks/useSessionNotifications';
 import type { SessionHistoryEntry } from './lib/sessionHistory';
+import type { SessionNotice } from './lib/sessionNotifications';
 import { useOnline } from '@mister-guiiug/dev-pwa-config/react/use-online';
 import { LoginForm } from './components/LoginForm';
 import { PairingDialog } from './components/PairingDialog';
@@ -102,76 +104,6 @@ function App() {
     0
   );
 
-  // Système de notifications pour les changements de sessions
-  const previousSessionsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    if (selectedDesktopId && sessions.length > 0) {
-      const currentIds = sessions.map(s => s.instance_id);
-      const previousIds = previousSessionsRef.current;
-
-      // Nouvelles sessions
-      sessions.forEach(session => {
-        if (!previousIds.includes(session.instance_id)) {
-          // Nouvelle session créée
-          if (session.status.toLowerCase().includes('achat')) {
-            addNotification({
-              type: 'success',
-              title: t('notifications.purchaseTitle'),
-              message: t('notifications.purchaseForUrl', {
-                email: session.email,
-                url: session.concert_url.slice(0, 30),
-              }),
-            });
-          } else if (session.status.toLowerCase().includes('attente')) {
-            addNotification({
-              type: 'info',
-              title: t('notifications.waitingTitle'),
-              message: session.queue_position
-                ? t('notifications.waitingQueuePosition', {
-                    email: session.email,
-                    position: session.queue_position,
-                  })
-                : t('notifications.waitingQueue', { email: session.email }),
-            });
-          }
-        } else {
-          // Session existante - vérifier les changements de statut
-          const previousSession = previousSessionsRef.current.includes(
-            session.instance_id
-          )
-            ? sessions.find(s => s.instance_id === session.instance_id)
-            : null;
-
-          if (previousSession && previousSession.status !== session.status) {
-            if (
-              session.status.toLowerCase().includes('achat') &&
-              !previousSession.status.toLowerCase().includes('achat')
-            ) {
-              addNotification({
-                type: 'success',
-                title: t('notifications.purchaseTitle'),
-                message: t('notifications.purchaseReached', {
-                  email: session.email,
-                }),
-              });
-            } else if (session.status.toLowerCase().includes('erreur')) {
-              addNotification({
-                type: 'error',
-                title: t('notifications.errorTitle'),
-                message: t('notifications.errorMessage', {
-                  email: session.email,
-                }),
-              });
-            }
-          }
-        }
-      });
-
-      previousSessionsRef.current = currentIds;
-    }
-  }, [sessions, selectedDesktopId]);
-
   const addNotification = useCallback(
     (notification: Omit<Notification, 'id' | 'timestamp'>) => {
       const id = `${Date.now()}-${Math.random()}`;
@@ -186,6 +118,69 @@ function App() {
   const removeNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
+
+  /**
+   * L'ÉVÉNEMENT MIS EN MOTS. La comparaison de deux relevés vit dans
+   * `sessionNotifications.ts` et ne connaît aucun texte ; c'est ici, et ici
+   * seulement, que la langue courante entre en jeu.
+   */
+  const notifySession = useCallback(
+    (notice: SessionNotice) => {
+      switch (notice.kind) {
+        case 'new-purchase':
+          addNotification({
+            type: 'success',
+            title: t('notifications.purchaseTitle'),
+            message: t('notifications.purchaseForUrl', {
+              email: notice.email,
+              url: notice.concertUrl.slice(0, 30),
+            }),
+          });
+          break;
+        case 'new-waiting':
+          addNotification({
+            type: 'info',
+            title: t('notifications.waitingTitle'),
+            message: notice.queuePosition
+              ? t('notifications.waitingQueuePosition', {
+                  email: notice.email,
+                  position: notice.queuePosition,
+                })
+              : t('notifications.waitingQueue', { email: notice.email }),
+          });
+          break;
+        case 'purchase-reached':
+          addNotification({
+            type: 'success',
+            title: t('notifications.purchaseTitle'),
+            message: t('notifications.purchaseReached', {
+              email: notice.email,
+            }),
+          });
+          break;
+        case 'error':
+          addNotification({
+            type: 'error',
+            title: t('notifications.errorTitle'),
+            message: t('notifications.errorMessage', { email: notice.email }),
+          });
+          break;
+      }
+    },
+    [addNotification, t]
+  );
+
+  /**
+   * CE QUE LE PRODUIT PROMET : prévenir quand la file est franchie. L'effet qui
+   * s'en chargeait ne comparait rien — il retrouvait « l'état précédent » d'une
+   * session dans le tableau COURANT, donc la session elle-même. Aucune
+   * notification de changement de statut n'a jamais pu partir.
+   */
+  useSessionNotifications({
+    desktopId: selectedDesktopId,
+    sessions,
+    onNotice: notifySession,
+  });
 
   const handleRefresh = useCallback(() => {
     setRefreshKey(prev => prev + 1);
