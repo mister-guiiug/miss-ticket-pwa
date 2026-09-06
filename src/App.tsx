@@ -25,6 +25,7 @@ import {
 import { EditProfile } from './components/EditProfile';
 import { Settings } from './components/Settings';
 import { QRCodeDisplay } from './components/QRCodeDisplay';
+import { FamilyLinks } from './components/FamilyLinks';
 import { useI18n } from './i18n';
 import './styles/globals.css';
 
@@ -490,6 +491,11 @@ function MainApp({
           />
         )}
       </div>
+
+      {/* HORS de l'écran Réglages : le code source et le soutien sont ainsi
+          visibles sans avoir à ouvrir un panneau — la règle famille. Ils n'y
+          étaient qu'au bas des Réglages, qui s'ouvrent par-dessus l'app. */}
+      <FamilyLinks />
     </div>
   );
 }
