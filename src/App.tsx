@@ -3,7 +3,8 @@
  */
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
-import { useDesktops } from './hooks/useDesktops';
+import { useDesktops, type Desktop } from './hooks/useDesktops';
+import type { SessionState } from './lib/sessionState';
 import { useSessions } from './hooks/useSessions';
 import { useOnline } from '@mister-guiiug/dev-pwa-config/react/use-online';
 import { LoginForm } from './components/LoginForm';
@@ -331,17 +332,22 @@ function App() {
 
 interface MainAppProps {
   view: View;
-  desktops: Array<{
-    id: string;
-    name: string;
-    online: boolean;
-    lastSeen: Date;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- forme de session dynamique (Firestore)
-    sessions: any[];
-  }>;
+  /**
+   * LE TYPE, PAS `any`. Ces deux champs étaient déclarés `any[]` sous un
+   * `eslint-disable` invoquant une « forme de session dynamique (Firestore) ».
+   * L'argument ne tenait pas : `DesktopList` et `SessionPanel`, eux, réclament
+   * `Desktop[]` et `SessionState[]` — la forme EST connue, elle était
+   * simplement perdue en chemin, et le compilateur ne pouvait plus confronter
+   * ce qu'`App` transmet à ce que ces composants attendent.
+   *
+   * Le `any` avait toutefois une part de vrai, à la SOURCE : `useDesktops`
+   * castait le tableau brut du document Firestore sans vérifier un seul champ.
+   * C'est réglé là où c'est juste — dans le hook (`toSessionState`) — et le
+   * type devient vrai des deux côtés.
+   */
+  desktops: Desktop[];
   desktopsLoading: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- forme de session dynamique (Firestore)
-  sessions: any[];
+  sessions: SessionState[];
   sessionsLoading: boolean;
   selectedDesktopId: string | undefined;
   selectedDesktopName: string;

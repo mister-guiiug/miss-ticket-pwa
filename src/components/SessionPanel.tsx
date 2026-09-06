@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useActionGuard } from '@mister-guiiug/dev-pwa-config/react/use-action-guard';
-import type { SessionState } from '../hooks/useDesktops';
+import type { SessionState } from '../lib/sessionState';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
 import type { SessionFilter } from './FilterBar';

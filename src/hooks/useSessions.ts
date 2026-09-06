@@ -8,7 +8,7 @@ import {
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import type { SessionState } from './useDesktops';
+import { toSessionState, type SessionState } from '../lib/sessionState';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 
 const log = createLogger('hooks');
@@ -36,16 +36,10 @@ export function useSessions(desktopId: string | undefined) {
         snapshot.forEach((doc: DocumentSnapshot<DocumentData>) => {
           const data = doc.data();
           if (data) {
-            sessionsData.push({
-              instance_id: doc.id,
-              email: data.email || '',
-              concert_url: data.concert_url || '',
-              status: data.status || 'Inconnu',
-              queue_position: data.queue_position || '',
-              proxy: data.proxy || '',
-              effective_ip: data.effective_ip || '',
-              timestamp: data.timestamp || Date.now(),
-            });
+            // Même normalisation que pour les sessions embarquées dans le
+            // document d'un poste : une seule définition de « ce qu'est une
+            // session », et l'identifiant vient ici du document.
+            sessionsData.push(toSessionState(data, doc.id));
           }
         });
         setSessions(sessionsData);
