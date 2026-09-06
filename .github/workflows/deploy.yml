@@ -1,5 +1,5 @@
 # Déploiement délégué au reusable famille (dev-pwa-config) : Pages + Firebase.
-# base path = '/' (vite.config le force) → use-base-path: false.
+# base path = '/miss-ticket-pwa/' : le réutilisable le pose dans VITE_BASE_PATH.
 # Le job Firebase utilise le secret FIREBASE_SERVICE_ACCOUNT_KEY (secrets: inherit).
 name: Deploy to GitHub Pages & Firebase
 
@@ -19,6 +19,6 @@ jobs:
     uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-deploy.yml@v4
     secrets: inherit
     with:
-      use-base-path: false
+      use-base-path: true
       firebase-project: miss-ticket
       firebase-only: firestore:rules,firestore:indexes

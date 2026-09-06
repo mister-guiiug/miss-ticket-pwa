@@ -5,9 +5,23 @@ import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 
 export default defineConfig(({ command }) => {
-  // Base '/' historique (deploy avec use-base-path: false). `VITE_BASE_PATH`
-  // reste honorée si fournie (Lighthouse CI, éventuel passage sous /repo/).
-  const basePath = process.env.VITE_BASE_PATH ?? '/';
+  // LE SITE VIT SOUS `/miss-ticket-pwa/`, ET LES ASSETS DOIVENT LE SAVOIR.
+  //
+  // La base valait `/` depuis le 03/06/2026 (« base historique », avec
+  // `use-base-path: false` au déploiement). Vite écrivait donc
+  // `<script src="/assets/…">` : servi par GitHub Pages sous
+  // `mister-guiiug.github.io/miss-ticket-pwa/`, ce chemin part de la RACINE de
+  // l'origine et répond 404. La page se chargeait sans une ligne de JS ni de
+  // CSS — blanche, sans la moindre erreur visible côté build.
+  //
+  // Le manifeste avait déjà été corrigé (`id`, `start_url` et icônes en
+  // `/miss-ticket-pwa/…`), et le lien du manifeste rendu relatif : deux
+  // rustines sur le symptôme, jamais sur la cause.
+  //
+  // `VITE_BASE_PATH` reste honorée — c'est elle que pose `pwa-deploy.yml` — et
+  // le défaut vaut désormais la même chose, pour qu'un build local rende ce que
+  // la production sert.
+  const basePath = process.env.VITE_BASE_PATH ?? '/miss-ticket-pwa/';
 
   return {
     plugins: [
