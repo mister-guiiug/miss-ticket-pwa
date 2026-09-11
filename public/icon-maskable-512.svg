@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    LE MASKABLE, ET POURQUOI CE N'EST PAS `icon-512.svg` EN PLUS PETIT.
+
+    Le PNG livré jusqu'ici était la tuile arrondie réduite sur un fond plus
+    sombre : le raccord se voyait, avec en prime une encoche au coin haut-gauche.
+    Mesuré, le coin rendait rgb(15,15,26) quand l'intérieur rendait
+    rgb(34,34,49). Android ne cache pas ce bord, il le révèle.
+
+    TROIS DIFFÉRENCES AVEC LA SOURCE :
+
+      1. LE FOND N'A PLUS DE COINS. `rx="128"` disparaît : l'aplat occupe la
+         toile entière, donc il n'y a plus de bord à raccorder. C'est la MÊME
+         couleur, et la MÊME brillance par-dessus.
+
+      2. LE TICKET EST RECENTRÉ. Il penchait vers le bas-droite de 24 et 32 px.
+
+      3. IL EST AGRANDI D'UN QUART. C'est le sens même d'un maskable : le sujet
+         doit OCCUPER la zone de sécurité, pas s'y perdre. Mesuré sur le rendu,
+         le ticket n'atteignait que 138,7 px pour un disque de 204,8 — il flottait
+         au milieu. À 125 % il monte à 173 px, et garde trente pixels de marge.
+         L'icône `any`, elle, conserve ses proportions d'origine.
+  -->
+  <rect width="512" height="512" fill="#1e1e2e"/>
+
+  <g transform="translate(256 256) scale(1.25) translate(-256 -256) translate(-24 -32)">
+    <!-- Ticket stylisé -->
+    <g transform="translate(128, 128)">
+      <!-- Corps du ticket -->
+      <rect x="40" y="64" width="224" height="192" rx="24" fill="#ff6b6b"/>
+
+      <!-- Encoches du ticket -->
+      <circle cx="40" cy="160" r="24" fill="#1e1e2e"/>
+      <circle cx="264" cy="160" r="24" fill="#1e1e2e"/>
+
+      <!-- Ligne pointillée centrale -->
+      <line x1="64" y1="160" x2="240" y2="160" stroke="#1e1e2e" stroke-width="8" stroke-dasharray="16 12" opacity="0.3"/>
+
+      <!-- Symbole "Miss" stylisé -->
+      <path d="M96 112 L108 112 L132 148 L156 112 L168 112 L168 180 L156 180 L156 136 L132 172 L108 136 L108 180 L96 180 Z" fill="white"/>
+
+      <!-- Points et lettres -->
+      <circle cx="188" cy="124" r="8" fill="white"/>
+      <rect x="182" y="140" width="12" height="40" rx="3" fill="white"/>
+
+      <!-- Symbole "ss" -->
+      <path d="M204 152 L196 144 Q192 140 200 140 L216 140 Q224 140 220 144 L212 152 Q208 156 216 156 L232 156 Q240 156 236 160 L228 168 Q224 172 232 172 L216 172 Q208 172 212 168 L204 152" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Effet de brillance, comme sur l'icône : il appartient au FOND. -->
+  <circle cx="170" cy="170" r="220" fill="url(#gradient)" opacity="0.1"/>
+
+  <defs>
+    <radialGradient id="gradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(170 170) rotate(90) scale(220)">
+      <stop stop-color="white"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
