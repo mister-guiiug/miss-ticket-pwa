@@ -13,11 +13,7 @@ import { useI18n } from '../i18n';
 export type DesktopFilter = 'all' | 'online' | 'offline';
 export type DesktopSort = 'name' | 'lastSeen' | 'sessions';
 export type SessionFilter =
-  | 'all'
-  | 'connected'
-  | 'waiting'
-  | 'purchase'
-  | 'error';
+  'all' | 'connected' | 'waiting' | 'purchase' | 'error';
 /**
  * Les issues de l'historique. Ce sont les valeurs de `SessionOutcome`, plus
  * `all` : filtrer l'historique, c'est choisir une issue — pas un statut
