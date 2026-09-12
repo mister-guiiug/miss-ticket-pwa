@@ -2,10 +2,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export type CommandAction =
-  | 'launch_session'
-  | 'stop_session'
-  | 'stop_all'
-  | 'get_state';
+  'launch_session' | 'stop_session' | 'stop_all' | 'get_state';
 
 interface CommandPayload {
   email?: string;
