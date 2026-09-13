@@ -33,7 +33,7 @@ void initSentry({
 /**
  * Service worker : coquille hors-ligne, en mode `prompt` (voir
  * `vite.config.ts`). La nouvelle version est téléchargée en fond ; le bandeau
- * du socle (`<AppUpdates>`, ci-dessous) propose de recharger et l'utilisateur
+ * du socle (`<AppUpdates checkEvery="1h">`, ci-dessous) propose de recharger et l'utilisateur
  * choisit le moment — avant le 02/09/2026, `autoUpdate` rechargeait en pleine
  * session. L'import est bundlé, pas de script en ligne : la CSP stricte le
  * refuserait.
