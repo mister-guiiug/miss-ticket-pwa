@@ -21,10 +21,11 @@
     "icons:maskable": "node scripts/generate-maskable.mjs"
   },
   "bundleBudget": {
-    "totalGzipKb": 330
+    "totalGzipKb": 410,
+    "_pourquoi": "Relevé de 330 à 410 le 13/09/2026 par firebase 12.14.0 → 12.19.0, un MINEUR qui coûte +55,1 kB gzip (+17,5 %) : mesuré sur deux installations exactes, 315,2 kB avant et 370,3 après, tout dans le chunk principal (1089 → 1287 kB brut). Le coupable est @firebase/firestore 4.15.0 → 4.17.2, qui gagne 288 Kio d ESM là où @firebase/auth n en gagne que 44 ; l app importe firebase/app, firebase/auth et firebase/firestore. 410 rend une marge de ~40 kB, comparable aux ~15 kB qu il y avait sous 330."
   },
   "dependencies": {
-    "firebase": "^12.12.0",
+    "firebase": "^12.19.0",
     "lucide-react": "^1.45.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.3.0",
@@ -34,9 +35,9 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
-    "@mister-guiiug/dev-pwa-config": "^4.13.0",
+    "@mister-guiiug/dev-pwa-config": "^4.14.0",
     "@playwright/test": "^1.63.0",
-    "@testing-library/dom": "^10.4.1",
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^26.5.1",
