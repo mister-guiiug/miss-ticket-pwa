@@ -11,6 +11,7 @@ import { useSessionNotifications } from './hooks/useSessionNotifications';
 import type { SessionHistoryEntry } from './lib/sessionHistory';
 import type { SessionNotice } from './lib/sessionNotifications';
 import { useOnline } from '@mister-guiiug/dev-pwa-config/react/use-online';
+import { PwaInstallPrompt } from '@mister-guiiug/dev-pwa-config/react/pwa-install-prompt';
 import { LoginForm } from './components/LoginForm';
 import { PairingDialog } from './components/PairingDialog';
 import { DesktopList } from './components/DesktopList';
@@ -554,6 +555,16 @@ function MainApp({
       {/* HORS de l'écran Réglages : le code source et le soutien sont ainsi
           visibles sans avoir à ouvrir un panneau — la règle famille. Ils n'y
           étaient qu'au bas des Réglages, qui s'ouvrent par-dessus l'app. */}
+      {/* SUR LA VUE D'ACCUEIL SEULEMENT. Cette application ne navigue pas par
+          routes mais par état : `view` vaut `desktops` au démarrage, et c'est
+          là que l'utilisateur est au repos. Sans cette garde, l'invite
+          paraîtrait au milieu d'une session ou d'un historique consulté.
+          Ne rend rien tant qu'une installation n'est pas possible, ni une fois
+          l'application installée — et sur iOS, où l'événement natif n'existe
+          pas, donne la marche à suivre. Cadence du socle : au premier
+          lancement, puis une fois par mois, trois fois. */}
+      {view === 'desktops' && <PwaInstallPrompt />}
+
       <FamilyLinks />
     </div>
   );
