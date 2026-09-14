@@ -96,6 +96,7 @@ if (rootElement) {
                       est celui où la coupure fait le plus de dégâts. */}
                   <OfflineBanner />
                   <AppUpdates
+                    checkEvery="1h"
                     registerSW={import.meta.env.PROD ? registerSW : undefined}
                   >
                     <App />
