@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import { useEffect, useState } from 'react';
+import { useQrScanner } from '@mister-guiiug/dev-pwa-config/react/use-qr-scanner';
 import { initiatePairing, parseQRCode } from '../lib/pairing';
 import { X, QrCode, Keyboard, Check } from 'lucide-react';
 import { useI18n } from '../i18n';
@@ -29,6 +29,33 @@ export function PairingDialog({
       handlePairing(data);
     }
   };
+
+  // LE SCAN PASSE PAR LE SOCLE. `react-qr-reader` était une `3.0.0-beta-1` de
+  // février 2022, dépôt figé depuis, 149 tickets ouverts. Le hook du socle rend
+  // le même service et porte deux pièges déjà payés dans mister-molkky : la
+  // `<video>` qui n'existe pas encore au moment du clic, et la caméra qui reste
+  // allumée si l'on oublie de l'éteindre.
+  //
+  // Différence de forme : `<QrReader>` démarrait tout seul en se montant ; ici
+  // c'est nous qui rendons la `<video>` et appelons `start()`. D'où l'effet
+  // ci-dessous, qui suit l'onglet choisi — passer à la saisie manuelle ÉTEINT
+  // la caméra, ce que l'ancien composant ne faisait qu'en se démontant.
+  const {
+    videoRef,
+    scanning,
+    error: scanError,
+    start,
+    stop,
+  } = useQrScanner({
+    onScan: handleQRScan,
+    preferredCamera: 'environment',
+  });
+
+  useEffect(() => {
+    if (method === 'qr') start();
+    else stop();
+    return stop;
+  }, [method, start, stop]);
 
   const handlePairing = async (data: string) => {
     setLoading(true);
@@ -237,25 +264,42 @@ export function PairingDialog({
                 aspectRatio: '1',
               }}
             >
-              <QrReader
-                onResult={result => {
-                  if (result) {
-                    handleQRScan(result?.getText());
-                  }
-                }}
-                constraints={{ facingMode: 'environment' }}
-                videoStyle={{
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                aria-label={t('pairing.qrInstruction')}
+                style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
                 }}
-                videoContainerStyle={{
-                  width: '100%',
-                  height: '100%',
-                  padding: 0,
-                }}
               />
             </div>
+            {scanError && (
+              <p
+                style={{
+                  marginTop: '12px',
+                  fontSize: '13px',
+                  color: '#ef4444',
+                  textAlign: 'center',
+                }}
+              >
+                {scanError.message}
+              </p>
+            )}
+            {!scanning && !scanError && (
+              <p
+                style={{
+                  marginTop: '12px',
+                  fontSize: '13px',
+                  color: 'var(--text-secondary)',
+                  textAlign: 'center',
+                }}
+              >
+                {t('pairing.cameraStarting')}
+              </p>
+            )}
           </div>
         ) : (
           <form onSubmit={handleCodeSubmit}>

@@ -93,6 +93,7 @@ export const messages = {
       methodQr: 'QR Code',
       methodCode: 'Code 6 chiffres',
       qrInstruction: 'Scannez le QR code affiché sur votre desktop',
+      cameraStarting: 'Démarrage de la caméra…',
       codeInstruction: 'Entrez le code à 6 chiffres affiché sur votre desktop',
       submitLoading: 'Vérification...',
       inProgress: "Tentative d'appariement...",
@@ -113,6 +114,7 @@ export const messages = {
       copyTitle: 'Copier le code',
       copied: 'Code copié !',
       waitingScan: 'En attente du scan du QR code...',
+      alt: 'QR code d’appairage de ce desktop',
     },
     desktops: {
       loading: 'Chargement de vos desktops...',
@@ -326,6 +328,7 @@ export const messages = {
       methodQr: 'QR code',
       methodCode: '6-digit code',
       qrInstruction: 'Scan the QR code shown on your desktop',
+      cameraStarting: 'Starting the camera…',
       codeInstruction: 'Enter the 6-digit code shown on your desktop',
       submitLoading: 'Checking...',
       inProgress: 'Attempting to pair...',
@@ -345,6 +348,7 @@ export const messages = {
       copyTitle: 'Copy code',
       copied: 'Code copied!',
       waitingScan: 'Waiting for QR code scan...',
+      alt: 'Pairing QR code for this desktop',
     },
     desktops: {
       loading: 'Loading your desktops...',
