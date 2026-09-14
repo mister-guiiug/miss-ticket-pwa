@@ -27,10 +27,10 @@
   "dependencies": {
     "firebase": "^12.19.0",
     "lucide-react": "^1.45.0",
-    "qrcode.react": "^4.2.0",
+    "qr-scanner": "^1.4.2",
+    "qrcode": "^1.5.4",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "react-qr-reader": "^3.0.0-beta-1"
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 import { Check, X, Copy } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
+import { qrToDataUrl } from '@mister-guiiug/dev-pwa-config/qr';
 
 const log = createLogger('components');
 
@@ -20,6 +20,7 @@ interface PairingResponse {
 export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
   const { t } = useI18n();
   const [qrData, setQrData] = useState<string>('');
+  const [qrImage, setQrImage] = useState<string | null>(null);
   const [pairingCode, setPairingCode] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,31 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
   useEffect(() => {
     startPairing();
   }, []);
+
+  // LE QR NE S'ENCODE QU'UNE FOIS LA DONNÉE REÇUE, et le générateur n'est
+  // téléchargé qu'à ce moment-là : `qrToDataUrl` importe sa peer
+  // paresseusement. L'ancien `qrcode.react` était un composant, donc dans le
+  // bundle initial de toute la page — payé même par qui n'ouvre jamais cet
+  // écran d'appairage.
+  useEffect(() => {
+    if (!qrData) return;
+    let vivant = true;
+    // `margin: 0` reprend exactement l'`includeMargin={false}` d'avant. La
+    // zone de silence est fournie par le cadre blanc de 16 px ci-dessous —
+    // blanc EN DUR, pas une variable de thème : c'est ce qui rend ce choix sûr
+    // ici, et qui ne le rendrait pas ailleurs.
+    qrToDataUrl(qrData, { width: 200, margin: 0, errorCorrectionLevel: 'M' })
+      .then(url => {
+        if (vivant) setQrImage(url);
+      })
+      .catch(err => {
+        log.error('QR non encodé', { error: err });
+        if (vivant) setError(t('qr.errorGenerate'));
+      });
+    return () => {
+      vivant = false;
+    };
+  }, [qrData, t]);
 
   const startPairing = async () => {
     try {
@@ -249,12 +275,19 @@ export function QRCodeDisplay({ onPaired, onClose }: QRCodeDisplayProps) {
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
                 }}
               >
-                <QRCodeSVG
-                  value={qrData}
-                  size={200}
-                  level="M"
-                  includeMargin={false}
-                />
+                {qrImage ? (
+                  <img
+                    src={qrImage}
+                    alt={t('qr.alt')}
+                    width={200}
+                    height={200}
+                    style={{ display: 'block' }}
+                  />
+                ) : (
+                  // L'encodage est asynchrone : réserver la place évite que le
+                  // dialogue saute au moment où l'image arrive.
+                  <div style={{ width: 200, height: 200 }} aria-hidden="true" />
+                )}
               </div>
             </div>
 
