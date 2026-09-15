@@ -2,6 +2,8 @@
  * Composant principal de la PWA Miss Ticket avec Firebase
  */
 import { useState, useCallback, useEffect } from 'react';
+import { ConsentBanner } from '@mister-guiiug/dev-pwa-config/react/consent-banner';
+import { usePageViews } from '@mister-guiiug/dev-pwa-config/react/use-page-views';
 import { useAuth } from './hooks/useAuth';
 import { useDesktops, type Desktop } from './hooks/useDesktops';
 import type { SessionState } from './lib/sessionState';
@@ -54,6 +56,20 @@ function App() {
     refreshUser,
   } = useAuth();
   const [view, setView] = useState<View>('desktops');
+
+  /*
+   * UNE VUE DE PAGE PAR ÉCRAN, SANS ROUTEUR. Cette app navigue par un état
+   * (`view`), pas par une URL : le hook reçoit donc un chemin construit à
+   * partir de cet état. Il dédoublonne sur ce chemin, donc un re-rendu ne
+   * recompte rien.
+   *
+   * Sans cet appel, GA4 ne recevrait rien : `initAnalytics` pose
+   * `send_page_view: false` pour que la première vue passe par ce hook, et
+   * sans routeur il n'y a personne d'autre pour l'envoyer.
+   *
+   * Ne fait rien tant que le consentement n'est pas accordé.
+   */
+  usePageViews(`/${view}`);
   const [selectedDesktopId, setSelectedDesktopId] = useState<
     string | undefined
   >();
@@ -566,6 +582,10 @@ function MainApp({
       {view === 'desktops' && <PwaInstallPrompt />}
 
       <FamilyLinks />
+      {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne
+          piège pas le focus. Ne rend RIEN tant que `VITE_GA_MEASUREMENT_ID`
+          n'est pas posée — sans identifiant, il n'y a rien à demander. */}
+      <ConsentBanner gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID} />
     </div>
   );
 }
