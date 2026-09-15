@@ -177,3 +177,17 @@ body {
   background: var(--info-bg);
   color: var(--info);
 }
+
+/* Cale du bandeau de consentement. `sticky` et non `fixed` : le bandeau reste
+   DANS le flux, ne recouvre que ce qui défile sous lui, et ne piège pas le
+   focus — une boîte modale pour obtenir un consentement est la figure que le
+   RGPD nomme « dark pattern ».
+
+   Sans cette cale il atterrirait en bas du document, donc sous la ligne de
+   flottaison de l'écran « Choisissez un pseudo » : aussi invisible qu'avant
+   d'être sorti de la porte d'entrée, mais pour une autre raison. */
+.consent-dock {
+  position: sticky;
+  bottom: 0;
+  padding: 0 1rem calc(0.75rem + env(safe-area-inset-bottom));
+}
