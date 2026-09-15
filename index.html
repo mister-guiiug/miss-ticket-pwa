@@ -35,9 +35,17 @@
     />
     <meta name="twitter:image" content="__SEO_LOGO_URL__" />
 
-    <!-- Analytics (GTM/GA4) injecté par pwaSeoPlugin() — vide tant qu'aucun
-         VITE_GTM_CONTAINER_ID / VITE_GA_MEASUREMENT_ID n'est configuré. -->
-    __ANALYTICS_HEAD__
+    <!--
+      LES MARQUEURS `__ANALYTICS_*__` ONT ÉTÉ RETIRÉS.
+
+      `pwaSeoPlugin` les remplaçait AU BUILD par le tag de Google dès qu'un
+      identifiant était posé — précédé d'un `consent default` tout refusé, donc
+      sans collecte, mais le script partait quand même au chargement.
+
+      `ConsentBanner` fait le même travail autrement : il n'injecte RIEN avant
+      l'accord. Garder les deux ferait partir DEUX tags le jour où la variable
+      serait posée.
+    -->
     <meta name="theme-color" content="#ff6b6b" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Relatif, pas « /manifest.json » : ce lien absolu visait la racine de
@@ -47,7 +55,6 @@
     <link rel="apple-touch-icon" href="icon-192.png" />
   </head>
   <body>
-    __ANALYTICS_BODY__
     <div id="app"></div>
     <script src="/src/main.tsx" type="module"></script>
   </body>
