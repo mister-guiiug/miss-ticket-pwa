@@ -46,7 +46,7 @@ import './styles/globals.css';
 
 type View = 'login' | 'desktops' | 'sessions' | 'history';
 
-function App() {
+function AppInner() {
   const { t } = useI18n();
   const {
     user,
@@ -582,11 +582,37 @@ function MainApp({
       {view === 'desktops' && <PwaInstallPrompt />}
 
       <FamilyLinks />
-      {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne
-          piège pas le focus. Ne rend RIEN tant que `VITE_GA_MEASUREMENT_ID`
-          n'est pas posée — sans identifiant, il n'y a rien à demander. */}
-      <ConsentBanner gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID} />
     </div>
+  );
+}
+
+/**
+ * LA COQUILLE QUI SURVIT AUX SORTIES ANTICIPÉES.
+ *
+ * `AppInner` rend, selon l'état, un écran de chargement, un QR d'appariement,
+ * un formulaire de pseudo ou l'application — quatre `return` différents. Le
+ * bandeau de consentement était monté dans le DERNIER, donc derrière l'écran
+ * « Choisissez un pseudo » : un visiteur qui n'était pas allé jusqu'au bout
+ * n'a JAMAIS vu la question, et cette app n'aurait rien mesuré, sa variable
+ * posée ou non. Vérifié le 16/09/2026 sur la production —
+ * `[data-dwc="consent-banner"]` absent du document.
+ *
+ * Envelopper coûte un composant et couvre les quatre branches d'un coup, là où
+ * répéter le bandeau dans chacune inviterait la prochaine à l'oublier.
+ */
+function App() {
+  return (
+    <>
+      <AppInner />
+      {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne piège
+          pas le focus. Ne rend RIEN tant que `VITE_GA_MEASUREMENT_ID` n'est pas
+          posée — sans identifiant, il n'y a rien à demander. */}
+      <div className="consent-dock">
+        <ConsentBanner
+          gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID}
+        />
+      </div>
+    </>
   );
 }
 
