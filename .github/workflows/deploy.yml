@@ -35,5 +35,8 @@ jobs:
       # rien par elle-même : elle rend la variable capable d'agir.
       build-env: |
         VITE_GA_MEASUREMENT_ID=${{ vars.VITE_GA_MEASUREMENT_ID }}
+        # Le DSN Sentry n'est PAS un secret : il part dans le bundle comme
+        # toute `VITE_*`. Absent, `initSentry` rend `null` avant d'importer.
+        VITE_SENTRY_DSN=${{ vars.VITE_SENTRY_DSN }}
       firebase-project: miss-ticket
       firebase-only: firestore:rules,firestore:indexes

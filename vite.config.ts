@@ -25,6 +25,24 @@ export default defineConfig(({ command }) => {
   const basePath = process.env.VITE_BASE_PATH ?? '/miss-ticket-pwa/';
 
   return {
+    build: {
+      rollupOptions: {
+        output: {
+          /*
+           * UNE SEULE RÈGLE, ET ELLE SERT À NOMMER. Sentry est déjà dans un
+           * morceau à part — l'`import()` du socle suffit à l'en sortir. Mais
+           * sans règle, Rollup le nomme d'après le module, et ce nom change
+           * avec la version : le `globIgnores` plus bas n'aurait rien de stable
+           * à exclure du précache du service worker.
+           */
+          manualChunks(id: string) {
+            return id.replace(/\\/g, '/').includes('/@sentry/')
+              ? 'sentry'
+              : undefined;
+          },
+        },
+      },
+    },
     plugins: [
       // AVANT cspPlugin : il pose un script inline dans le <head>, que la
       // CSP doit hacher après coup ; et il écrit version.json au build.
@@ -70,6 +88,17 @@ export default defineConfig(({ command }) => {
         ],
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,json}'],
+          /*
+           * LE MORCEAU SENTRY HORS DU PRÉCACHE, sans quoi le découpage ne servirait
+           * à rien : Workbox ramasse TOUT le JS émis, `import()` ou pas. Mesuré le
+           * 16/09/2026 sur la production de deux apps du parc, 345 et 463 KiB de SDK
+           * téléchargés par chaque visiteur, sans qu'aucun DSN soit posé.
+           *
+           * Hors précache, il est cherché sur le réseau à la première erreur, et
+           * jamais si l'observabilité reste éteinte : rapporter une erreur demande
+           * le réseau.
+           */
+          globIgnores: ['**/sentry-*.js'],
           navigateFallback: 'index.html',
           navigateFallbackDenylist: [/^\/ws/],
           cleanupOutdatedCaches: true,
