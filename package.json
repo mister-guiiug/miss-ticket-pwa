@@ -23,8 +23,8 @@
   "bundleBudget": {
     "totalGzipKb": 490,
     "_pourquoi": "Relevé de 330 à 410 le 13/09/2026 par firebase 12.14.0 → 12.19.0, un MINEUR qui coûte +55,1 kB gzip (+17,5 %) : mesuré sur deux installations exactes, 315,2 kB avant et 370,3 après, tout dans le chunk principal (1089 → 1287 kB brut). Le coupable est @firebase/firestore 4.15.0 → 4.17.2, qui gagne 288 Kio d ESM là où @firebase/auth n en gagne que 44 ; l app importe firebase/app, firebase/auth et firebase/firestore. 410 rend une marge de ~40 kB, comparable aux ~15 kB qu il y avait sous 330.",
-    "preloadGzipKb": 468,
-    "_pourquoiPreload": "Posé le 16/09/2026 avec Sentry, socle 4.18.0. Le total compte les morceaux ASYNCHRONES : il monte de 410 à 490 kB par la seule installation du SDK, alors que le chemin critique ne bouge pas. Sans cette seconde borne, ~151 kB de mou couvriraient toute régression. Mesuré 425.2 kB, budget à +10 %."
+    "preloadGzipKb": 299,
+    "_pourquoiPreload": "Posé le 16/09/2026 avec Sentry, socle 4.18.0. Mesuré 271.6 kB, budget à +10 %. Cette borne a immédiatement servi : nommer le morceau Sentry par manualChunks le faisait entrer dans le modulepreload de l entrée (435,4 kB préchargés), ce que le total gzip ne montrait pas. resolveDependencies l en retire."
   },
   "dependencies": {
     "@sentry/react": "^10.75.0",
