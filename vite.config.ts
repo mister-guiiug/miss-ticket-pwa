@@ -26,15 +26,31 @@ export default defineConfig(({ command }) => {
 
   return {
     build: {
+      /*
+       * NOMMER N'EST PAS PRÉCHARGER, et ici il a fallu séparer les deux.
+       *
+       * Cette app n'avait aucun `manualChunks`. En ajouter un, même pour la
+       * seule ligne Sentry, l'a fait entrer dans la liste de `modulepreload`
+       * de l'entrée : mesuré le 16/09/2026, 435,4 kB préchargés au lieu de
+       * 280,1. Le `import()` paresseux était défait par le fait même de
+       * nommer le morceau — l'inverse de ce qu'on cherchait.
+       *
+       * Retirer la règle rendait bien Sentry asynchrone, mais son morceau
+       * reprenait un nom automatique (`esm-*`), instable d'une version à
+       * l'autre et partagé avec d'autres paquets : `globIgnores` n'aurait plus
+       * eu de cible fiable pour l'exclure du précache.
+       *
+       * D'où les deux options ensemble : `manualChunks` donne le NOM,
+       * `resolveDependencies` retire le morceau du PRÉCHARGEMENT. Mesuré
+       * ensuite : 278,1 kB préchargés, morceau `sentry-*` présent, absent de
+       * `sw.js`.
+       */
+      modulePreload: {
+        resolveDependencies: (_fichier, deps) =>
+          deps.filter(d => !/sentry-/.test(d)),
+      },
       rollupOptions: {
         output: {
-          /*
-           * UNE SEULE RÈGLE, ET ELLE SERT À NOMMER. Sentry est déjà dans un
-           * morceau à part — l'`import()` du socle suffit à l'en sortir. Mais
-           * sans règle, Rollup le nomme d'après le module, et ce nom change
-           * avec la version : le `globIgnores` plus bas n'aurait rien de stable
-           * à exclure du précache du service worker.
-           */
           manualChunks(id: string) {
             return id.replace(/\\/g, '/').includes('/@sentry/')
               ? 'sentry'
