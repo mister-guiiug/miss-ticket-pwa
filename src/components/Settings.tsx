@@ -588,14 +588,6 @@ export function Settings({ user, onClose }: SettingsProps) {
           >
             {t('common.appName')}
           </h3>
-          <p
-            style={{
-              margin: 0,
-              fontSize: '13px',
-              color: 'var(--text-tertiary)',
-            }}
-          >
-          </p>
         </div>
       </div>
 
