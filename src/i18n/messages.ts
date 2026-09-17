@@ -226,7 +226,6 @@ export const messages = {
       maturityAlpha: 'Alpha',
       maturityBeta: 'Bêta',
       maturityStable: 'Stable',
-      version: 'Version {version}',
       clearDialogTitle: 'Effacer les données locales ?',
       clearDialogMessage:
         'Cette action supprimera le cache et les données stockées localement. Vos données sur le cloud seront conservées.',
@@ -454,7 +453,6 @@ export const messages = {
       maturityAlpha: 'Alpha',
       maturityBeta: 'Beta',
       maturityStable: 'Stable',
-      version: 'Version {version}',
       clearDialogTitle: 'Clear local data?',
       clearDialogMessage:
         'This will delete the cache and locally stored data. Your cloud data will be kept.',
