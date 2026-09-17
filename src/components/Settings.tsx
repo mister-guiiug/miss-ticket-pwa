@@ -595,7 +595,6 @@ export function Settings({ user, onClose }: SettingsProps) {
               color: 'var(--text-tertiary)',
             }}
           >
-            {t('settings.version', { version: '1.0.0' })}
           </p>
         </div>
       </div>
