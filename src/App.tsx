@@ -63,8 +63,8 @@ function AppInner() {
    * partir de cet état. Il dédoublonne sur ce chemin, donc un re-rendu ne
    * recompte rien.
    *
-   * Sans cet appel, GA4 ne recevrait rien : `initAnalytics` pose
-   * `send_page_view: false` pour que la première vue passe par ce hook, et
+   * Sans cet appel, PostHog ne recevrait rien : `initAnalytics` pose
+   * `capture_pageview: false` pour que la première vue passe par ce hook, et
    * sans routeur il n'y a personne d'autre pour l'envoyer.
    *
    * Ne fait rien tant que le consentement n'est pas accordé.
@@ -605,11 +605,12 @@ function App() {
     <>
       <AppInner />
       {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne piège
-          pas le focus. Ne rend RIEN tant que `VITE_GA_MEASUREMENT_ID` n'est pas
+          pas le focus. Ne rend RIEN tant que `VITE_POSTHOG_KEY` n'est pas
           posée — sans identifiant, il n'y a rien à demander. */}
       <div className="consent-dock">
         <ConsentBanner
-          gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID}
+          posthogKey={import.meta.env.VITE_POSTHOG_KEY}
+          loader={() => import('posthog-js/dist/module.slim.js')}
         />
       </div>
     </>
