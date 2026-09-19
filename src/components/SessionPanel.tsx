@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useActionGuard } from '@mister-guiiug/dev-pwa-config/react/use-action-guard';
+import { GESTES, trackEvent } from '@mister-guiiug/dev-pwa-config/analytics';
 import type { SessionState } from '../lib/sessionState';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { stopSession, stopAllSessions } from '../lib/firebaseCommands';
@@ -70,10 +71,29 @@ export function SessionPanel({
    */
   const guard = useActionGuard({ online: true });
 
+  /*
+   * ARRÊTER, LE SEUL GESTE QUE CETTE PWA COMMANDE VRAIMENT. Tout le reste
+   * observe : c'est le poste de bureau qui lance les sessions. Compter les
+   * arrêts, c'est compter les fois où la télécommande a servi.
+   *
+   * APRÈS L'ÉCRITURE, ET C'EST TOUT LE SUJET DU COMMENTAIRE CI-DESSUS : hors
+   * connexion, la promesse d'`addDoc` n'est ni tenue ni rompue, elle ATTEND.
+   * L'événement attend avec elle — un arrêt qui n'est jamais parti ne se
+   * compte pas, et le garde `online` empêche déjà d'en arriver là.
+   *
+   * `toutes` distingue l'arrêt d'une session de l'arrêt général, qui n'est
+   * pas le même geste. NI L'IDENTIFIANT DU POSTE, NI CELUI DE LA SESSION, NI
+   * L'ADRESSE E-MAIL ou l'URL du concert qu'elle porte.
+   */
   const handleStopSession = async (instanceId: string) => {
     if (confirm(t('sessions.confirmStop'))) {
       onStopRequested?.([instanceId]);
       await stopSession(desktopId, userId, instanceId);
+      trackEvent(GESTES.OPERATION, {
+        nom: 'arret_session',
+        etape: 'reussie',
+        toutes: false,
+      });
     }
   };
 
@@ -81,6 +101,11 @@ export function SessionPanel({
     if (confirm(t('sessions.confirmStopAll'))) {
       onStopRequested?.(sessions.map(s => s.instance_id));
       await stopAllSessions(desktopId, userId);
+      trackEvent(GESTES.OPERATION, {
+        nom: 'arret_session',
+        etape: 'reussie',
+        toutes: true,
+      });
     }
   };
 
