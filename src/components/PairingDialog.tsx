@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQrScanner } from '@mister-guiiug/dev-pwa-config/react/use-qr-scanner';
+import { GESTES, trackEvent } from '@mister-guiiug/dev-pwa-config/analytics';
 import { initiatePairing, parseQRCode } from '../lib/pairing';
 import { X, QrCode, Keyboard, Check } from 'lucide-react';
 import { useI18n } from '../i18n';
@@ -77,9 +78,23 @@ export function PairingDialog({
       }
 
       await initiatePairing(token, desktopId, userId);
+      /*
+       * L'APPARIEMENT EST LA PORTE D'ENTRÉE : sans poste apparié, cette PWA
+       * ne commande rien. Savoir combien d'appariements aboutissent — et
+       * combien butent sur un QR périmé ou illisible — est la seule mesure de
+       * ce parcours.
+       *
+       * APRÈS `initiatePairing`, qui lève sur un jeton inconnu ou expiré. Un
+       * QR mal formé, lui, lève plus haut et tombe dans le même `catch`.
+       *
+       * NI LE JETON, NI L'IDENTIFIANT DU POSTE, NI CELUI DE L'UTILISATEUR :
+       * le jeton d'appariement EST le secret que le QR transporte.
+       */
+      trackEvent(GESTES.OPERATION, { nom: 'appariement', etape: 'reussie' });
       setSuccess(true);
       setTimeout(() => onPaired(), 1500);
     } catch (err) {
+      trackEvent(GESTES.OPERATION, { nom: 'appariement', etape: 'echouee' });
       setError(err instanceof Error ? err.message : t('pairing.errorGeneric'));
     } finally {
       setLoading(false);
