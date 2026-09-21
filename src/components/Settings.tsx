@@ -540,6 +540,13 @@ export function Settings({ user, onClose }: SettingsProps) {
               currentAppId="miss-ticket-pwa"
               showSource={false}
               showSponsor={false}
+              // Les deux réglages que `index.css` posait en CSS : la Section
+              // fournit déjà son titre, et l'app refaisait la grille en flex.
+              showTitle={false}
+              layout="list"
+              // Dix-neuf cartes d'affilée : repliées par catégorie, sept
+              // lignes.
+              groupBy="category"
               labels={{
                 otherApps: t('settings.sectionOtherApps'),
                 maturity: {

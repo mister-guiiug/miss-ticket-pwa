@@ -134,6 +134,15 @@ export function applyTheme(theme: 'dark' | 'light') {
     // Header specific
     root.style.setProperty('--header-bg', 'rgba(10, 10, 10, 0.8)');
     root.style.setProperty('--header-border', 'rgba(255, 255, 255, 0.08)');
+
+    // Les DEUX seuls jetons du contrat --dwc-* qui ne peuvent pas être écrits
+    // en CSS : l'échelle `--primary-*` de cette app est IDENTIQUE dans les
+    // deux thèmes, donc aucune variable existante ne bascule pour eux.
+    // #f43f5e ne tient que 3,7:1 sur la carte sombre ; #fb7185 y donne 6,5:1.
+    // Les treize autres pointent des variables qui basculent, et vivent dans
+    // `index.css`.
+    root.style.setProperty('--dwc-primary', '#fb7185');
+    root.style.setProperty('--dwc-primary-contrast', '#0a0a0a');
   } else {
     // Background colors
     root.style.setProperty('--bg-primary', '#ffffff');
@@ -180,5 +189,10 @@ export function applyTheme(theme: 'dark' | 'light') {
     // Header specific
     root.style.setProperty('--header-bg', 'rgba(255, 255, 255, 0.8)');
     root.style.setProperty('--header-border', 'rgba(0, 0, 0, 0.06)');
+
+    // Voir la branche sombre : #fb7185 ne tient que 2,7:1 sur blanc, #e11d48
+    // y donne 4,7:1. Encre blanche par-dessus, 4,7:1 également.
+    root.style.setProperty('--dwc-primary', '#e11d48');
+    root.style.setProperty('--dwc-primary-contrast', '#ffffff');
   }
 }
