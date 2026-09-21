@@ -6,6 +6,43 @@
   color-scheme: dark;
 }
 
+/*
+ * LE CONTRAT `--dwc-*`, QUI MANQUAIT. `components.css` lit quinze variables et
+ * n'en définit aucune : chaque `var()` porte un repli NEUTRE (`CanvasText`,
+ * `GrayText`). L'app importait donc la feuille depuis le début SANS jamais la
+ * brancher — ses composants du socle sortaient en couleurs système, et c'est
+ * ce qui l'a obligée à réécrire dix-neuf règles pour la seule grille famille.
+ *
+ * Les treize jetons qui suivent pointent des variables que `applyTheme` pose
+ * en ligne sur <html> : elles basculent avec le thème, donc eux aussi, sans
+ * qu'aucun sélecteur n'ait à connaître le thème courant. Les deux qui ne le
+ * peuvent pas (`--dwc-primary` et son encre) sont posés par `applyTheme`
+ * lui-même — l'échelle `--primary-*` de cette app est identique en clair et
+ * en sombre, aucune variable existante ne bascule pour eux.
+ */
+:root {
+  --dwc-surface: var(--bg-card);
+  /* `--bg-tertiary` : c'est le fond que la grille famille se donnait déjà. */
+  --dwc-surface-2: var(--bg-tertiary);
+  --dwc-text: var(--text-primary);
+  --dwc-text-soft: var(--text-secondary);
+  --dwc-border: var(--border-subtle);
+  /* Le pourtour d'un CONTRÔLE, pas un filet de séparation : WCAG 1.4.11 lui
+     demande 3:1. `--border-subtle` est une transparence de 6 à 8 %, qui ne les
+     tient nulle part ; `--text-tertiary` (#737373) donne 3,7:1 sur la carte
+     sombre et 4,7:1 sur le blanc. */
+  --dwc-border-strong: var(--text-tertiary);
+  --dwc-primary-soft: var(--primary-100);
+  --dwc-success: var(--success);
+  --dwc-warning: var(--warning);
+  --dwc-danger: var(--error);
+  --dwc-info: var(--info);
+  /* 12 px : le socle arrondit ses cartes à 0,8 × ce rayon, soit les 10 px que
+     la grille famille se donnait. */
+  --dwc-radius: 0.75rem;
+  --dwc-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
 /* Bascule de thème partagée (socle, [data-dwc='theme-toggle']). Elle remplace
    un bouton maison stylé en ligne : sans ces règles elle retomberait sur les
    couleurs SYSTÈME (`GrayText`/`CanvasText`, les replis de components.css), et
@@ -42,9 +79,15 @@ body {
 
 /* Grille « Nos autres applications » — composant partagé FamilyApps
    (dev-pwa-config, attributs [data-dwc]). Styles scopés sous .family-apps.
-   Les couleurs proviennent des variables de thème (posées par applyTheme) :
-   l'adaptation clair/sombre est donc automatique, y compris pour les badges
-   de maturité qui réutilisent les couleurs sémantiques de l'app. */
+
+   TOUT L'HABILLAGE VIENT DE components.css, depuis que le contrat --dwc-* est
+   branché plus haut. Les treize blocs qui vivaient ici ne faisaient que
+   compenser son absence. Les deux réglages sans équivalent sont devenus des
+   props : showTitle={false}, la Section fournissant déjà son titre, et
+   layout="list", l'app refaisant la grille en une colonne.
+
+   Ne restent que trois écarts voulus : la marge de la section, son
+   aplatissement en display:contents, et le dégradé de l'icône. */
 .family-apps {
   padding: 16px;
 }
@@ -54,46 +97,11 @@ body {
   display: contents;
 }
 
-.family-apps [data-dwc='family-apps-title'] {
-  display: none;
-}
-
 .family-apps__lead {
   margin: 0 0 12px;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-secondary);
-}
-
-.family-apps [data-dwc='family-app-list'] {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.family-apps [data-dwc='family-app'] {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  text-decoration: none;
-  color: var(--text-primary);
-  transition:
-    background-color 0.2s,
-    border-color 0.2s,
-    transform 0.2s;
-}
-
-.family-apps [data-dwc='family-app']:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-default);
-  transform: translateY(-1px);
 }
 
 .family-apps [data-dwc='family-app-icon'] {
@@ -111,73 +119,16 @@ body {
   object-fit: cover;
 }
 
-.family-apps [data-dwc='family-app-body'] {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
-
-.family-apps [data-dwc='family-app-head'] {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.family-apps [data-dwc='family-app-name'] {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
 .family-apps [data-dwc='family-app-desc'] {
   font-size: 13px;
   line-height: 1.4;
   color: var(--text-secondary);
 }
 
-.family-apps [data-dwc='family-app-arrow'] {
-  flex-shrink: 0;
-  display: flex;
-  color: var(--text-tertiary);
-  transition: color 0.2s;
-}
-
-.family-apps [data-dwc='family-app']:hover [data-dwc='family-app-arrow'] {
-  color: var(--primary-500);
-}
-
-/* Badge de maturité : 3 couleurs via les variables sémantiques de l'app
-   (stable = succès/vert, bêta = avertissement/ambre, alpha = info/bleu).
-   Ces variables sont déjà ajustées pour le clair et le sombre. */
-.family-apps [data-dwc='maturity'] {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  white-space: nowrap;
-  border: 1px solid transparent;
-}
-
-.family-apps [data-maturity='stable'] {
-  background: var(--success-bg);
-  color: var(--success);
-}
-
-.family-apps [data-maturity='beta'] {
-  background: var(--warning-bg);
-  color: var(--warning);
-}
-
-.family-apps [data-maturity='alpha'] {
-  background: var(--info-bg);
-  color: var(--info);
-}
-
+/* Les couleurs de maturité viennent du paquet, et gardent les variables
+   sémantiques de l'app : le contrat les lui passe par --dwc-success et
+   --dwc-warning, puis les mélange vers la couleur de texte — un libellé de
+   0,68 rem tombe sous 4,5:1 s'il porte la couleur de signal telle quelle. */
 /* Cale du bandeau de consentement. `sticky` et non `fixed` : le bandeau reste
    DANS le flux, ne recouvre que ce qui défile sous lui, et ne piège pas le
    focus — une boîte modale pour obtenir un consentement est la figure que le
