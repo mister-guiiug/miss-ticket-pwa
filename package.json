@@ -28,10 +28,10 @@
     "_pourquoiPreload": "Posé le 16/09/2026 avec Sentry, socle 4.18.0. Mesuré 271.6 kB, budget à +10 %. Cette borne a immédiatement servi : nommer le morceau Sentry par manualChunks le faisait entrer dans le modulepreload de l entrée (435,4 kB préchargés), ce que le total gzip ne montrait pas. resolveDependencies l en retire."
   },
   "dependencies": {
-    "@sentry/react": "^10.75.0",
+    "@sentry/react": "^10.75.2",
     "firebase": "^12.19.0",
     "lucide-react": "^1.47.0",
-    "posthog-js": "^1.434.2",
+    "posthog-js": "^1.434.7",
     "qr-scanner": "^1.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -55,7 +55,7 @@
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.12.0",
     "husky": "^9.1.7",
-    "jsdom": "^30.1.0",
+    "jsdom": "^30.1.1",
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8",
     "sharp": "^0.35.4",
