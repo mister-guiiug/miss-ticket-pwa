@@ -3,6 +3,7 @@ import { Monitor, Clock, Activity, Zap } from 'lucide-react';
 import type { Desktop } from '../hooks/useDesktops';
 import type { DesktopFilter, DesktopSort } from './FilterBar';
 import { useI18n } from '../i18n';
+import { PRIMARY_BUTTON_GRADIENT, PRIMARY_SOLID_FILL } from '../styles/theme';
 import { getDefaultLocale } from '@mister-guiiug/dev-pwa-config/format';
 
 interface DesktopListProps {
@@ -240,7 +241,7 @@ function DesktopCard({ desktop, onClick }: DesktopCardProps) {
           <div
             style={{
               padding: '4px 10px',
-              backgroundColor: 'var(--primary-500)',
+              backgroundColor: PRIMARY_SOLID_FILL,
               color: '#ffffff',
               borderRadius: '20px',
               fontSize: '13px',
@@ -403,8 +404,7 @@ function EmptyState({
             alignItems: 'center',
             gap: '8px',
             padding: '12px 24px',
-            background:
-              'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+            background: PRIMARY_BUTTON_GRADIENT,
             border: 'none',
             borderRadius: '12px',
             color: '#ffffff',

@@ -1,5 +1,6 @@
 import { Monitor, HardDrive, History, RefreshCw, Plus } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { PRIMARY_SOLID_FILL } from '../styles/theme';
 
 interface MobileMenuProps {
   view: 'login' | 'desktops' | 'sessions' | 'history';
@@ -140,7 +141,7 @@ function MobileMenuItem({
       {badge !== undefined && (
         <span
           style={{
-            backgroundColor: 'var(--primary-500)',
+            backgroundColor: PRIMARY_SOLID_FILL,
             color: '#ffffff',
             fontSize: '12px',
             fontWeight: '700',

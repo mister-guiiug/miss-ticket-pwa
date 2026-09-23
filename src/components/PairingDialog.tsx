@@ -4,6 +4,7 @@ import { GESTES, trackEvent } from '@mister-guiiug/dev-pwa-config/analytics';
 import { initiatePairing, parseQRCode } from '../lib/pairing';
 import { X, QrCode, Keyboard, Check } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { PRIMARY_BUTTON_GRADIENT } from '../styles/theme';
 
 interface PairingDialogProps {
   userId: string;
@@ -371,7 +372,7 @@ export function PairingDialog({
                 background:
                   loading || code.length !== 6
                     ? 'var(--bg-tertiary)'
-                    : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+                    : PRIMARY_BUTTON_GRADIENT,
                 border: 'none',
                 borderRadius: '12px',
                 color:

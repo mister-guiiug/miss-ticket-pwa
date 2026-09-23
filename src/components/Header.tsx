@@ -16,6 +16,7 @@ import { ThemeToggle } from '@mister-guiiug/dev-pwa-config/react';
 import { MobileMenu } from './MobileMenu';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { useI18n } from '../i18n';
+import { PRIMARY_BUTTON_GRADIENT } from '../styles/theme';
 
 interface HeaderProps {
   user: { displayName: string | null; uid: string };
@@ -405,7 +406,7 @@ const baseButtonStyle = {
 };
 
 const primaryButtonStyle = {
-  background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+  background: PRIMARY_BUTTON_GRADIENT,
   border: 'none',
   color: '#ffffff',
   cursor: 'pointer',
