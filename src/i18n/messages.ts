@@ -64,6 +64,8 @@ export const messages = {
       signOut: 'Déconnexion',
     },
     login: {
+      pitch:
+        'Pilotez depuis votre mobile l’application de bureau Miss Ticket : appairez votre poste par QR code, puis lancez, suivez et arrêtez ses sessions.',
       tagline: 'Choisissez un pseudo pour commencer',
       pseudoPlaceholder: 'Votre pseudo',
       submit: 'Commencer',
@@ -299,6 +301,8 @@ export const messages = {
       signOut: 'Sign out',
     },
     login: {
+      pitch:
+        'Control the Miss Ticket desktop app from your phone: pair your computer with a QR code, then start, monitor and stop its sessions.',
       tagline: 'Choose a nickname to get started',
       pseudoPlaceholder: 'Your nickname',
       submit: 'Get started',

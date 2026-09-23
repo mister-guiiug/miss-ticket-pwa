@@ -108,6 +108,22 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           {t('common.appName')}
         </h1>
 
+        {/* CE QUE FAIT L'APP, AVANT CE QU'ELLE DEMANDE. Cet écran est le
+            premier de tout visiteur et le seul que lit un moteur : relevé du
+            23/09/2026 dans un navigateur vierge, il demandait un pseudo sans
+            jamais dire qu'il pilote une application de bureau, ni qu'il n'y a
+            rien à faire ici sans elle. */}
+        <p
+          style={{
+            margin: '0 0 12px 0',
+            fontSize: '15px',
+            color: 'var(--text-secondary)',
+            textAlign: 'center',
+          }}
+        >
+          {t('login.pitch')}
+        </p>
+
         <p
           style={{
             margin: '0 0 32px 0',
