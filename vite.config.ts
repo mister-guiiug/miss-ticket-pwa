@@ -96,7 +96,7 @@ export default defineConfig(({ command }) => {
         themeColor: { light: '#ffffff', dark: '#0a0a0a' },
         siteName: 'Miss Ticket',
         basePath: '/miss-ticket-pwa/',
-        logoPath: '/icon-192.svg',
+        logoPath: '/icon-512.png',
       }),
       {
         name: 'pwa',
