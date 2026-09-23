@@ -1092,7 +1092,7 @@ function SelectSetting({
                     border: 'none',
                     color:
                       value === option.value
-                        ? 'var(--primary-500)'
+                        ? 'var(--primary-text)'
                         : 'var(--text-primary)',
                     cursor: 'pointer',
                     fontSize: '14px',

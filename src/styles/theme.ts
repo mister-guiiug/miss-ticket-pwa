@@ -45,9 +45,10 @@ export const fontSize = {
  * bouton désactivé n'est pas mesuré. La garde vit donc dans `theme.test.tsx`,
  * qui mesure chaque couleur nommée ci-dessous, dans les deux thèmes.
  *
- * Les tuiles de logo et l'interrupteur des réglages gardent `--primary-500` :
- * ils ne portent que du blanc NON textuel (icône, pastille du curseur), dont
- * le seuil est 3:1 (WCAG 1.4.11), tenu partout.
+ * Les tuiles d'icône (dégradés `500 → 600` et `400 → 600`) et l'interrupteur
+ * des réglages restent tels quels : ils ne portent que du blanc NON textuel
+ * (icône, pastille du curseur), dont le seuil est 3:1 (WCAG 1.4.11). Le pire
+ * cas, une icône centrée sur `400 → 600`, donne 3,16 sous le tracé.
  */
 export const PRIMARY_BUTTON_GRADIENT =
   'linear-gradient(135deg, var(--primary-600), var(--primary-700))';
@@ -57,6 +58,15 @@ export const PRIMARY_BUTTON_GRADIENT =
  * (14 px). Du texte, donc 4,5:1 aussi.
  */
 export const PRIMARY_SOLID_FILL = 'var(--primary-600)';
+
+/**
+ * LE ROSE COMME ENCRE : le nom de l'app (h1 de connexion, en-tête) en texte
+ * dégradé. Ses deux arrêts viennent de `applyTheme`, qui les choisit par
+ * thème — `--primary-400 → 600` donnait 2,69:1 sur blanc. Le texte rose uni
+ * passe par `var(--primary-text)`, posé de même.
+ */
+export const PRIMARY_TEXT_GRADIENT =
+  'linear-gradient(135deg, var(--primary-text-from), var(--primary-text-to))';
 
 /**
  * L'ANCIENNE CLÉ DE STOCKAGE, reprise par le socle.
@@ -142,6 +152,15 @@ export function applyTheme(theme: 'dark' | 'light') {
     root.style.setProperty('--primary-500', '#f43f5e');
     root.style.setProperty('--primary-600', '#e11d48');
     root.style.setProperty('--primary-700', '#be123c');
+    root.style.setProperty('--primary-800', '#9f1239');
+
+    // LE ROSE EN COULEUR DE TEXTE, qui bascule avec le thème — l'échelle, elle,
+    // ne bascule pas. Sur les quatre surfaces sombres (#0a0a0a à #262626), seuls
+    // 300 et 400 tiennent 4,5:1 : 400 y donne 5,62 au pire, 500 n'y donnait
+    // que 4,12. Le dégradé des titres suit : 300 → 400 (8,00 et 5,62).
+    root.style.setProperty('--primary-text', '#fb7185');
+    root.style.setProperty('--primary-text-from', '#fda4af');
+    root.style.setProperty('--primary-text-to', '#fb7185');
 
     // Semantic colors
     root.style.setProperty('--success', '#22c55e');
@@ -197,6 +216,14 @@ export function applyTheme(theme: 'dark' | 'light') {
     root.style.setProperty('--primary-500', '#f43f5e');
     root.style.setProperty('--primary-600', '#e11d48');
     root.style.setProperty('--primary-700', '#be123c');
+    root.style.setProperty('--primary-800', '#9f1239');
+
+    // Voir la branche sombre. Sur les trois surfaces claires (#ffffff à
+    // #f5f5f5), seuls 700 et 800 tiennent 4,5:1 : 700 y donne 5,76 au pire, 500
+    // n'y donnait que 3,37 et 600 encore 4,31. Titres : 700 → 800 (5,76, 7,35).
+    root.style.setProperty('--primary-text', '#be123c');
+    root.style.setProperty('--primary-text-from', '#be123c');
+    root.style.setProperty('--primary-text-to', '#9f1239');
 
     // Semantic colors
     root.style.setProperty('--success', '#16a34a');

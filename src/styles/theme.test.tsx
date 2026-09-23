@@ -9,6 +9,7 @@ import {
   applyTheme,
   PRIMARY_BUTTON_GRADIENT,
   PRIMARY_SOLID_FILL,
+  PRIMARY_TEXT_GRADIENT,
   readBootTheme,
   THEME_LEGACY_KEYS,
 } from './theme';
@@ -179,5 +180,64 @@ describe('texte blanc sur les fonds primaires', () => {
     applyTheme('dark');
 
     expect(contrasteSurBlanc(peinte('--primary-500'))).toBeLessThan(4.5);
+  });
+});
+
+function contraste(a: string, b: string): number {
+  const [haute, basse] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [
+    number,
+    number,
+  ];
+  return (haute + 0.05) / (basse + 0.05);
+}
+
+/**
+ * LE ROSE COMME ENCRE, exigé sur CHAQUE surface de l'app et pas seulement sur
+ * celles d'aujourd'hui : une option choisie s'écrit sur `--bg-hover`, un onglet
+ * actif sur `--bg-card`, le nom de l'app sur la page. Un texte rose déplacé
+ * sur un autre fond ne doit pas tomber sous le seuil sans que rien le dise.
+ * Les arrêts du dégradé suffisent ici aussi : d'un arrêt à l'autre, aucun
+ * canal ne remonte.
+ */
+const SURFACES = [
+  '--bg-primary',
+  '--bg-secondary',
+  '--bg-tertiary',
+  '--bg-card',
+  '--bg-elevated',
+  '--bg-hover',
+];
+
+describe('texte rose sur les surfaces de l’app', () => {
+  for (const theme of ['dark', 'light'] as const) {
+    it(`tient 4,5:1 en uni et sur chaque arrêt du dégradé des titres (${theme})`, () => {
+      applyTheme(theme);
+
+      const encres = [
+        '--primary-text',
+        ...(PRIMARY_TEXT_GRADIENT.match(/--primary-text-\w+/g) ?? []),
+      ];
+      expect(encres).toHaveLength(3);
+      for (const encre of encres) {
+        const couleur = peinte(encre);
+        expect(couleur, encre).toMatch(/^#[0-9a-f]{6}$/i);
+        for (const surface of SURFACES) {
+          const fond = peinte(surface);
+          expect(fond, surface).toMatch(/^#[0-9a-f]{6}$/i);
+          expect(
+            contraste(couleur, fond),
+            `${encre} = ${couleur} sur ${surface} = ${fond}`
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    });
+  }
+
+  it('témoin : --primary-500, l’ancienne encre, échoue sur le survol clair', () => {
+    applyTheme('light');
+
+    expect(
+      contraste(peinte('--primary-500'), peinte('--bg-hover'))
+    ).toBeLessThan(4.5);
   });
 });

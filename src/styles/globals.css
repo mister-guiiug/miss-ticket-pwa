@@ -162,7 +162,11 @@ input {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  background: linear-gradient(
+    135deg,
+    var(--primary-text-from),
+    var(--primary-text-to)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

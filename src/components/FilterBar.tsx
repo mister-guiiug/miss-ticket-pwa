@@ -173,7 +173,7 @@ export function FilterBar({
                     border: 'none',
                     color:
                       filter === f.value
-                        ? 'var(--primary-500)'
+                        ? 'var(--primary-text)'
                         : 'var(--text-primary)',
                     cursor: 'pointer',
                     fontSize: '14px',

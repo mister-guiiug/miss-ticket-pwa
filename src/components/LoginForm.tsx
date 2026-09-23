@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Zap } from 'lucide-react';
 import { useActionGuard } from '@mister-guiiug/dev-pwa-config/react/use-action-guard';
 import { useI18n } from '../i18n';
-import { PRIMARY_BUTTON_GRADIENT } from '../styles/theme';
+import {
+  PRIMARY_BUTTON_GRADIENT,
+  PRIMARY_TEXT_GRADIENT,
+} from '../styles/theme';
 
 interface LoginFormProps {
   onLogin: (pseudo: string) => void;
@@ -99,8 +102,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             fontSize: '26px',
             fontWeight: '700',
             textAlign: 'center',
-            background:
-              'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
+            background: PRIMARY_TEXT_GRADIENT,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
