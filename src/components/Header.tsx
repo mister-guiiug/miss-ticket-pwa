@@ -16,7 +16,10 @@ import { ThemeToggle } from '@mister-guiiug/dev-pwa-config/react';
 import { MobileMenu } from './MobileMenu';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { useI18n } from '../i18n';
-import { PRIMARY_BUTTON_GRADIENT } from '../styles/theme';
+import {
+  PRIMARY_BUTTON_GRADIENT,
+  PRIMARY_TEXT_GRADIENT,
+} from '../styles/theme';
 
 interface HeaderProps {
   user: { displayName: string | null; uid: string };
@@ -110,8 +113,7 @@ export function Header({
                   fontSize: '18px',
                   fontWeight: '700',
                   letterSpacing: '-0.5px',
-                  background:
-                    'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
+                  background: PRIMARY_TEXT_GRADIENT,
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',

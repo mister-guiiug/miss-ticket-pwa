@@ -470,7 +470,7 @@ function MethodButton({ active, icon, label, onClick }: MethodButtonProps) {
         backgroundColor: active ? 'var(--bg-card)' : 'transparent',
         border: 'none',
         borderRadius: '8px',
-        color: active ? 'var(--primary-500)' : 'var(--text-secondary)',
+        color: active ? 'var(--primary-text)' : 'var(--text-secondary)',
         fontSize: '14px',
         fontWeight: active ? '600' : '500',
         cursor: 'pointer',
