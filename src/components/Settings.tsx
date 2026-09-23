@@ -34,6 +34,7 @@ import {
   type NotificationPreference,
   type SettingsState,
 } from '../lib/storage';
+import { PRIMARY_SOLID_FILL } from '../styles/theme';
 
 const log = createLogger('components');
 
@@ -369,7 +370,7 @@ export function Settings({ user, onClose }: SettingsProps) {
                         fontSize: '14px',
                         fontWeight: active ? '600' : '500',
                         backgroundColor: active
-                          ? 'var(--primary-500)'
+                          ? PRIMARY_SOLID_FILL
                           : 'transparent',
                         color: active ? '#ffffff' : 'var(--text-secondary)',
                         transition: 'all 0.2s',

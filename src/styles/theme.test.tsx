@@ -5,7 +5,13 @@ import {
   ThemeToggle,
 } from '@mister-guiiug/dev-pwa-config/react';
 import { ThemePainter } from '../components/SocleProviders';
-import { readBootTheme, THEME_LEGACY_KEYS } from './theme';
+import {
+  applyTheme,
+  PRIMARY_BUTTON_GRADIENT,
+  PRIMARY_SOLID_FILL,
+  readBootTheme,
+  THEME_LEGACY_KEYS,
+} from './theme';
 
 /**
  * La garantie qui compte pour l'utilisateur, et que rien ne couvrait.
@@ -121,5 +127,57 @@ describe('bascule de thème du socle', () => {
     expect(
       screen.getByRole('button', { name: /Activer le thème système/i })
     ).toBeInTheDocument();
+  });
+});
+
+/**
+ * LA GARDE QU'AXE NE PEUT PAS TENIR.
+ *
+ * Un fond en dégradé est « incomplete » pour axe, et le bouton de connexion
+ * est désactivé tant que le champ est vide : la suite e2e reste verte quel
+ * que soit le contraste. On mesure donc les couleurs que `applyTheme` peint
+ * vraiment, arrêt par arrêt. Les arrêts suffisent : de `600` à `700`, les
+ * trois canaux décroissent ensemble, la luminance aussi.
+ */
+function luminance(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map(i => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }) as [number, number, number];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrasteSurBlanc(hex: string): number {
+  return 1.05 / (luminance(hex) + 0.05);
+}
+
+function peinte(variable: string): string {
+  return document.documentElement.style.getPropertyValue(variable).trim();
+}
+
+describe('texte blanc sur les fonds primaires', () => {
+  for (const theme of ['dark', 'light'] as const) {
+    it(`tient 4,5:1 sur chaque couleur des boutons et des pastilles (${theme})`, () => {
+      applyTheme(theme);
+
+      for (const fond of [PRIMARY_BUTTON_GRADIENT, PRIMARY_SOLID_FILL]) {
+        const variables = fond.match(/--primary-\d+/g) ?? [];
+        expect(variables.length, fond).toBeGreaterThan(0);
+        for (const variable of variables) {
+          const couleur = peinte(variable);
+          expect(couleur, variable).toMatch(/^#[0-9a-f]{6}$/i);
+          expect(
+            contrasteSurBlanc(couleur),
+            `${variable} = ${couleur}`
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    });
+  }
+
+  it('témoin : le blanc ne tient pas sur --primary-500, l’ancien départ', () => {
+    applyTheme('dark');
+
+    expect(contrasteSurBlanc(peinte('--primary-500'))).toBeLessThan(4.5);
   });
 });

@@ -4,6 +4,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { ArrowLeft, User, Check, Loader2 } from 'lucide-react';
 import { auth, db } from '../config/firebase';
 import { useI18n } from '../i18n';
+import { PRIMARY_BUTTON_GRADIENT } from '../styles/theme';
 
 interface EditProfileProps {
   currentPseudo: string;
@@ -412,7 +413,7 @@ export function EditProfile({
                 background:
                   !isValid || loading
                     ? 'var(--bg-tertiary)'
-                    : 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
+                    : PRIMARY_BUTTON_GRADIENT,
                 border: 'none',
                 borderRadius: '12px',
                 color: !isValid || loading ? 'var(--text-tertiary)' : '#ffffff',

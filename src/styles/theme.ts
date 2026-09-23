@@ -34,6 +34,31 @@ export const fontSize = {
 };
 
 /**
+ * LES FONDS PRIMAIRES QUI PORTENT UN TEXTE BLANC, et eux seuls.
+ *
+ * Le blanc ne tient pas sur `--primary-500` (#f43f5e) : 3,67:1, sous le 4,5:1
+ * qu'exige un libellé de 15 px. Le dégradé historique `500 → 600` des boutons
+ * donnait 3,99:1 au pire sous les lettres de « Commencer » (mesuré le
+ * 24/09/2026), dans les deux thèmes — l'échelle primaire ne bascule pas.
+ *
+ * Axe ne le voit pas : un fond en dégradé est classé « incomplete », et un
+ * bouton désactivé n'est pas mesuré. La garde vit donc dans `theme.test.tsx`,
+ * qui mesure chaque couleur nommée ci-dessous, dans les deux thèmes.
+ *
+ * Les tuiles de logo et l'interrupteur des réglages gardent `--primary-500` :
+ * ils ne portent que du blanc NON textuel (icône, pastille du curseur), dont
+ * le seuil est 3:1 (WCAG 1.4.11), tenu partout.
+ */
+export const PRIMARY_BUTTON_GRADIENT =
+  'linear-gradient(135deg, var(--primary-600), var(--primary-700))';
+
+/**
+ * L'aplat : pastilles et compteurs (10 à 13 px), langue active des réglages
+ * (14 px). Du texte, donc 4,5:1 aussi.
+ */
+export const PRIMARY_SOLID_FILL = 'var(--primary-600)';
+
+/**
  * L'ANCIENNE CLÉ DE STOCKAGE, reprise par le socle.
  *
  * L'état du thème vient désormais de `ThemeProvider` / `useTheme`

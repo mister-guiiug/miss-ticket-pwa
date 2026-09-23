@@ -1,5 +1,6 @@
 import { Monitor } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { PRIMARY_SOLID_FILL } from '../styles/theme';
 
 interface NotificationBadgeProps {
   count: number;
@@ -45,7 +46,7 @@ export function NotificationBadge({ count, onClick }: NotificationBadgeProps) {
             position: 'absolute',
             top: '6px',
             right: '6px',
-            backgroundColor: 'var(--primary-500)',
+            backgroundColor: PRIMARY_SOLID_FILL,
             color: '#ffffff',
             fontSize: '10px',
             fontWeight: '700',
