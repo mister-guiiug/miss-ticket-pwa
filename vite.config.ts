@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
+import { NAVIGATE_FALLBACK_DENY_FILES } from '@mister-guiiug/dev-pwa-config/vite-pwa';
 
 export default defineConfig(({ command }) => {
   // LE SITE VIT SOUS `/miss-ticket-pwa/`, ET LES ASSETS DOIVENT LE SAVOIR.
@@ -139,7 +140,8 @@ export default defineConfig(({ command }) => {
            */
           globIgnores: ['**/sentry.js', '**/sentry-*.js'],
           navigateFallback: 'index.html',
-          navigateFallbackDenylist: [/^\/ws/],
+          // Un fichier (sitemap.xml, llms.txt…) va au réseau, pas à index.html.
+          navigateFallbackDenylist: [NAVIGATE_FALLBACK_DENY_FILES, /^\/ws/],
           cleanupOutdatedCaches: true,
           maximumFileSizeToCacheInBytes: 4_000_000,
         },
