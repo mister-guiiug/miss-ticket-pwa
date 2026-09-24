@@ -28,7 +28,7 @@
     "_pourquoiPreload": "Posé le 16/09/2026 avec Sentry, socle 4.18.0. Mesuré 271.6 kB, budget à +10 %. Cette borne a immédiatement servi : nommer le morceau Sentry par manualChunks le faisait entrer dans le modulepreload de l entrée (435,4 kB préchargés), ce que le total gzip ne montrait pas. resolveDependencies l en retire."
   },
   "dependencies": {
-    "@sentry/react": "^10.75.3",
+    "@sentry/react": "^11.0.0",
     "firebase": "^12.19.0",
     "lucide-react": "^1.47.0",
     "posthog-js": "^1.434.11",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
-    "@mister-guiiug/dev-pwa-config": "^6.13.0",
+    "@mister-guiiug/dev-pwa-config": "^6.15.1",
     "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -69,6 +69,11 @@
   "overrides": {
     "eslint-plugin-jsx-a11y": {
       "eslint": "$eslint"
+    }
+  },
+  "pwaDoctor": {
+    "refus": {
+      "liens-famille": "La règle est tenue ; le contrôle ne peut pas le voir. L'application navigue PAR ÉTAT, sans routeur : App.tsx est à la fois la coquille et l'accueil, la vue « desktops » où l'on arrive au démarrage. FamilyLinks n'y est rendu que sous la garde view === 'desktops' — ni dans les sessions, ni dans l'historique — et les Réglages (le panneau Settings) portent FamilyApps. Deux écrans, comme la règle du 06/09/2026 le demande ; pwa-doctor, qui lit du texte, ne sait pas attribuer un rendu conditionnel de la coquille à un écran."
     }
   }
 }

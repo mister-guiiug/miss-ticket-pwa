@@ -568,9 +568,6 @@ function MainApp({
         )}
       </div>
 
-      {/* HORS de l'écran Réglages : le code source et le soutien sont ainsi
-          visibles sans avoir à ouvrir un panneau — la règle famille. Ils n'y
-          étaient qu'au bas des Réglages, qui s'ouvrent par-dessus l'app. */}
       {/* SUR LA VUE D'ACCUEIL SEULEMENT. Cette application ne navigue pas par
           routes mais par état : `view` vaut `desktops` au démarrage, et c'est
           là que l'utilisateur est au repos. Sans cette garde, l'invite
@@ -581,7 +578,11 @@ function MainApp({
           lancement, puis une fois par mois, trois fois. */}
       {view === 'desktops' && <PwaInstallPrompt />}
 
-      <FamilyLinks />
+      {/* LES LIENS DE LA FAMILLE, SUR L'ACCUEIL SEULEMENT — même garde que
+          l'invite ci-dessus. Rendus sans condition, ils suivaient les sessions
+          et l'historique ; la règle du 06/09/2026 les réserve à l'accueil et
+          aux Réglages (le panneau `Settings`, qui porte `FamilyApps`). */}
+      {view === 'desktops' && <FamilyLinks />}
     </div>
   );
 }
