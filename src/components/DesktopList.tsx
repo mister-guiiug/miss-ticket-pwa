@@ -5,6 +5,7 @@ import type { DesktopFilter, DesktopSort } from './FilterBar';
 import { useI18n } from '../i18n';
 import { PRIMARY_BUTTON_GRADIENT, PRIMARY_SOLID_FILL } from '../styles/theme';
 import { getDefaultLocale } from '@mister-guiiug/dev-pwa-config/format';
+import { EmptyState as DwcEmptyState } from '@mister-guiiug/dev-pwa-config/react/empty-state';
 
 interface DesktopListProps {
   desktops: Desktop[];
@@ -353,82 +354,48 @@ function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div
-      style={{
-        padding: '48px',
-        backgroundColor: 'var(--bg-card)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '16px',
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          width: '80px',
-          height: '80px',
-          margin: '0 auto 20px',
-          borderRadius: '20px',
-          backgroundColor: 'var(--bg-tertiary)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-tertiary)',
-        }}
-      >
-        {icon}
-      </div>
-      <h3
-        style={{
-          margin: '0 0 8px 0',
-          fontSize: '18px',
-          fontWeight: '600',
-          color: 'var(--text-primary)',
-        }}
-      >
-        {title}
-      </h3>
-      <p
-        style={{
-          margin: '0 0 24px 0',
-          fontSize: '14px',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        {message}
-      </p>
-      {actionLabel && onAction && (
-        <button
-          onClick={onAction}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 24px',
-            background: PRIMARY_BUTTON_GRADIENT,
-            border: 'none',
-            borderRadius: '12px',
-            color: '#ffffff',
-            fontSize: '15px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(244, 63, 94, 0.3)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow =
-              '0 6px 16px rgba(244, 63, 94, 0.4)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow =
-              '0 4px 12px rgba(244, 63, 94, 0.3)';
-          }}
-        >
-          <Zap size={18} />
-          <span>{actionLabel}</span>
-        </button>
-      )}
-    </div>
+    <DwcEmptyState
+      icon={icon}
+      title={title}
+      description={message}
+      action={
+        actionLabel && onAction ? (
+          <button
+            type="button"
+            onClick={onAction}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              background: PRIMARY_BUTTON_GRADIENT,
+              border: 'none',
+              borderRadius: '12px',
+              color: '#ffffff',
+              fontSize: '15px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              minHeight: '2.75rem',
+              minWidth: '2.75rem',
+              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.3)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow =
+                '0 6px 16px rgba(244, 63, 94, 0.4)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow =
+                '0 4px 12px rgba(244, 63, 94, 0.3)';
+            }}
+          >
+            <Zap size={18} />
+            <span>{actionLabel}</span>
+          </button>
+        ) : undefined
+      }
+    />
   );
 }
