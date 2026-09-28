@@ -8,11 +8,16 @@
 
 ## 📱 À Propos
 
-Cette PWA permet de contrôler l'application desktop **Miss Ticket** à distance depuis mobile ou tablette.
+Cette PWA est conçue pour piloter l'application desktop **Miss Ticket** à
+distance depuis mobile ou tablette : suivre les postes appairés et leurs
+sessions, arrêter une session ou toutes. Le lien avec le desktop est
+aujourd'hui rompu, voir « Communication avec le desktop ».
 
 ## 🚀 Développement
 
 ```bash
+export NODE_AUTH_TOKEN="$(gh auth token)"  # paquet du socle sur GitHub Packages
+cp .env.example .env.local                 # puis renseigner les VITE_FIREBASE_*
 npm install
 npm run dev
 ```
@@ -26,27 +31,43 @@ npm run preview
 
 ## 📡 Communication avec le desktop
 
+**État actuel** : dans son code actuel (dépôt miss-ticket), l'application
+desktop ne se connecte plus à Firestore depuis le 21/05/2026 et n'affiche pas
+de QR d'appariement. Tant que ce lien n'est pas rétabli, la PWA ne peut ni
+s'apparier ni piloter un poste. Ce qui suit décrit le protocole côté PWA.
+
 La PWA communique avec l'application desktop via Firebase (Firestore) :
 
 - **Appariement** : le desktop affiche un QR code
   `missticket:pair?token=…&id=…` ; la PWA le scanne, valide le token
   (collection `pairing_tokens`) puis enregistre le desktop.
-- **Commandes** : la PWA écrit les commandes (`launch_session`,
-  `stop_session`, `stop_all`, `get_state`) dans la collection `commands` ;
-  le desktop les exécute et publie son état (collection `desktops`),
-  observé en temps réel par la PWA.
+- **Commandes** : la PWA écrit `stop_session` (arrêter une session) et
+  `stop_all` (tout arrêter) dans la collection `commands` ; le desktop les
+  exécute et publie son état (collection `desktops`), observé en temps réel par
+  la PWA. `launch_session` et `get_state` sont prévues dans
+  `src/lib/firebaseCommands.ts`, mais aucun écran ne les envoie.
 
 ## 💾 Ce que la PWA garde, et où
 
-Tout ce que la PWA conserve tient dans le `localStorage` de l'appareil, sous
-le préfixe `ticket_` et sous l'enveloppe versionnée du socle (`{ v, data }`,
-migrations, copie de côté avant toute perte). Rien n'est écrit dans Firestore
-par la PWA en dehors des commandes.
+La PWA conserve ses données dans le `localStorage` de l'appareil : sous le
+préfixe `ticket_` (réglages et historique dans l'enveloppe versionnée du socle,
+`{ v, data }`, migrations, copie de côté avant toute perte ; langue en clair
+dans `ticket_locale`), plus le thème (`dwc_theme`), le choix de consentement
+(préfixe `dwc_consent`) et, après accord, l'état de la mesure d'audience.
 
-- `ticket_settings` — les réglages (notifications, son, vibration).
-- `ticket_history` — **l'historique des sessions terminées** : l'issue
+- `ticket_settings` : trois réglages (niveau de notifications, son, vibration),
+  enregistrés mais pas encore appliqués par l'application.
+- `ticket_history` : **l'historique des sessions terminées**, avec l'issue
   constatée (page d'achat atteinte, échec, arrêt demandé, fin subie), la
-  position finale dans la file, le poste et le concert.
+  position finale dans la file, le poste, l'URL du concert, l'**e-mail du
+  compte** de la session, le dernier statut et les dates.
+
+Dans Firestore, la PWA écrit les commandes, son profil `users/{uid}` (pseudo et
+dates, créé à la connexion anonyme) et, à l'appariement, le statut du jeton
+(`pairing_tokens`) et la fiche du poste (`desktops`). Hors Firebase, Sentry
+(région UE) démarre à l'ouverture, sans consentement, et ne reçoit un rapport
+technique que lorsqu'une erreur survient ; la mesure d'audience PostHog (nuage
+européen) ne démarre qu'après accord dans le bandeau.
 
 **Pourquoi l'historique n'est PAS dans Firestore.** La PWA est une
 télécommande : c'est le desktop qui conduit les sessions et qui, seul, connaît
