@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import {
   ALPHABETS,
   generateCode,
@@ -72,8 +72,21 @@ export async function initiatePairing(
       throw new Error('Code invalide pour ce desktop');
     }
 
-    // Marquer le token comme apparié
-    await setDoc(
+    /*
+     * LE JETON ET LE POSTE, D'UN SEUL LOT.
+     *
+     * Les règles Firestore n'acceptent l'un qu'avec l'autre (30/09/2026) : un
+     * poste ne change de main que dans le lot qui fait passer SON jeton de
+     * `pending` à `paired` au nom de l'appelant. Le poste cite ce jeton
+     * (`pairingToken`) pour qu'elles puissent le vérifier. Avant, deux
+     * écritures séparées, et une règle qui laissait n'importe quel compte poser
+     * son `userId` sur n'importe quel poste.
+     *
+     * Le lot ferme aussi l'entre-deux : une coupure après la première écriture
+     * laissait un jeton consommé pour un poste jamais enregistré.
+     */
+    const batch = writeBatch(db);
+    batch.set(
       tokenRef,
       {
         status: 'paired',
@@ -82,9 +95,7 @@ export async function initiatePairing(
       },
       { merge: true }
     );
-
-    // Créer/Mettre à jour le document desktop
-    await setDoc(
+    batch.set(
       doc(db, 'desktops', desktopId),
       {
         userId,
@@ -92,9 +103,11 @@ export async function initiatePairing(
         online: true,
         lastSeen: serverTimestamp(),
         sessions: [],
+        pairingToken: token,
       },
       { merge: true }
     );
+    await batch.commit();
 
     return true;
   } catch (error) {

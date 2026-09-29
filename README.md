@@ -40,12 +40,23 @@ La PWA communique avec l'application desktop via Firebase (Firestore) :
 
 - **Appariement** : le desktop affiche un QR code
   `missticket:pair?token=…&id=…` ; la PWA le scanne, valide le token
-  (collection `pairing_tokens`) puis enregistre le desktop.
+  (collection `pairing_tokens`), puis consomme le jeton et enregistre le
+  desktop **dans un seul lot**, que les règles Firestore vérifient ensemble.
 - **Commandes** : la PWA écrit `stop_session` (arrêter une session) et
   `stop_all` (tout arrêter) dans la collection `commands` ; le desktop les
   exécute et publie son état (collection `desktops`), observé en temps réel par
-  la PWA. `launch_session` et `get_state` sont prévues dans
-  `src/lib/firebaseCommands.ts`, mais aucun écran ne les envoie.
+  la PWA. `get_state` est prévue dans `src/lib/firebaseCommands.ts`, mais aucun
+  écran ne l'envoie.
+- **Pas de lancement à distance** : `launchSession()` écrivait l'e-mail et le
+  mot de passe du compte de billetterie en clair dans `commands`. Elle est
+  retirée depuis le 30/09/2026, et la PWA comme les règles refusent toute
+  commande hors de la liste ci-dessus ou tout champ imprévu. Un mot de passe ne
+  transite jamais par Firestore.
+
+Les règles (`firestore.rules`) sont publiées sur le projet Firebase à chaque
+fusion sur `main`, par le job `deploy-firebase` de `deploy.yml`. Le dépôt
+miss-ticket en garde une copie (`firebase/firestore.rules`) qui doit rester
+identique.
 
 ## 💾 Ce que la PWA garde, et où
 
@@ -64,7 +75,8 @@ dans `ticket_locale`), plus le thème (`dwc_theme`), le choix de consentement
 
 Dans Firestore, la PWA écrit les commandes, son profil `users/{uid}` (pseudo et
 dates, créé à la connexion anonyme) et, à l'appariement, le statut du jeton
-(`pairing_tokens`) et la fiche du poste (`desktops`). Hors Firebase, Sentry
+(`pairing_tokens`) et la fiche du poste (`desktops`, qui garde l'identifiant du
+jeton consommé : la preuve que lisent les règles). Hors Firebase, Sentry
 (région UE) démarre à l'ouverture, sans consentement, et ne reçoit un rapport
 technique que lorsqu'une erreur survient ; la mesure d'audience PostHog (nuage
 européen) ne démarre qu'après accord dans le bandeau.

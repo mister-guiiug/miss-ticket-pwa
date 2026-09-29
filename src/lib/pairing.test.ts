@@ -4,7 +4,7 @@
  * aucun accès réseau).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { generatePairingCode, initiatePairing, parseQRCode } from './pairing';
 
 // `config/firebase` initialise l'app Firebase au niveau module : on le
@@ -16,7 +16,7 @@ vi.mock('firebase/firestore', () => ({
     path: segments.join('/'),
   })),
   getDoc: vi.fn(),
-  setDoc: vi.fn(),
+  writeBatch: vi.fn(),
   serverTimestamp: vi.fn(() => ({ __serverTimestamp: true })),
 }));
 
@@ -130,10 +130,15 @@ describe('parseQRCode', () => {
 
 describe('initiatePairing', () => {
   const getDocMock = vi.mocked(getDoc);
-  const setDocMock = vi.mocked(setDoc);
+  // Le lot d'écriture : ce qu'on y pose, et s'il part.
+  const batch = { set: vi.fn(), commit: vi.fn() };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(writeBatch).mockReturnValue(
+      batch as unknown as ReturnType<typeof writeBatch>
+    );
+    batch.commit.mockResolvedValue(undefined);
     // initiatePairing loggue l'erreur avant de la relancer : on silencie.
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -148,7 +153,7 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('BADTOK', 'desktop-ABC123', 'user-1')
     ).rejects.toThrow(/^Code invalide$/);
-    expect(setDocMock).not.toHaveBeenCalled();
+    expect(batch.commit).not.toHaveBeenCalled();
   });
 
   it('rejette un code expiré', async () => {
@@ -161,7 +166,7 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
     ).rejects.toThrow('Code expiré');
-    expect(setDocMock).not.toHaveBeenCalled();
+    expect(batch.commit).not.toHaveBeenCalled();
   });
 
   it('rejette un code déjà utilisé', async () => {
@@ -170,6 +175,7 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
     ).rejects.toThrow('Code déjà utilisé');
+    expect(batch.commit).not.toHaveBeenCalled();
   });
 
   it('rejette un code émis pour un autre desktop', async () => {
@@ -178,7 +184,7 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('TOK123', 'desktop-AUTRE9', 'user-1')
     ).rejects.toThrow('Code invalide pour ce desktop');
-    expect(setDocMock).not.toHaveBeenCalled();
+    expect(batch.commit).not.toHaveBeenCalled();
   });
 
   it('renvoie false si le document existe sans données', async () => {
@@ -187,23 +193,22 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
     ).resolves.toBe(false);
-    expect(setDocMock).not.toHaveBeenCalled();
+    expect(batch.commit).not.toHaveBeenCalled();
   });
 
   it("accepte un token sans date d'expiration", async () => {
     getDocMock.mockResolvedValue(
       snapshot(pendingToken({ expiresAt: undefined }))
     );
-    setDocMock.mockResolvedValue(undefined);
 
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
     ).resolves.toBe(true);
+    expect(batch.commit).toHaveBeenCalledTimes(1);
   });
 
-  it('marque le token apparié puis enregistre le desktop', async () => {
+  it('marque le token apparié et enregistre le desktop dans un seul lot', async () => {
     getDocMock.mockResolvedValue(snapshot(pendingToken()));
-    setDocMock.mockResolvedValue(undefined);
 
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-7')
@@ -214,8 +219,9 @@ describe('initiatePairing', () => {
       'pairing_tokens',
       'TOK123'
     );
-    expect(setDocMock).toHaveBeenCalledTimes(2);
-    expect(setDocMock).toHaveBeenNthCalledWith(
+    expect(writeBatch).toHaveBeenCalledTimes(1);
+    expect(batch.set).toHaveBeenCalledTimes(2);
+    expect(batch.set).toHaveBeenNthCalledWith(
       1,
       { path: 'pairing_tokens/TOK123' },
       {
@@ -225,7 +231,9 @@ describe('initiatePairing', () => {
       },
       { merge: true }
     );
-    expect(setDocMock).toHaveBeenNthCalledWith(
+    // `pairingToken` est la preuve que lisent les règles Firestore : sans
+    // lui, elles refusent de donner le poste à l'appelant.
+    expect(batch.set).toHaveBeenNthCalledWith(
       2,
       { path: 'desktops/desktop-ABC123' },
       {
@@ -234,9 +242,11 @@ describe('initiatePairing', () => {
         online: true,
         lastSeen: { __serverTimestamp: true },
         sessions: [],
+        pairingToken: 'TOK123',
       },
       { merge: true }
     );
+    expect(batch.commit).toHaveBeenCalledTimes(1);
   });
 
   it('propage une erreur Firestore', async () => {
@@ -245,5 +255,16 @@ describe('initiatePairing', () => {
     await expect(
       initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
     ).rejects.toThrow('Firestore indisponible');
+  });
+
+  it('propage le refus du lot, sans rien tenir pour apparié', async () => {
+    getDocMock.mockResolvedValue(snapshot(pendingToken()));
+    batch.commit.mockRejectedValue(
+      new Error('Missing or insufficient permissions.')
+    );
+
+    await expect(
+      initiatePairing('TOK123', 'desktop-ABC123', 'user-1')
+    ).rejects.toThrow('Missing or insufficient permissions.');
   });
 });
