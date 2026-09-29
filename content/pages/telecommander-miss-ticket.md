@@ -1,15 +1,22 @@
 ---
-title: Télécommander Miss Ticket depuis le téléphone
-description: Relier un téléphone à Miss Ticket desktop pour piloter une session à distance : jumelage QR, gestes utiles, historique local et limites de la télécommande PWA.
+title: Télécommander Miss Ticket depuis le téléphone : mode d'emploi
+description: Relier un téléphone à Miss Ticket desktop pour suivre et arrêter ses sessions : jumelage par QR code, historique local, limites, et l'état actuel du lien.
+date: 2026-09-27
+updated: 2026-09-29
+answer: La PWA Miss Ticket est la télécommande de Miss Ticket desktop. Après un jumelage par QR code, elle affiche les postes et leurs sessions et peut en arrêter une, ou toutes. Elle ne lance ni n'achète rien. Depuis le 21 mai 2026, le desktop ne se connecte plus au service qui les relie, donc le jumelage n'aboutit pas.
 ---
 
 # Télécommander Miss Ticket depuis le téléphone
 
-Miss Ticket est une application **desktop**. La PWA Miss Ticket n'est pas un second client autonome : c'est une **télécommande** installable sur le téléphone, jumelée à la session déjà ouverte sur l'ordinateur. L'ordinateur conduit les sessions ; le mobile les lance, les suit et les arrête sans quitter la file ou l'écran principal du poste.
+Miss Ticket est une application **desktop**. La PWA Miss Ticket n'est pas un second client autonome : c'est une **télécommande** installable sur le téléphone, jumelée au poste. L'ordinateur conduit les sessions ; le mobile les suit et peut les arrêter, sans quitter la file ou l'écran principal du poste.
+
+## L'état actuel du lien avec le desktop
+
+Depuis le 21 mai 2026, Miss Ticket desktop, dans son code actuel, ne se connecte plus à Firestore, le service de Google qui relie les deux applications, et n'affiche plus de QR code de jumelage. Tant que ce lien n'est pas rétabli, la télécommande ne peut ni se jumeler ni commander un poste. La suite décrit son fonctionnement quand le lien existe.
 
 ## À quoi ça sert
 
-Quand la file ou l'écran principal occupe le poste, le téléphone permet d'agir sans se pencher sur le clavier : démarrer une session, vérifier où elle en est, l'arrêter, ou stopper toutes les sessions d'un coup. L'ordinateur reste la source de vérité. Le mobile ne stocke pas la session à sa place et ne remplace pas Miss Ticket desktop.
+Quand la file ou l'écran principal occupe le poste, le téléphone permet d'agir sans se pencher sur le clavier : vérifier où en sont les sessions, en arrêter une, ou les arrêter toutes d'un coup. L'ordinateur reste la source de vérité. Le mobile ne stocke pas la session à sa place et ne remplace pas Miss Ticket desktop.
 
 Cas d'usage typiques :
 
@@ -19,35 +26,36 @@ Cas d'usage typiques :
 
 ## Comment jumeler
 
-1. Ouvrez Miss Ticket sur le desktop et lancez l'appairage : un QR code s'affiche (et souvent un code à 6 chiffres en secours).
+1. Ouvrez Miss Ticket sur le desktop et lancez l'appairage : un QR code s'affiche.
 2. Sur le téléphone, ouvrez [Miss Ticket](https://mister-guiiug.github.io/miss-ticket-pwa/), choisissez un pseudo, puis **Appairer un desktop**.
-3. Scannez le QR code avec la caméra, ou saisissez le code à 6 chiffres affiché sur le poste.
+3. Scannez le QR code avec la caméra. L'écran propose aussi de saisir un code à six chiffres, mais cette voie n'aboutit pas encore : l'application renvoie vers le QR code.
 4. Une fois la liaison établie, le desktop apparaît dans la liste **Desktops** de la télécommande.
 
-Le jumelage passe par un jeton d'appairage éphémère. Il expire si la session desktop se ferme, si le jeton n'est plus valide, ou si le réseau coupe trop longtemps : il faudra alors recommencer depuis le desktop.
+Le jumelage passe par un jeton d'appairage à durée limitée, fixée par le desktop. Un QR code périmé ou déjà utilisé est refusé : il faut en afficher un nouveau sur le poste.
 
 ## Ce que la télécommande peut faire
 
 Une fois le poste appairé, [Miss Ticket](https://mister-guiiug.github.io/miss-ticket-pwa/) expose trois écrans utiles :
 
 - **Desktops** : la liste des postes appairés, avec le nombre de sessions en cours et un indicateur de connexion.
-- **Sessions** : pour un poste donné, le détail des sessions actives (connectées, en attente, page d'achat atteinte) et les actions : lancer, arrêter une session, ou **arrêter tout**.
-- **Historique** : les sessions terminées **telles que la télécommande les a vues** pendant qu'elle était ouverte — issue constatée (page d'achat atteinte, échec, arrêt demandé, fin subie), position finale dans la file, poste et concert.
+- **Sessions** : pour un poste donné, le détail des sessions actives (connectées, en attente, page d'achat atteinte) et deux actions : arrêter une session, ou **Arrêter tout**.
+- **Historique** : les sessions terminées **telles que la télécommande les a vues** pendant qu'elle était ouverte : issue constatée (page d'achat atteinte, échec, arrêt demandé, fin subie), position finale dans la file, poste et concert.
 
-Les commandes partent vers le desktop (lancer, arrêter, demander l'état). Le desktop exécute et republie son état ; la PWA l'observe en temps réel. Hors ligne, aucune commande n'aboutit : le bandeau le dit clairement, pour éviter de croire qu'un arrêt a bien été envoyé.
+Les commandes d'arrêt partent vers le desktop. Le desktop exécute et republie son état ; la PWA l'observe en temps réel. Hors ligne, aucune commande n'aboutit : un bandeau le dit, pour éviter de croire qu'un arrêt a bien été envoyé.
 
 ## Ce que la télécommande ne fait pas
 
 - Elle **ne remplace pas** l'application desktop : sans Miss Ticket ouvert sur le poste, il n'y a rien à piloter.
+- Elle **ne lance aucune session** : le protocole le prévoit, mais aucun écran ne l'envoie.
 - Elle ne contourne **aucune** file d'attente tierce : elle pilote uniquement Miss Ticket.
-- Elle ne conserve pas d'identifiants de sites marchands : le couple téléphone / desktop reste dans le périmètre de Miss Ticket.
-- Elle n'est **pas** une seconde source de vérité pour l'issue des sessions : l'historique mobile ne retient que ce que la PWA a observé pendant qu'elle était ouverte. Il reste sur l'appareil (`localStorage`), ne suit pas d'un téléphone à l'autre, et disparaît si vous effacez les données locales.
+- Elle ne transmet aucun mot de passe de site de billetterie. Son historique garde en revanche, sur le téléphone, l'adresse e-mail du compte utilisé par chaque session et l'adresse du concert.
+- Elle n'est **pas** une seconde source de vérité pour l'issue des sessions : l'historique ne retient que ce que la PWA a observé pendant qu'elle était ouverte. Il reste sur l'appareil (`localStorage`), ne suit pas d'un téléphone à l'autre, et disparaît si vous effacez les données locales.
 - Elle ne reçoit pas de notification poussée quand une session se termine hors de l'écran : pour voir une issue, la télécommande doit être ouverte au moment où la session s'arrête.
 
 ## Limites utiles à connaître
 
-- **Réseau** : l'appairage et les commandes demandent une connexion. Sur le même Wi-Fi que le poste, le jumelage local est en général le plus stable ; si Miss Ticket propose un autre mode, suivez l'indication affichée sur le desktop au moment du QR.
-- **Rechargement de la page mobile** : la liaison peut se perdre. Rouvrez l'appairage depuis le desktop, puis reconnectez le téléphone.
+- **Réseau** : le jumelage et les commandes passent par Firestore, un service en ligne. Le téléphone et le poste ont besoin d'Internet, pas d'être sur le même Wi-Fi.
+- **Rechargement de la page mobile** : la connexion anonyme n'est gardée qu'en mémoire. Après un rechargement, il faut rechoisir un pseudo, ce qui crée un nouveau compte anonyme, puis jumeler de nouveau ses postes.
 - **Plusieurs desktops** : vous pouvez appairer plusieurs postes sur le même téléphone ; chaque commande cible le desktop choisi dans la liste.
 - **Installation PWA** : facultative. « Ajouter à l'écran d'accueil » évite de retaper l'URL et garde la télécommande à portée, sans changer le rôle de l'app.
 
@@ -55,15 +63,15 @@ Les commandes partent vers le desktop (lancer, arrêter, demander l'état). Le d
 
 ### Faut-il installer la PWA ?
 
-Non. Le navigateur mobile suffit. L'installation (Ajouter à l'écran d'accueil) évite de retaper l'URL et garde la télécommande à portée, mais le jumelage et les commandes fonctionnent déjà dans l'onglet.
+Non. Le navigateur mobile suffit. L'installation évite de retaper l'URL et garde la télécommande à portée, mais le jumelage et les commandes fonctionnent déjà dans l'onglet.
 
 ### Le téléphone et l'ordinateur doivent-ils être sur le même Wi-Fi ?
 
-En général oui pour un jumelage local stable. Si Miss Ticket propose un relais distant, suivez l'indication affichée dans l'app desktop au moment du jumelage. Dans tous les cas, hors ligne, aucune commande ne part.
+Non. Le jumelage et les commandes passent par Firestore, un service en ligne de Google : il suffit que les deux appareils aient accès à Internet. Hors ligne, aucune commande ne part.
 
 ### Que se passe-t-il si je recharge la page mobile ?
 
-La liaison peut se perdre. Rouvrez le jumelage depuis le desktop (nouveau QR ou nouveau code), puis reconnectez le téléphone. Les desktops déjà appairés peuvent réapparaître selon l'état conservé côté téléphone, mais une session active demande souvent de revérifier la connexion.
+La connexion anonyme, gardée en mémoire, est perdue. Il faut rechoisir un pseudo, ce qui ouvre un nouveau compte anonyme, puis jumeler de nouveau vos postes avec un nouveau QR code affiché sur le desktop.
 
 ### Pourquoi l'historique ne suit-il pas d'un téléphone à l'autre ?
 
@@ -75,4 +83,10 @@ Non. Cela signifie que le poste a signalé être arrivé sur la page d'achat. La
 
 ### Peut-on arrêter toutes les sessions d'un coup ?
 
-Oui, depuis l'écran Sessions du desktop concerné : l'action **Arrêter tout** envoie la commande au poste. Vérifiez que la télécommande est en ligne avant de l'utiliser — hors ligne, la commande resterait en suspens.
+Oui, depuis l'écran Sessions du desktop concerné : l'action **Arrêter tout** envoie la commande au poste. Vérifiez que la télécommande est en ligne avant de l'utiliser : hors ligne, la commande resterait en suspens.
+
+## Sources
+
+- [Authentification anonyme, Firebase](https://firebase.google.com/docs/auth/web/anonymous-auth) : des comptes anonymes temporaires.
+- [Persistance de la connexion, Firebase](https://firebase.google.com/docs/auth/web/auth-state-persistence) : une connexion gardée en mémoire disparaît au rechargement.
+- [localStorage, MDN](https://developer.mozilla.org/fr/docs/Web/API/Window/localStorage) : des données propres à l'origine, sans date d'expiration.
