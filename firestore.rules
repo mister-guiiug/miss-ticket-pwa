@@ -1,77 +1,169 @@
 rules_version = '2';
+
+// RÈGLES FIRESTORE DU PROJET `miss-ticket`.
+//
+// DEUX COPIES, À GARDER IDENTIQUES : `firestore.rules` à la racine de
+// miss-ticket-pwa et `firebase/firestore.rules` dans miss-ticket. Celle qui part
+// en production est celle de la PWA : son `deploy.yml` la publie sur le projet à
+// CHAQUE fusion sur `main` (job `deploy-firebase` du réutilisable du parc).
+// Le `deploy-firebase.yml` de miss-ticket, lui, n'a jamais abouti faute de
+// secrets. Corriger une copie sans l'autre, c'est laisser la prochaine fusion
+// dans la PWA défaire le correctif.
+//
+// QUI PASSE PAR CES RÈGLES : la PWA seule, en connexion anonyme, par le SDK
+// client. Le desktop, tant qu'il écrivait dans Firestore (jusqu'au 21/05/2026),
+// s'authentifiait avec un compte de service Google, que les règles ne voient
+// pas. Les `if true` posés « pour le Desktop » ne lui ont donc jamais servi :
+// ils ouvraient `commands`, `sessions` et `pairing_tokens` à n'importe qui,
+// connecté ou non. Retirés le 30/09/2026 : ce que la PWA ne fait pas est refusé.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Le poste appartient-il à l'appelant ? `userId` est le champ que la PWA
+    // écrit à l'appariement (le desktop, lui, écrivait `user_id`).
+    function ownsDesktop(desktopId) {
+      let path = /databases/$(database)/documents/desktops/$(desktopId);
+      return signedIn()
+        && exists(path)
+        && get(path).data.get('userId', null) == request.auth.uid;
+    }
+
+    // Un jeton sans échéance passe, comme la PWA le laisse passer. Une échéance
+    // qui n'est pas un horodatage est refusée : la PWA lève déjà dessus
+    // (`toDate()`).
+    function notExpired(token) {
+      return token.get('expiresAt', null) == null
+        || (token.expiresAt is timestamp && request.time < token.expiresAt);
+    }
+
+    // Le jeton que cite le poste passe, DANS CE LOT, de `pending` à `paired` au
+    // nom de l'appelant, et il a été émis pour CE poste. C'est ce qui fait de
+    // l'appariement la seule façon de prendre un poste.
+    function claimsWithPairingToken(desktopId) {
+      let token = request.resource.data.get('pairingToken', null);
+      let path = /databases/$(database)/documents/pairing_tokens/$(token);
+      return token is string
+        && exists(path)
+        && get(path).data.status == 'pending'
+        && get(path).data.desktopId == desktopId
+        && getAfter(path).data.status == 'paired'
+        && getAfter(path).data.pairedBy == request.auth.uid;
+    }
+
+    // Les commandes que la PWA envoie, avec leur charge EXACTE.
+    //
+    // `launch_session` n'y figure pas : elle transportait l'e-mail ET le mot de
+    // passe du compte de billetterie, en clair, dans un document de `commands`
+    // que tout le monde pouvait lire. Un mot de passe ne transite jamais par
+    // Firestore. Un lancement à distance devra laisser les identifiants sur le
+    // desktop, et n'entrera ici qu'avec une charge qui n'en porte aucun.
+    function validCommand(action, payload) {
+      return payload is map
+        && ((action == 'stop_session'
+              && payload.keys().hasOnly(['instance_id'])
+              && payload.instance_id is string)
+          || (action in ['stop_all', 'get_state']
+              && payload.keys().size() == 0));
+    }
 
     // ============================================
     // COLLECTION: users
     // ============================================
     match /users/{userId} {
-      // Lecture/écriture uniquement pour l'utilisateur lui-même
-      allow read, write: if request.auth != null
-                          && request.auth.uid == userId;
+      // Son propre profil, et lui seul.
+      allow read, write: if isUser(userId);
     }
 
     // ============================================
     // COLLECTION: desktops
     // ============================================
     match /desktops/{desktopId} {
-      // Lecture: uniquement si c'est mon desktop
-      allow read: if request.auth != null
-                   && resource.data.userId == request.auth.uid;
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
 
-      // Création: n'importe quel utilisateur authentifié peut créer un desktop
-      allow create: if request.auth != null;
+      // Le propriétaire entretient SON poste, sans pouvoir le donner à un autre
+      // compte.
+      allow update: if signedIn()
+        && resource.data.get('userId', null) == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
 
-      // Mise à jour: uniquement par son propriétaire
-      allow update: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid;
+      // Prendre un poste, qu'on le crée ou qu'on le reprenne, ne se fait que
+      // dans le lot qui consomme son jeton d'appariement. Avant le 30/09/2026, la
+      // mise à jour ne regardait que la valeur ÉCRITE : n'importe quel compte
+      // s'attribuait n'importe quel poste en y posant son propre `userId`.
+      allow create, update: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && claimsWithPairingToken(desktopId);
 
-      // Suppression: uniquement par son propriétaire
-      allow delete: if request.auth != null
-                    && resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
     }
 
     // ============================================
     // COLLECTION: commands
     // ============================================
     match /commands/{commandId} {
-      // Création: uniquement par le propriétaire du desktop
-      allow create: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid;
+      // Une commande connue, pour SON poste, à son nom, datée par le serveur.
+      allow create: if isUser(request.resource.data.userId)
+        && ownsDesktop(request.resource.data.desktopId)
+        && request.resource.data.keys().hasOnly(
+             ['desktopId', 'userId', 'action', 'payload', 'status', 'createdAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && validCommand(request.resource.data.action, request.resource.data.payload);
 
-      // Lecture/édition/suppression: pour le Desktop (Admin SDK)
-      // Note: Le Desktop utilise le Admin SDK qui contourne les rules
-      allow read, update, delete: if true;
+      // Ses propres commandes, et elles seules. Ni modification ni suppression
+      // côté client : le desktop les traitait avec son compte de service.
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
     }
 
     // ============================================
     // COLLECTION: sessions
     // ============================================
     match /sessions/{sessionId} {
-      // Lecture: uniquement par le propriétaire du desktop associé
-      allow read: if request.auth != null
-                  && get(/databases/$(database)/documents/desktops/$(resource.data.desktopId)).data.userId == request.auth.uid;
+      // Les sessions de SES postes.
+      allow read: if signedIn()
+        && get(/databases/$(database)/documents/desktops/$(resource.data.desktopId)).data.userId == request.auth.uid;
 
-      // Écriture: pour le Desktop (Admin SDK)
-      allow write: if true;
+      // Aucune écriture côté client : seul le desktop publie ses sessions, et
+      // elles portent l'e-mail du compte de billetterie.
     }
 
     // ============================================
     // COLLECTION: pairing_tokens
     // ============================================
     match /pairing_tokens/{tokenId} {
-      // Lecture: publique (pour vérifier le token)
-      allow read: if true;
+      // Lire UN jeton dont on tient l'identifiant, celui du QR code, qui EST le
+      // secret de l'appariement. Jamais les énumérer (pas de `list`) : avant le
+      // 30/09/2026, n'importe qui listait les jetons en attente et prenait les
+      // postes qui allaient avec. Un jeton consommé ne se relit que par celui
+      // qui l'a consommé. Un jeton inconnu se lit « absent », pour que la PWA
+      // puisse répondre « Code invalide ».
+      allow get: if signedIn()
+        && (resource == null
+          || resource.data.status == 'pending'
+          || resource.data.get('pairedBy', null) == request.auth.uid);
 
-      // Création: publique (généré par le Desktop)
-      allow create: if true;
+      // Consommer un jeton : `pending` → `paired`, à son propre nom, avant
+      // l'échéance, sans toucher au reste, et dans le lot qui prend le poste.
+      allow update: if signedIn()
+        && resource.data.status == 'pending'
+        && notExpired(resource.data)
+        && request.resource.data.status == 'paired'
+        && request.resource.data.pairedBy == request.auth.uid
+        && request.resource.data.pairedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'pairedBy', 'pairedAt'])
+        && getAfter(/databases/$(database)/documents/desktops/$(resource.data.desktopId)).data.userId == request.auth.uid;
 
-      // Mise à jour: par n'importe qui (Desktop et PWA peuvent modifier)
-      allow update: if true;
-
-      // Suppression: par n'importe qui (cleanup)
-      allow delete: if true;
+      // Ni création ni suppression côté client : le desktop émet et nettoie ses
+      // jetons avec son compte de service.
     }
-
   }
 }

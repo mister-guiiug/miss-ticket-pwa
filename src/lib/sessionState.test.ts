@@ -41,8 +41,9 @@ describe('normaliser une session venue de Firestore', () => {
   });
 
   it('refuse une valeur qui n’est pas du texte au lieu de la faire rendre', () => {
-    // `launchSession` accepte un `proxy: unknown` : un objet arrivait jusqu'au
-    // JSX, où React lève « Objects are not valid as a React child ».
+    // Le protocole de lancement (retiré le 30/09/2026) transportait un
+    // `proxy: unknown` : un objet publié par le desktop arrivait jusqu'au JSX,
+    // où React lève « Objects are not valid as a React child ».
     expect(
       toSessionState({ proxy: { host: 'x', port: 8080 } }, 'i-1').proxy
     ).toBe('');

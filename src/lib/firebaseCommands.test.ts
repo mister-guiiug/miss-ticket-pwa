@@ -4,12 +4,14 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { addDoc, collection } from 'firebase/firestore';
+import * as commands from './firebaseCommands';
 import {
   sendCommand,
-  launchSession,
   stopSession,
   stopAllSessions,
   refreshState,
+  type CommandAction,
+  type CommandPayload,
 } from './firebaseCommands';
 
 // `config/firebase` initialise l'app Firebase au niveau module : on le
@@ -34,6 +36,27 @@ function writtenCommand(call = 0): Record<string, unknown> {
   const args = addDocMock.mock.calls[call];
   if (!args) throw new Error(`addDoc n'a pas reçu d'appel n°${call + 1}`);
   return args[1] as unknown as Record<string, unknown>;
+}
+
+/**
+ * Appelle `sendCommand` comme le ferait un code qui passe outre le typage :
+ * une commande ou une charge assemblée ailleurs (`as`, JSON, `unknown`).
+ * Renvoie l'erreur levée, pour en lire le message.
+ */
+async function sendUntyped(
+  action: string,
+  payload: Record<string, unknown>
+): Promise<Error> {
+  const error: unknown = await sendCommand(
+    'desk-1',
+    'user-1',
+    action as CommandAction,
+    payload as unknown as CommandPayload
+  ).catch((e: unknown) => e);
+  if (!(error instanceof Error)) {
+    throw new Error(`sendCommand aurait dû refuser « ${action} »`);
+  }
+  return error;
 }
 
 beforeEach(() => {
@@ -89,48 +112,63 @@ describe('sendCommand', () => {
   });
 });
 
-describe('launchSession', () => {
-  it('construit une commande launch_session complète', async () => {
-    const id = await launchSession(
-      'desk-1',
-      'user-1',
-      'fan@example.com',
-      's3cret',
-      'https://billetterie.example/concert',
-      { host: 'proxy.local', port: 8080 }
-    );
-
-    expect(id).toBe('cmd-1');
-    expect(writtenCommand()).toMatchObject({
-      desktopId: 'desk-1',
-      userId: 'user-1',
-      action: 'launch_session',
-      status: 'pending',
-      payload: {
-        email: 'fan@example.com',
-        password: 's3cret',
-        concert_url: 'https://billetterie.example/concert',
-        proxy: { host: 'proxy.local', port: 8080 },
-      },
-    });
+/**
+ * UN MOT DE PASSE NE PASSE JAMAIS PAR FIRESTORE.
+ *
+ * `launchSession()` écrivait l'e-mail et le mot de passe du compte de
+ * billetterie en clair dans `commands`. Elle est retirée (30/09/2026), et
+ * `sendCommand`, par où passe toute commande, refuse désormais ce qu'elle
+ * envoyait, avant d'écrire quoi que ce soit.
+ */
+describe('le lancement de session à distance', () => {
+  it("n'est plus exporté", () => {
+    expect(commands).not.toHaveProperty('launchSession');
   });
 
-  it('reste valide sans proxy', async () => {
-    await launchSession(
-      'desk-1',
-      'user-1',
-      'fan@example.com',
-      's3cret',
-      'https://billetterie.example/concert'
-    );
-
-    const payload = writtenCommand().payload as Record<string, unknown>;
-    expect(payload.proxy).toBeUndefined();
-    expect(payload).toEqual({
+  it('refuse launch_session sans rien écrire', async () => {
+    const error = await sendUntyped('launch_session', {
       email: 'fan@example.com',
       password: 's3cret',
       concert_url: 'https://billetterie.example/concert',
     });
+
+    expect(error.message).toMatch(/launch_session/);
+    expect(addDocMock).not.toHaveBeenCalled();
+  });
+
+  it('refuse un mot de passe glissé dans une commande permise', async () => {
+    const error = await sendUntyped('stop_session', {
+      instance_id: 'inst-1',
+      password: 's3cret',
+    });
+
+    expect(error.message).toMatch(/password/);
+    expect(addDocMock).not.toHaveBeenCalled();
+  });
+
+  it('nomme le champ refusé sans jamais en recopier la valeur', async () => {
+    const error = await sendUntyped('stop_all', { password: 's3cret' });
+
+    expect(error.message).toContain('password');
+    expect(error.message).not.toContain('s3cret');
+  });
+
+  it('refuse aussi un champ inconnu, même anodin', async () => {
+    const error = await sendUntyped('get_state', {
+      concert_url: 'https://billetterie.example/concert',
+    });
+
+    expect(error.message).toMatch(/concert_url/);
+    expect(addDocMock).not.toHaveBeenCalled();
+  });
+
+  it("refuse un nom hérité du prototype d'un objet", async () => {
+    // `'constructor' in {}` vaut true : la garde lit les propres clés de la
+    // liste, pas celles qu'un objet hérite.
+    const error = await sendUntyped('constructor', {});
+
+    expect(error.message).toMatch(/constructor/);
+    expect(addDocMock).not.toHaveBeenCalled();
   });
 });
 
