@@ -21,6 +21,7 @@ import {
   ThemeToggle,
   useThemeContext,
 } from '@mister-guiiug/dev-pwa-config/react';
+import { ConsentSection } from '@mister-guiiug/dev-pwa-config/react/consent-section';
 import {
   SPONSOR_URL,
   repoUrl,
@@ -526,6 +527,20 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <span>{t('common.clear')}</span>
               </button>
             }
+          />
+          {/* Revenir sur son choix de mesure d'audience : le retrait se fait
+              ici, en un clic (RGPD, art. 7.3). Mêmes clé et chargeur que le
+              bandeau. Dans la carte « Données » plutôt que sous une Section à
+              elle : sans clé de mesure elle ne rend rien, et laisserait un
+              titre orphelin. `onReopen={onClose}` : le bandeau qui repose la
+              question est en bas de la page, sous ces Paramètres plein écran. */}
+          <ConsentSection
+            posthogKey={import.meta.env.VITE_POSTHOG_KEY}
+            loader={() => import('posthog-js/dist/module.slim.js')}
+            className="settings-consent"
+            titleClassName="settings-consent__title"
+            headingLevel={3}
+            onReopen={onClose}
           />
         </Section>
 
