@@ -2,13 +2,12 @@ rules_version = '2';
 
 // RÈGLES FIRESTORE DU PROJET `miss-ticket`.
 //
-// DEUX COPIES, À GARDER IDENTIQUES : `firestore.rules` à la racine de
-// miss-ticket-pwa et `firebase/firestore.rules` dans miss-ticket. Celle qui part
-// en production est celle de la PWA : son `deploy.yml` la publie sur le projet à
-// CHAQUE fusion sur `main` (job `deploy-firebase` du réutilisable du parc).
-// Le `deploy-firebase.yml` de miss-ticket, lui, n'a jamais abouti faute de
-// secrets. Corriger une copie sans l'autre, c'est laisser la prochaine fusion
-// dans la PWA défaire le correctif.
+// CE FICHIER EST LA SEULE SOURCE, ET IL PART EN PRODUCTION À CHAQUE FUSION SUR
+// `main` : `deploy.yml` le publie sur le projet (job `deploy-firebase` du
+// réutilisable du parc). miss-ticket en gardait une copie et un second workflow,
+// jamais abouti ; tous deux sont retirés depuis le 01/10/2026, pour qu'un seul
+// chemin publie. Les règles changent avec le code de la PWA qui doit les
+// respecter, dans la même PR.
 //
 // QUI PASSE PAR CES RÈGLES : la PWA seule, en connexion anonyme, par le SDK
 // client. Le desktop, tant qu'il écrivait dans Firestore (jusqu'au 21/05/2026),
