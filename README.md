@@ -53,10 +53,10 @@ La PWA communique avec l'application desktop via Firebase (Firestore) :
   commande hors de la liste ci-dessus ou tout champ imprévu. Un mot de passe ne
   transite jamais par Firestore.
 
-Les règles (`firestore.rules`) sont publiées sur le projet Firebase à chaque
-fusion sur `main`, par le job `deploy-firebase` de `deploy.yml`. Le dépôt
-miss-ticket en garde une copie (`firebase/firestore.rules`) qui doit rester
-identique.
+Les règles (`firestore.rules`) et les index (`firestore.indexes.json`) sont
+publiés sur le projet Firebase à chaque fusion sur `main`, par le job
+`deploy-firebase` de `deploy.yml`. C'est le seul chemin : depuis le 01/10/2026,
+miss-ticket n'en garde plus de copie ni de workflow de déploiement.
 
 ## 💾 Ce que la PWA garde, et où
 
