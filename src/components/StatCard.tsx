@@ -34,10 +34,7 @@ export function StatCard({ label, value, icon, color }: StatCardProps) {
           backgroundColor:
             color === 'var(--text-primary)'
               ? 'var(--bg-tertiary)'
-              : color
-                  .replace(')', ', 0.1)')
-                  .replace('rgb', 'rgba')
-                  .replace('var(', 'var('),
+              : color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
