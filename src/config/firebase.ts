@@ -1,6 +1,10 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { initializeAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from 'firebase/auth';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 
 const log = createLogger('config');
@@ -42,6 +46,20 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+/*
+ * LA SESSION EST GARDÉE SUR L'APPAREIL.
+ *
+ * Elle valait `persistence: undefined` — « PWA gère sa propre persistance »,
+ * et rien ne la gérait : la session vivait en MÉMOIRE. Relevé le 05/11/2026,
+ * chaque rechargement ramenait à l'écran de connexion, et `signInWithPseudo`
+ * ouvrait un NOUVEL uid anonyme. Or `useDesktops` filtre
+ * `where('userId', '==', uid)` : les postes appariés disparaissaient, même en
+ * ligne.
+ *
+ * IndexedDB d'abord (la persistance de `getAuth`), `localStorage` en repli
+ * quand IndexedDB est refusé. Hors ligne, la session se relit sans réseau ;
+ * `signOut` (menu utilisateur) l'efface.
+ */
 export const auth = initializeAuth(app, {
-  persistence: undefined, // PWA gère sa propre persistance
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
 });

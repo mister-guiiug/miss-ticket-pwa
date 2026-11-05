@@ -8,7 +8,7 @@ Vous choisissez un pseudo, puis vous appairez un poste en scannant le QR code qu
 
 ## Vos données
 
-La connexion est anonyme, par Firebase (Google) : ni e-mail ni mot de passe, seulement un pseudo, et elle ne survit pas à un rechargement. Firestore garde votre profil (pseudo et dates), la fiche des postes appairés, l'état des jetons d'appairage et les commandes d'arrêt. L'historique des sessions terminées reste dans le navigateur ; il note l'adresse e-mail du compte de chaque session et l'adresse du concert. Sentry (région européenne) signale les erreurs dès l'ouverture, sans demande de consentement ; PostHog (nuage européen) ne mesure l'audience qu'après votre accord.
+La connexion est anonyme, par Firebase (Google) : ni e-mail ni mot de passe, seulement un pseudo, gardé dans le navigateur jusqu'à la déconnexion. Firestore garde votre profil (pseudo et dates), la fiche des postes appairés, l'état des jetons d'appairage et les commandes d'arrêt. L'historique des sessions terminées reste dans le navigateur ; il note l'adresse e-mail du compte de chaque session et l'adresse du concert. Sentry (région européenne) signale les erreurs dès l'ouverture, sans demande de consentement ; PostHog (nuage européen) ne mesure l'audience qu'après votre accord.
 
 ## Prix
 

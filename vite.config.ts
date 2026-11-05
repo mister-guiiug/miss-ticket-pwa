@@ -41,7 +41,8 @@ export default defineConfig(({ command }) => {
        * l'autre et partagé avec d'autres paquets : `globIgnores` n'aurait plus
        * eu de cible fiable pour l'exclure du précache.
        *
-       * D'où les deux options ensemble : `manualChunks` donne le NOM,
+       * D'où les deux options ensemble : le groupe `sentry` (`codeSplitting`,
+       * plus bas ; c'était `manualChunks`) donne le NOM,
        * `resolveDependencies` retire le morceau du PRÉCHARGEMENT. Mesuré
        * ensuite : 278,1 kB préchargés, morceau `sentry-*` présent, absent de
        * `sw.js`.
@@ -75,10 +76,44 @@ export default defineConfig(({ command }) => {
             chunk.name === 'sentry'
               ? 'assets/sentry.js'
               : 'assets/[name]-[hash].js',
-          manualChunks(id: string) {
-            return id.replace(/\\/g, '/').includes('/@sentry/')
-              ? 'sentry'
-              : undefined;
+          /*
+           * REACT HORS DU MORCEAU SENTRY, PAR UN GROUPE QUI PASSE AVANT LUI.
+           *
+           * Le morceau était posé par `manualChunks`, que Rolldown traduit en
+           * un groupe de `codeSplitting`… qui capture aussi, par défaut
+           * (`includeDependenciesRecursively`), les DÉPENDANCES des modules
+           * qu'il prend. `@sentry/react` importe `react` : React est parti dans
+           * `sentry.js` (450 kB, `react.transitional.element` dedans), et
+           * l'entrée a commencé par `import{n}from"./sentry.js"`. Ce fichier
+           * étant hors du précache, le site ne démarrait plus hors ligne —
+           * constaté en production le 05/11/2026, rejoué depuis par
+           * `e2e/hors-ligne.spec.ts`. Les applications du parc qui rangent
+           * React à part (`react-vendor`) y échappaient sans le savoir.
+           *
+           * Le groupe `react`, de priorité plus haute, prend React le premier ;
+           * le groupe `sentry` ne peut plus l'emporter. React est la seule
+           * dépendance que Sentry partage avec l'application : c'est son pair.
+           *
+           * LA RÉCURSION EST GARDÉE, et c'est voulu. Coupée
+           * (`includeDependenciesRecursively: false`), elle laissait
+           * `web-vitals` — dépendance de `@sentry/browser-utils` — dans un
+           * morceau à part, avec la façade de l'`import()` : ce morceau
+           * importait `sentry.js`, qui l'importait en retour. Un cycle entre
+           * morceaux, mesuré le 05/11/2026 sur mister-qowa, et que seul un
+           * DSN posé aurait exécuté.
+           */
+          codeSplitting: {
+            groups: [
+              {
+                name: 'react',
+                test: /[\\/]node_modules[\\/]react[\\/]/,
+                priority: 1,
+              },
+              {
+                name: 'sentry',
+                test: /[\\/]node_modules[\\/]@sentry[\\/]/,
+              },
+            ],
           },
         },
       },

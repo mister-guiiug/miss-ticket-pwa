@@ -2,7 +2,7 @@
 title: Télécommander Miss Ticket depuis le téléphone : mode d'emploi
 description: Relier un téléphone à Miss Ticket desktop pour suivre et arrêter ses sessions : jumelage par QR code, historique local, limites, et l'état actuel du lien.
 date: 2026-09-27
-updated: 2026-09-29
+updated: 2026-11-05
 answer: La PWA Miss Ticket est la télécommande de Miss Ticket desktop. Après un jumelage par QR code, elle affiche les postes et leurs sessions et peut en arrêter une, ou toutes. Elle ne lance ni n'achète rien. Depuis le 21 mai 2026, le desktop ne se connecte plus au service qui les relie, donc le jumelage n'aboutit pas.
 ---
 
@@ -55,7 +55,7 @@ Les commandes d'arrêt partent vers le desktop. Le desktop exécute et republie 
 ## Limites utiles à connaître
 
 - **Réseau** : le jumelage et les commandes passent par Firestore, un service en ligne. Le téléphone et le poste ont besoin d'Internet, pas d'être sur le même Wi-Fi.
-- **Rechargement de la page mobile** : la connexion anonyme n'est gardée qu'en mémoire. Après un rechargement, il faut rechoisir un pseudo, ce qui crée un nouveau compte anonyme, puis jumeler de nouveau ses postes.
+- **Rechargement de la page mobile** : la connexion anonyme est gardée dans le navigateur. Après un rechargement, on retrouve son pseudo et ses postes appairés. Elle se perd à la déconnexion, ou si l'on efface les données du site : rechoisir un pseudo crée alors un nouveau compte anonyme, et il faut jumeler de nouveau ses postes.
 - **Plusieurs desktops** : vous pouvez appairer plusieurs postes sur le même téléphone ; chaque commande cible le desktop choisi dans la liste.
 - **Installation PWA** : facultative. « Ajouter à l'écran d'accueil » évite de retaper l'URL et garde la télécommande à portée, sans changer le rôle de l'app.
 
@@ -71,7 +71,7 @@ Non. Le jumelage et les commandes passent par Firestore, un service en ligne de 
 
 ### Que se passe-t-il si je recharge la page mobile ?
 
-La connexion anonyme, gardée en mémoire, est perdue. Il faut rechoisir un pseudo, ce qui ouvre un nouveau compte anonyme, puis jumeler de nouveau vos postes avec un nouveau QR code affiché sur le desktop.
+Rien n'est perdu : la connexion anonyme est gardée dans le navigateur, et vous retrouvez votre pseudo et vos postes appairés. Elle ne disparaît qu'à la déconnexion, ou si vous effacez les données du site. Rechoisir un pseudo ouvre alors un nouveau compte anonyme, et il faut jumeler de nouveau vos postes avec un nouveau QR code affiché sur le desktop.
 
 ### Pourquoi l'historique ne suit-il pas d'un téléphone à l'autre ?
 
@@ -88,5 +88,5 @@ Oui, depuis l'écran Sessions du desktop concerné : l'action **Arrêter tout** 
 ## Sources
 
 - [Authentification anonyme, Firebase](https://firebase.google.com/docs/auth/web/anonymous-auth) : des comptes anonymes temporaires.
-- [Persistance de la connexion, Firebase](https://firebase.google.com/docs/auth/web/auth-state-persistence) : une connexion gardée en mémoire disparaît au rechargement.
+- [Persistance de la connexion, Firebase](https://firebase.google.com/docs/auth/web/auth-state-persistence) : une connexion gardée dans le navigateur (`local`) survit au rechargement et à la fermeture de l'onglet.
 - [localStorage, MDN](https://developer.mozilla.org/fr/docs/Web/API/Window/localStorage) : des données propres à l'origine, sans date d'expiration.
