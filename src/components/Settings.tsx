@@ -22,6 +22,7 @@ import {
   useThemeContext,
 } from '@mister-guiiug/dev-pwa-config/react';
 import { ConsentSection } from '@mister-guiiug/dev-pwa-config/react/consent-section';
+import { PrivacyNotice } from '@mister-guiiug/dev-pwa-config/react/privacy-notice';
 import {
   SPONSOR_URL,
   repoUrl,
@@ -527,6 +528,12 @@ export function Settings({ user, onClose }: SettingsProps) {
                 <span>{t('common.clear')}</span>
               </button>
             }
+          />
+          <PrivacyNotice
+            env={import.meta.env}
+            headingLevel={3}
+            className="settings-consent"
+            titleClassName="settings-consent__title"
           />
           {/* Revenir sur son choix de mesure d'audience : le retrait se fait
               ici, en un clic (RGPD, art. 7.3). Mêmes clé et chargeur que le
