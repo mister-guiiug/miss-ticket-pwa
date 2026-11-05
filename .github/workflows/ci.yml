@@ -31,8 +31,9 @@ jobs:
       # une dette. Mesuré le 19/09/2026 avec la commande exacte du
       # réutilisable : 1 test (la passe axe-core du gabarit), 5 s, vert.
       #
-      # Pas de `e2e-grep` : le défaut du socle atteint le seul fichier de spec,
-      # et la suite entière ne joue pas un test de plus.
+      # Pas de `e2e-grep` : le défaut du socle atteint les deux fichiers de spec
+      # (axe-core, rechargement hors ligne), et la suite entière ne joue pas un
+      # test de plus.
       run-e2e: true
       # Second avis TypeScript 7, NON BLOQUANT. La 6 reste la référence : c'est
       # elle que typescript-eslint résout, et il refuse la 7.0 par une assertion

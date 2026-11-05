@@ -45,11 +45,11 @@ export const messages = {
     connection: {
       onlineTooltip: 'Connecté à Firestore et WebSocket',
       // CE TEXTE ÉTAIT FAUX : « données mises en cache ». Firestore est
-      // initialisé par un `getFirestore(app)` nu, donc sur le cache MÉMOIRE —
-      // rien ne survit à un rechargement — et `initializeAuth` reçoit
-      // `persistence: undefined`, donc la session non plus. Promettre un cache
-      // qui n'existe pas est pire que de ne rien dire : l'utilisateur ferme
-      // l'onglet en confiance.
+      // initialisé par un `getFirestore(app)` nu, donc sur le cache MÉMOIRE :
+      // rien ne survit à un rechargement. Seule la session Auth est gardée
+      // sur l'appareil (depuis le 05/11/2026, `config/firebase.ts`), pas les
+      // données. Promettre un cache qui n'existe pas est pire que de ne rien
+      // dire : l'utilisateur ferme l'onglet en confiance.
       offlineTooltip: 'Hors ligne — aucune commande ne part',
       // Le bandeau du shell. Il ne dit pas « hors ligne » tout court : ce que
       // l'utilisateur doit savoir, c'est que les commandes qu'il enverrait
