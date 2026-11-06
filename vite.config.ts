@@ -4,7 +4,13 @@ import react from '@vitejs/plugin-react';
 import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
-import { NAVIGATE_FALLBACK_DENY_FILES } from '@mister-guiiug/dev-pwa-config/vite-pwa';
+import {
+  NAVIGATE_FALLBACK_DENY_FILES,
+  sentryChunkFileNames,
+  sentryChunkGroups,
+  sentryGlobIgnores,
+  withoutSentryPreload,
+} from '@mister-guiiug/dev-pwa-config/vite-pwa';
 
 export default defineConfig(({ command }) => {
   // LE SITE VIT SOUS `/miss-ticket-pwa/`, ET LES ASSETS DOIVENT LE SAVOIR.
@@ -27,94 +33,15 @@ export default defineConfig(({ command }) => {
 
   return {
     build: {
-      /*
-       * NOMMER N'EST PAS PRÉCHARGER, et ici il a fallu séparer les deux.
-       *
-       * Cette app n'avait aucun `manualChunks`. En ajouter un, même pour la
-       * seule ligne Sentry, l'a fait entrer dans la liste de `modulepreload`
-       * de l'entrée : mesuré le 16/09/2026, 435,4 kB préchargés au lieu de
-       * 280,1. Le `import()` paresseux était défait par le fait même de
-       * nommer le morceau — l'inverse de ce qu'on cherchait.
-       *
-       * Retirer la règle rendait bien Sentry asynchrone, mais son morceau
-       * reprenait un nom automatique (`esm-*`), instable d'une version à
-       * l'autre et partagé avec d'autres paquets : `globIgnores` n'aurait plus
-       * eu de cible fiable pour l'exclure du précache.
-       *
-       * D'où les deux options ensemble : le groupe `sentry` (`codeSplitting`,
-       * plus bas ; c'était `manualChunks`) donne le NOM,
-       * `resolveDependencies` retire le morceau du PRÉCHARGEMENT. Mesuré
-       * ensuite : 278,1 kB préchargés, morceau `sentry-*` présent, absent de
-       * `sw.js`.
-       */
-      modulePreload: {
-        resolveDependencies: (_fichier, deps) =>
-          deps.filter(d => !/(^|\/)sentry(-[\w-]+)?\.js$/.test(d)),
-      },
+      // Le morceau Sentry hors des préchargements : socle (`vite-pwa`, 6.32.0).
+      modulePreload: { resolveDependencies: withoutSentryPreload },
       rollupOptions: {
         output: {
-          /*
-           * LE MORCEAU SENTRY GARDE SON NOM, SANS EMPREINTE — parce qu'il est
-           * exclu du précache (`globIgnores` plus bas) et qu'une URL empreintée
-           * y meurt à chaque déploiement.
-           *
-           * Le service worker sert la coquille précachée jusqu'à ce que
-           * l'utilisateur accepte la mise à jour ; cette coquille demande
-           * l'ANCIENNE empreinte, que le déploiement suivant a supprimée de
-           * `assets/`. Mesuré en production sur mister-qowa le 22/09/2026 :
-           * HTTP 404, « Échec du chargement pour le module » dans la console.
-           * `initSentry` avale l'échec (son `try/catch`), donc l'application ne
-           * casse pas — elle rapporte ses erreurs à personne, sans le dire.
-           *
-           * Rien n'est perdu au cache : GitHub Pages répond
-           * `Cache-Control: max-age=600` sur TOUS les fichiers, empreinte ou pas.
-           *
-           * `pwa-doctor` tient l'invariant depuis le socle 6.8.0
-           * (règle `chunk-hors-precache`).
-           */
-          chunkFileNames: chunk =>
-            chunk.name === 'sentry'
-              ? 'assets/sentry.js'
-              : 'assets/[name]-[hash].js',
-          /*
-           * REACT HORS DU MORCEAU SENTRY, PAR UN GROUPE QUI PASSE AVANT LUI.
-           *
-           * Le morceau était posé par `manualChunks`, que Rolldown traduit en
-           * un groupe de `codeSplitting`… qui capture aussi, par défaut
-           * (`includeDependenciesRecursively`), les DÉPENDANCES des modules
-           * qu'il prend. `@sentry/react` importe `react` : React est parti dans
-           * `sentry.js` (450 kB, `react.transitional.element` dedans), et
-           * l'entrée a commencé par `import{n}from"./sentry.js"`. Ce fichier
-           * étant hors du précache, le site ne démarrait plus hors ligne —
-           * constaté en production le 05/11/2026, rejoué depuis par
-           * `e2e/hors-ligne.spec.ts`. Les applications du parc qui rangent
-           * React à part (`react-vendor`) y échappaient sans le savoir.
-           *
-           * Le groupe `react`, de priorité plus haute, prend React le premier ;
-           * le groupe `sentry` ne peut plus l'emporter. React est la seule
-           * dépendance que Sentry partage avec l'application : c'est son pair.
-           *
-           * LA RÉCURSION EST GARDÉE, et c'est voulu. Coupée
-           * (`includeDependenciesRecursively: false`), elle laissait
-           * `web-vitals` — dépendance de `@sentry/browser-utils` — dans un
-           * morceau à part, avec la façade de l'`import()` : ce morceau
-           * importait `sentry.js`, qui l'importait en retour. Un cycle entre
-           * morceaux, mesuré le 05/11/2026 sur mister-qowa, et que seul un
-           * DSN posé aurait exécuté.
-           */
-          codeSplitting: {
-            groups: [
-              {
-                name: 'react',
-                test: /[\\/]node_modules[\\/]react[\\/]/,
-                priority: 1,
-              },
-              {
-                name: 'sentry',
-                test: /[\\/]node_modules[\\/]@sentry[\\/]/,
-              },
-            ],
-          },
+          // Le morceau Sentry, nom sans empreinte : socle (`vite-pwa`, 6.32.0).
+          chunkFileNames: sentryChunkFileNames,
+          // React avant Sentry, sinon `@sentry/react` l'entraîne dans sentry.js,
+          // hors du précache : socle (`vite-pwa`, 6.32.0).
+          codeSplitting: { groups: sentryChunkGroups() },
         },
       },
     },
@@ -163,17 +90,8 @@ export default defineConfig(({ command }) => {
         ],
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,json}'],
-          /*
-           * LE MORCEAU SENTRY HORS DU PRÉCACHE, sans quoi le découpage ne servirait
-           * à rien : Workbox ramasse TOUT le JS émis, `import()` ou pas. Mesuré le
-           * 16/09/2026 sur la production de deux apps du parc, 345 et 463 KiB de SDK
-           * téléchargés par chaque visiteur, sans qu'aucun DSN soit posé.
-           *
-           * Hors précache, il est cherché sur le réseau à la première erreur, et
-           * jamais si l'observabilité reste éteinte : rapporter une erreur demande
-           * le réseau.
-           */
-          globIgnores: ['**/sentry.js', '**/sentry-*.js'],
+          // Le morceau Sentry hors du précache : socle (`vite-pwa`, 6.32.0).
+          globIgnores: sentryGlobIgnores(),
           navigateFallback: 'index.html',
           // Un fichier (sitemap.xml, llms.txt…) va au réseau, pas à index.html.
           navigateFallbackDenylist: [NAVIGATE_FALLBACK_DENY_FILES, /^\/ws/],
