@@ -43,14 +43,16 @@ describe('FamilyLinks — signaler un problème', () => {
     ).toBeInTheDocument();
   });
 
-  it('recalcule l’URL au clic : l’écran courant y entre', () => {
+  it('recalcule l’URL au clic : l’écran courant y entre, sans la valeur de ses paramètres', () => {
     renderLinks('fr');
     const link = screen.getByRole('link', { name: 'Signaler un problème' });
     window.history.replaceState(null, '', '/?vue=historique');
     // jsdom ne navigue pas : le clic ne fait que réécrire le `href`.
     fireEvent.click(link);
-    expect(decodeURIComponent(link.getAttribute('href') ?? '')).toContain(
-      'vue=historique'
-    );
+    const href = decodeURIComponent(link.getAttribute('href') ?? '');
+    // Depuis le socle 6.34.0, un paramètre garde son NOM et perd sa valeur :
+    // l'issue est publique, et une valeur peut être un jeton.
+    expect(href).toContain('/?vue=…');
+    expect(href).not.toContain('historique');
   });
 });
