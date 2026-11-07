@@ -234,6 +234,7 @@ export const messages = {
       clearing: 'Suppression...',
       linkSource: 'Code source',
       linkSponsor: "M'offrir un café",
+      linkIssues: 'Signaler un problème',
     },
     notifications: {
       purchaseTitle: "Page d'achat atteinte !",
@@ -463,6 +464,7 @@ export const messages = {
       clearing: 'Clearing...',
       linkSource: 'Source code',
       linkSponsor: 'Buy me a coffee',
+      linkIssues: 'Report a problem',
     },
     notifications: {
       purchaseTitle: 'Purchase page reached!',
