@@ -28,6 +28,7 @@ import {
   repoUrl,
 } from '@mister-guiiug/dev-pwa-config/apps-catalog';
 import { useI18n, type Locale } from '../i18n';
+import { IssueReportLink } from './FamilyLinks';
 import { createLogger } from '@mister-guiiug/dev-pwa-config/logger';
 import {
   clearAppData,
@@ -764,6 +765,7 @@ export function Settings({ user, onClose }: SettingsProps) {
           <Coffee size={15} aria-hidden="true" />
           {t('settings.linkSponsor')}
         </a>
+        <IssueReportLink />
       </div>
     </div>
   );

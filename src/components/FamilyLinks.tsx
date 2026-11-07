@@ -1,9 +1,12 @@
-import { Coffee } from 'lucide-react';
+import { Bug, Coffee } from 'lucide-react';
 import {
   SPONSOR_URL,
   repoUrl,
 } from '@mister-guiiug/dev-pwa-config/apps-catalog';
+import { currentIssueReportUrl } from '@mister-guiiug/dev-pwa-config/issue-report';
 import { useI18n } from '../i18n';
+
+const ISSUE_OPTIONS = { repoUrl: repoUrl('miss-ticket-pwa') };
 
 const LINK: React.CSSProperties = {
   display: 'inline-flex',
@@ -15,8 +18,40 @@ const LINK: React.CSSProperties = {
 };
 
 /**
- * Les deux liens de la règle famille — code source et soutien — rendus par la
- * coquille, donc sur l'écran d'accueil comme partout ailleurs.
+ * « SIGNALER UN PROBLÈME », sur l'accueil et dans les Réglages — les deux
+ * endroits où vivent déjà le code source et le soutien.
+ *
+ * Par `issue-report` du socle et non par la prop `issues` d'`AppFooter` : ces
+ * liens sont maison, et adopter le pied de page du socle aurait dupliqué le
+ * lien source et le bouton café qu'ils rendent déjà (même choix que
+ * mister-puzzle et miss-badminton). L'URL ouvre le gabarit `bug.yml` du
+ * compte, préremplie avec la version, le commit, l'écran et le navigateur.
+ *
+ * L'URL est RECALCULÉE AU CLIC, comme le fait `AppFooter` : cette application
+ * bascule d'écran par état, sans que ces liens se rendent à nouveau. Le
+ * `href` du rendu reste le repli d'un clic milieu.
+ */
+export function IssueReportLink() {
+  const { t } = useI18n();
+  return (
+    <a
+      href={currentIssueReportUrl(ISSUE_OPTIONS)}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={LINK}
+      onClick={event => {
+        event.currentTarget.href = currentIssueReportUrl(ISSUE_OPTIONS);
+      }}
+    >
+      <Bug size={15} aria-hidden="true" />
+      {t('settings.linkIssues')}
+    </a>
+  );
+}
+
+/**
+ * Les liens de la règle famille — code source, soutien et signalement — rendus
+ * par la coquille, sur l'écran d'accueil.
  *
  * Ils vivaient au bas de l'écran Réglages, qui s'ouvre par-dessus l'app :
  * qui ne l'a jamais ouvert n'a jamais vu d'où vient le code. La règle famille
@@ -64,6 +99,7 @@ export function FamilyLinks() {
         <Coffee size={15} aria-hidden="true" />
         {t('settings.linkSponsor')}
       </a>
+      <IssueReportLink />
     </div>
   );
 }
