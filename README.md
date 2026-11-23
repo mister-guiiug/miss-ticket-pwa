@@ -6,6 +6,10 @@
 ![Vite](https://img.shields.io/badge/Vite-8-purple.svg)
 ![PWA](https://img.shields.io/badge/PWA-Enabled-green.svg)
 
+## Guides
+
+- [Télécommander Miss Ticket depuis le téléphone](https://mister-guiiug.github.io/miss-ticket-pwa/telecommander-miss-ticket.html)
+
 ## 📱 À Propos
 
 Cette PWA est conçue pour piloter l'application desktop **Miss Ticket** à
